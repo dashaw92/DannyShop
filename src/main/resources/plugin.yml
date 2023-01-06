@@ -1,6 +1,6 @@
 name: DannyShop
 main: me.danny.shop.DannyShop
-version: ${git_commit}
+version: "${git_commit}"
 author: Danny
 description: Danny's shop plugin for Spigot
 api-version: 1.19

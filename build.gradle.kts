@@ -1,9 +1,10 @@
 plugins {
     `java-library`
+    id("org.ajoberstar.grgit") version("5.0.0")
 }
 
 group = "me.daniel"
-version = "1.0.4"
+version = "${getHash()}-dev"
 val spigotVersion = "1.19.3-R0.1-SNAPSHOT"
 
 //tasks.withType<JavaCompile> {
@@ -24,4 +25,12 @@ repositories {
 
 dependencies {
     compileOnly("org.spigotmc:spigot-api:$spigotVersion")
+}
+
+fun getHash() = grgit.head().abbreviatedId ?: "unknown"
+
+tasks.named<Copy>("processResources") {
+    filesMatching("plugin.yml") {
+        expand("git_commit" to version)
+    }
 }
