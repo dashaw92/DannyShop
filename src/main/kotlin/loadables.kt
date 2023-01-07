@@ -1,15 +1,39 @@
 package me.danny.shop.data
 
+import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.inventory.ItemStack
+import org.bukkit.plugin.Plugin
 import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.serialize.TypeSerializer
 import org.spongepowered.configurate.serialize.TypeSerializerCollection
+import org.spongepowered.configurate.yaml.NodeStyle
+import org.spongepowered.configurate.yaml.YamlConfigurationLoader
+import java.io.File
 import java.io.StringReader
-import java.lang.IllegalArgumentException
 import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
+
+/**
+ * Represents the DannyShop, holding all items
+ * grouped by their respective categories
+ */
+data class Shop(var items: MutableMap<Category, MutableList<Item>>) {
+    companion object {
+        internal val CATEGORIES = mutableListOf<Category>()
+
+        fun addCategory(category: Category): Boolean = CATEGORIES.add(category)
+        fun getCategory(name: String): Category? = CATEGORIES.find { it.name == name }
+    }
+
+    fun addItem(item: Item) {
+        items.getOrDefault(item.category, mutableListOf()) += item
+    }
+
+    fun categories(): Collection<Category> = CATEGORIES
+    fun items(category: Category): Collection<Item> = items.getOrDefault(category, listOf())
+}
 
 /**
  * Categories are how items are grouped in DannyShop
@@ -19,8 +43,7 @@ import java.util.concurrent.TimeUnit
  *
  * Categories are entirely user-defined, there are no builtin categories.
  */
-//TODO Material display icon
-data class Category(val name: String)
+data class Category(val name: String, val display: Material)
 
 /**
  * Represents a sellable item in DannyShop.
@@ -63,20 +86,25 @@ data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: 
      * * Command - Commands that will target the player on purchase
      */
     sealed interface ItemType {
-        data class Material(val material: org.bukkit.Material) : ItemType {
+        data class Mat(val material: Material) : ItemType {
             override fun inner(): Any = material
+            override fun display(): ItemStack = ItemStack(material, 1)
         }
         data class Item(val item: ItemStack) : ItemType {
             override fun inner(): Any = item
+            override fun display(): ItemStack = item
         }
         data class Exp(val exp: Double) : ItemType {
             override fun inner(): Any = exp
+            override fun display(): ItemStack = me.danny.shop.inv.Item.makeItem(Material.EXPERIENCE_BOTTLE, "${ChatColor.GOLD}%.0f Experience".format(exp))
         }
         data class Command(val command: String) : ItemType {
             override fun inner(): Any = command
+            override fun display(): ItemStack = me.danny.shop.inv.Item.makeItem(Material.COMMAND_BLOCK, "${ChatColor.BLUE}Run command", command)
         }
 
         fun inner(): Any
+        fun display(): ItemStack
     }
 
     /**
@@ -180,7 +208,7 @@ object ItemTypeSerializer : TypeSerializer<Item.ItemType> {
         val itemType = node.node("type").string!!
         val obj = node.node("object")
         return when(itemType.lowercase()) {
-            "material" -> Item.ItemType.Material(obj.get(Material::class.java)!!)
+            "material" -> Item.ItemType.Mat(obj.get(Material::class.java)!!)
             "item" -> Item.ItemType.Item(obj.get(ItemStack::class.java)!!)
             "experience" -> Item.ItemType.Exp(obj.double)
             "command" -> Item.ItemType.Command(obj.string!!)
@@ -193,7 +221,7 @@ object ItemTypeSerializer : TypeSerializer<Item.ItemType> {
 
         val typeNode = node.node("type")
         when(obj) {
-            is Item.ItemType.Material -> typeNode.set("material")
+            is Item.ItemType.Mat -> typeNode.set("material")
             is Item.ItemType.Item -> typeNode.set("item")
             is Item.ItemType.Exp -> typeNode.set("experience")
             is Item.ItemType.Command -> typeNode.set("command")
@@ -284,7 +312,6 @@ object QuantitiesSerializer : TypeSerializer<Item.Quantities> {
     }
 
 }
-
 object ItemSerializer : TypeSerializer<Item> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Item {
         if(node == null) throw IllegalArgumentException("what")
@@ -294,7 +321,7 @@ object ItemSerializer : TypeSerializer<Item> {
         val cost = node.node("cost").get(Item.Cost::class.java)!!
         val cooldown = node.node("cooldown").get(Item.Cooldown::class.java)!!
         val quantities = node.node("quantities").get(Item.Quantities::class.java)!!
-        val category = Category(node.node("category").string!!)
+        val category = Shop.getCategory(node.node("category").string!!)!!
 
         return Item(iid, item, cost, cooldown, quantities, category)
     }
@@ -312,20 +339,83 @@ object ItemSerializer : TypeSerializer<Item> {
         }
     }
 }
+object CategorySerializer : TypeSerializer<Category> {
+    override fun deserialize(type: Type?, node: ConfigurationNode?): Category {
+        if (node == null) throw IllegalArgumentException("what")
+
+        val name = node.node("name").string!!
+        val icon = node.node("icon").get(Material::class.java)!!
+        return Category(name, icon)
+    }
+
+    override fun serialize(type: Type?, obj: Category?, node: ConfigurationNode?) {
+        if(obj == null || node == null) return
+
+        node.node("name").set(obj.name)
+        node.node("icon").set(obj.display)
+    }
+
+}
+object ShopSerializer : TypeSerializer<Shop> {
+    override fun deserialize(type: Type?, node: ConfigurationNode?): Shop {
+        if(node == null) throw IllegalArgumentException("what")
+
+        val map = mutableMapOf<Category, MutableList<Item>>()
+        node.node("categories").getList(Category::class.java)?.forEach(Shop::addCategory)
+        node.node("items").getList(Item::class.java)!!
+            .map { it!! }
+            .groupByTo(map) { it.category }
+        return Shop(map)
+    }
+
+    override fun serialize(type: Type?, obj: Shop?, node: ConfigurationNode?) {
+        if(obj == null || node == null) return
+
+        node.node("categories").setList(Category::class.java, obj.categories().toList())
+        node.node("items").setList(Item::class.java, obj.items.values.flatten())
+    }
+}
 
 object DannyShopLoadables {
 
+    private lateinit var loader: YamlConfigurationLoader
     /**
      * Exposes all custom type serializes required to successfully load
      * and save a DannyShop Item to a config file.
      */
-    fun collection(): TypeSerializerCollection = TypeSerializerCollection.builder()
+    private fun collection(): TypeSerializerCollection = TypeSerializerCollection.builder()
         .register(ItemStack::class.java, ItemStackSerializer)
+        .register(Category::class.java, CategorySerializer)
         .register(Item.ItemType::class.java, ItemTypeSerializer)
         .register(Item.Cost::class.java, CostSerializer)
         .register(Item.Cooldown::class.java, CooldownSerializer)
         .register(Item.Quantities::class.java, QuantitiesSerializer)
         .register(Item::class.java, ItemSerializer)
+        .register(Shop::class.java, ShopSerializer)
         .build()
 
+
+    /**
+     * Loads the shop from shop.yml
+     */
+    fun loadShop(plugin: Plugin): Shop {
+        loader = YamlConfigurationLoader.builder()
+            .defaultOptions { opts ->
+                opts.serializers { build -> build.registerAll(collection()) }
+            }
+            .nodeStyle(NodeStyle.BLOCK)
+            .path(File(plugin.dataFolder, "shop.yml").toPath())
+            .build()
+        val root = loader.load()
+        return root.node("shop").get(Shop::class.java) ?: Shop(mutableMapOf())
+    }
+
+    fun saveShop(shop: Shop) {
+        if(!::loader.isInitialized) return
+        val root = loader.load()
+        root.set(null)
+        root.node("shop").set(shop)
+//        root.node("test").set(Category("Nature", Material.GRASS_BLOCK))
+        loader.save(root)
+    }
 }
