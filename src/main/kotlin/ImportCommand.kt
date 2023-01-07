@@ -8,8 +8,8 @@ import org.bukkit.inventory.ItemStack
 object ImportCommand {
 
     @Suppress("DEPRECATION")
-    val WAND_KEY = NamespacedKey("dannyshop", "wand_item")
-    val IMPORT_WAND = Item.attachMarker(
+    private val WAND_KEY = NamespacedKey("dannyshop", "wand_item")
+    private val IMPORT_WAND = Item.attachMarker(
         Item.makeItem(
             Material.WOODEN_HOE, "${ChatColor.DARK_AQUA}DannyShop Import Wand",
             "${ChatColor.YELLOW}Left click a named chest to import the items",
