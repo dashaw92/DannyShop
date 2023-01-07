@@ -5,3 +5,6 @@ author: Danny
 description: Danny's shop plugin for Spigot
 api-version: 1.19
 website: https://github.com/dashaw92/DannyShop
+libraries:
+  - org.jetbrains.kotlin:kotlin-stdlib:1.8.0
+  - org.spongepowered:configurate-yaml:4.1.2
