@@ -1,0 +1,14 @@
+* Paging of both categories and items in shop menu
+* Implement purchasing items from the shop
+  * Takes into account all options
+* Design interfaces for constructing a shop in-game (no one wants to edit the massive YAML object by hand)
+  * Bulk import from chest (by category) with worth.yml for automatic cost definitions
+* Permit editing items in game to customize options (cooldown, quantities, cost, etc)
+  * All options should be configurable in game
+* Add icons to commands and experience
+* Permit multiple commands in a Command Item
+* Searching and filtering
+  * Potentially advanced filtering with a drop-in conversation
+* Sign shop capability
+
+Spec: https://docs.google.com/document/d/1W131_vQ8vm9X_Oi58MBKZKCF4UnI9VSr-DvrZzrVqR0/
