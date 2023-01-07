@@ -159,16 +159,16 @@ object ItemStackSerializer : TypeSerializer<ItemStack> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): ItemStack {
         if(node == null) throw IllegalArgumentException("what")
 
-        val map = node.node("itemstack").string!!
-        return YamlConfiguration.loadConfiguration(StringReader(map)).getItemStack("item")!!
+        val map = node.string!!
+        return YamlConfiguration.loadConfiguration(StringReader(map)).getItemStack("itemstack")!!
     }
 
     override fun serialize(type: Type?, obj: ItemStack?, node: ConfigurationNode?) {
         if(obj == null || node == null) return
 
         val yml = YamlConfiguration()
-        yml.set("item", obj)
-        node.node("itemstack").set(yml.saveToString())
+        yml.set("itemstack", obj)
+        node.set(yml.saveToString())
     }
 
 
