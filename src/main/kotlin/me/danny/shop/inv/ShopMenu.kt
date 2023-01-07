@@ -24,10 +24,29 @@ class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "${ChatColor.GO
     }
 
     override fun build() {
+        if (shop.isEmpty()) {
+            inv = Bukkit.createInventory(this, 27, "${ChatColor.DARK_RED}DannyShop")
+            val filler = Item.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
+            val notice = Item.makeItem(
+                Material.REDSTONE_TORCH, "${ChatColor.GOLD}The shop is empty!",
+                "${ChatColor.YELLOW}But don't worry! Creating a shop is simple!",
+                "${ChatColor.YELLOW}Check out the command ${ChatColor.LIGHT_PURPLE}/dannyshop import${ChatColor.YELLOW}.",
+            )
+            (0 until inv.size).forEach { inv.setItem(it, filler) }
+            inv.setItem(13, notice)
+            viewer.openInventory(inv)
+            return
+        }
+
         val page = itemPage.page() + 1
         val maxPages = itemPage.numPages()
-        inv = Bukkit.createInventory(this,6 * 9,
-            "${ChatColor.DARK_RED}DannyShop ${ChatColor.GRAY}- ${ChatColor.BLUE}${categoryPage.selected().name} ${ChatColor.DARK_GRAY}(%d/%d)".format(page, maxPages))
+        inv = Bukkit.createInventory(
+            this, 6 * 9,
+            "${ChatColor.DARK_RED}DannyShop ${ChatColor.GRAY}- ${ChatColor.BLUE}${categoryPage.selected().name} ${ChatColor.DARK_GRAY}(%d/%d)".format(
+                page,
+                maxPages
+            )
+        )
 
         val catBorder = Item.makeItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE, " ")
         listOf(1, 10, 19, 28, 37, 46)
