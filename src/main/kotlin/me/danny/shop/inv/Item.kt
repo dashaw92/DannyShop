@@ -2,10 +2,12 @@ package me.danny.shop.inv
 
 import net.md_5.bungee.api.ChatColor
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.PotionMeta
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionData
 import org.bukkit.potion.PotionType
 import java.util.*
@@ -74,6 +76,28 @@ object Item {
         pm.basePotionData = PotionData(type)
         arrow.itemMeta = pm
         return arrow
+    }
+
+    fun hasMarker(item: ItemStack, key: NamespacedKey): Boolean = hasKey(item, key, PersistentDataType.BYTE)
+
+    fun attachMarker(item: ItemStack, key: NamespacedKey): ItemStack = attachKey(item, key, PersistentDataType.BYTE, 1)
+
+    fun <T, Z : Any> hasKey(item: ItemStack, key: NamespacedKey, type: PersistentDataType<T, Z>): Boolean {
+        val im = item.itemMeta!!
+        return im.persistentDataContainer.has(key, type)
+    }
+
+    fun <T, Z : Any> attachKey(
+        item: ItemStack,
+        key: NamespacedKey,
+        type: PersistentDataType<T, Z>,
+        value: Z
+    ): ItemStack {
+        val clone = item.clone()
+        val im = clone.itemMeta!!
+        im.persistentDataContainer.set(key, type, value)
+        clone.itemMeta = im
+        return clone
     }
 
     fun getPotionType(arrow: ItemStack): PotionType {

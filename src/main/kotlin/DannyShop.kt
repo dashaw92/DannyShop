@@ -1,10 +1,12 @@
 package me.danny.shop
 
 import Demo.items
+import ImportCommand
 import me.danny.shop.data.Category
 import me.danny.shop.data.DannyShopLoadables
 import me.danny.shop.data.Item
 import me.danny.shop.data.Shop
+import me.danny.shop.inv.ImportListener
 import me.danny.shop.inv.Menu
 import me.danny.shop.inv.MenuListener
 import me.danny.shop.inv.ShopMenu
@@ -25,6 +27,7 @@ class DannyShop : JavaPlugin() {
     override fun onEnable() {
         SHOP = DannyShopLoadables.loadShop(this)
         Bukkit.getPluginManager().registerEvents(MenuListener, this)
+        Bukkit.getPluginManager().registerEvents(ImportListener, this)
     }
 
     override fun onDisable() {
@@ -49,7 +52,9 @@ class DannyShop : JavaPlugin() {
                 buildSampleShop()
                 sender.sendMessage("Done! Check config!")
             }
+
             "open" -> ShopMenu(SHOP, sender)
+            "import" -> ImportCommand.onCommand(sender, args.sliceArray(2 until args.size))
         }
         return true
     }
@@ -64,9 +69,6 @@ class DannyShop : JavaPlugin() {
             Category("Redstone", Material.REDSTONE_BLOCK),
             Category("Building", Material.BIRCH_DOOR),
             Category("Food", Material.SWEET_BERRIES),
-//            Category("Test1", Material.STICK),
-//            Category("Test2", Material.STICKY_PISTON),
-//            Category("Test3", Material.PORKCHOP),
         )
         Shop.CATEGORIES.addAll(categories)
 

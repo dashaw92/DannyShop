@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit
  * Represents the DannyShop, holding all items
  * grouped by their respective categories
  */
-data class Shop(var items: MutableMap<Category, MutableList<Item>>) {
+data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
     companion object {
         internal val CATEGORIES = mutableListOf<Category>()
 
@@ -28,11 +28,12 @@ data class Shop(var items: MutableMap<Category, MutableList<Item>>) {
     }
 
     fun addItem(item: Item) {
-        items.getOrDefault(item.category, mutableListOf()) += item
+        items.computeIfAbsent(item.category) { mutableListOf() } += item
     }
 
     fun categories(): Collection<Category> = CATEGORIES
     fun items(category: Category): Collection<Item> = items.getOrDefault(category, listOf())
+    fun isEmpty(): Boolean = items.values.flatten().isEmpty()
 }
 
 /**

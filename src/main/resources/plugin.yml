@@ -4,6 +4,8 @@ version: "${git_commit}"
 author: Danny
 description: Danny's shop plugin for Spigot
 api-version: 1.19
+softdepend:
+  - Essentials
 website: https://github.com/dashaw92/DannyShop
 libraries:
   - org.jetbrains.kotlin:kotlin-stdlib:1.8.0

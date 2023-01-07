@@ -24,11 +24,13 @@ repositories {
     // You can declare any Maven/Ivy/file repository here.
     mavenCentral()
     maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven(url = "https://repo.essentialsx.net/releases/")
 }
 
 dependencies {
     compileOnly("org.spigotmc:spigot-api:$spigotVersion")
     compileOnly("org.spongepowered:configurate-yaml:4.1.2")
+    compileOnly("net.essentialsx:EssentialsX:2.19.0")
     implementation(kotlin("stdlib"))
 }
 
