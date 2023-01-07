@@ -11,11 +11,57 @@ import java.lang.IllegalArgumentException
 import java.lang.reflect.Type
 import java.util.concurrent.TimeUnit
 
+/**
+ * Categories are how items are grouped in DannyShop
+ * It does not matter what they are called, as long as the name
+ * fits inside an ItemStack's display name and there are no other
+ * categories with the same name.
+ *
+ * Categories are entirely user-defined, there are no builtin categories.
+ */
+//TODO Material display icon
 data class Category(val name: String)
+
+/**
+ * Represents a sellable item in DannyShop.
+ * An Item is composed of:
+ * * An IID (Item ID) - Unique ID to identify an item specifically
+ * * ItemType - Holder for one of several variants of item types
+ * * Cost - How much the item buys and sells for per unit
+ * * Cooldown - How often a player may purchase the item
+ * * Quantities - Details about sellable item quantities
+ * * Category - The group this item will belong to
+ */
 data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: Cooldown, val quantities: Quantities, val category: Category) {
 
-    data class IID(val id: String)
+    /**
+     * A unique String identifying this Item
+     * The only constraint placed on IIDs is that
+     * they are unique. Duplicate IIDs will cause
+     * undefined behavior.
+     */
+    data class IID(val id: String) {
+        companion object {
+            /**
+             * Systematically generate a new IID based off the current
+             * time and a pRNG.
+             */
+            fun generate(): IID {
+                System.nanoTime()
+                val now = System.currentTimeMillis()
+                val salt = (Math.random() * 1000).toInt()
+                return IID("%x%x".format(now, salt))
+            }
+        }
+    }
 
+    /**
+     * Models all possible sellable item types DannyShop supports:
+     * * Material - A basic material ItemStack with no attached data
+     * * Item - A custom ItemStack with arbitrary attached data
+     * * Exp - Experience that will be granted to the player on purchase
+     * * Command - Commands that will target the player on purchase
+     */
     sealed interface ItemType {
         data class Material(val material: org.bukkit.Material) : ItemType {
             override fun inner(): Any = material
@@ -33,15 +79,36 @@ data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: 
         fun inner(): Any
     }
 
+    /**
+     * Simple class wrapping the purchase and sell value of an item
+     */
     data class Cost(val buy: Double, val sell: Double)
 
-    sealed class Cooldown {
+    /**
+     * How often an item may be purchased
+     */
+    sealed interface Cooldown {
 
-        object None : Cooldown()
-        object Infinite : Cooldown()
-        data class Duration(val time: Time) : Cooldown()
+        /**
+         * The item has no cooldown and can be purchased as often as wanted
+         */
+        object None : Cooldown
 
-        sealed class Time(internal val time: Long, internal val base: TimeUnit, internal val suffix: String) {
+        /**
+         * This item can only be purchased one time
+         */
+        object Infinite : Cooldown
+
+        /**
+         * Once the item is purchased, the player must wait this amount of time
+         * before they may purchase it again
+         */
+        data class Duration(val time: Time) : Cooldown
+
+        /**
+         * The supported units of time Cooldown recognizes
+         */
+        sealed class Time(internal val time: Long, private val base: TimeUnit, internal val suffix: String) {
 
             data class Millis(val millis: Long) : Time(millis, TimeUnit.MILLISECONDS, "ms")
             data class Seconds(val seconds: Long) : Time(seconds, TimeUnit.SECONDS, "s")
@@ -56,9 +123,33 @@ data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: 
         }
     }
 
+    /**
+     * Permits customization of how much of an item can be purchased at once.
+     * * predefined - A list of predefined quantities the item is available in
+     * * allowed - What quantities are available for purchase
+     */
     data class Quantities(val predefined: List<Int>, val allowed: Allowed) {
         enum class Allowed {
+            /**
+             * The player may enter any number (within reason)
+             * to purchase that many units of the item.
+             * The predefined list in this case serves only as a convenience.
+             */
             Any,
+
+            /**
+             * The player can only purchase the item in amounts listed in the
+             * predefined list, they cannot enter a custom amount.
+             * The main purpose for this option is to support items that the player
+             * can only purchase N of one time:
+             * ```yaml
+             * ...:
+             *   cooldown: infinite
+             *   quantities:
+             *     predefined: [1]
+             *     allowed: Predefined
+             * ```
+             */
             Predefined
         }
     }
@@ -224,6 +315,10 @@ object ItemSerializer : TypeSerializer<Item> {
 
 object DannyShopLoadables {
 
+    /**
+     * Exposes all custom type serializes required to successfully load
+     * and save a DannyShop Item to a config file.
+     */
     fun collection(): TypeSerializerCollection = TypeSerializerCollection.builder()
         .register(ItemStack::class.java, ItemStackSerializer)
         .register(Item.ItemType::class.java, ItemTypeSerializer)
