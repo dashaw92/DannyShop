@@ -1,3 +1,5 @@
+package me.danny.shop.commands
+
 import me.danny.shop.inv.Item
 import org.bukkit.ChatColor
 import org.bukkit.Material

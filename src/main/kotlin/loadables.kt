@@ -44,7 +44,11 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
  *
  * Categories are entirely user-defined, there are no builtin categories.
  */
-data class Category(val name: String, val display: Material)
+data class Category(val name: String, var display: Material) {
+    fun changeDisplay(display: Material) {
+        this.display = display
+    }
+}
 
 /**
  * Represents a sellable item in DannyShop.
@@ -111,7 +115,10 @@ data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: 
     /**
      * Simple class wrapping the purchase and sell value of an item
      */
-    data class Cost(val buy: Double, val sell: Double)
+    sealed interface Cost {
+        object NotSet : Cost
+        data class Value(val buy: Double, val sell: Double) : Cost
+    }
 
     /**
      * How often an item may be purchased
@@ -234,18 +241,25 @@ object ItemTypeSerializer : TypeSerializer<Item.ItemType> {
 }
 object CostSerializer : TypeSerializer<Item.Cost> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Item.Cost {
-        if(node == null) throw IllegalArgumentException("what")
+        if (node == null) throw IllegalArgumentException("what")
+
+        if (node.string == "not set") return Item.Cost.NotSet
 
         val buy = node.node("buy").double
         val sell = node.node("sell").double
-        return Item.Cost(buy, sell)
+        return Item.Cost.Value(buy, sell)
     }
 
     override fun serialize(type: Type?, obj: Item.Cost?, node: ConfigurationNode?) {
-        if(obj == null || node == null) return
+        if (obj == null || node == null) return
 
-        node.node("buy").set(obj.buy)
-        node.node("sell").set(obj.sell)
+        when (obj) {
+            is Item.Cost.NotSet -> node.set("not set")
+            is Item.Cost.Value -> {
+                node.node("buy").set(obj.buy)
+                node.node("sell").set(obj.sell)
+            }
+        }
     }
 
 }

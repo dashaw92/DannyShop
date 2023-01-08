@@ -1,8 +1,8 @@
 package me.danny.shop.inv
 
-import ImportCommand
 import com.earth2me.essentials.Essentials
 import me.danny.shop.DannyShop
+import me.danny.shop.commands.ImportCommand
 import me.danny.shop.data.Category
 import me.danny.shop.data.Item
 import me.danny.shop.data.Shop
@@ -77,11 +77,11 @@ object ImportListener : Listener {
     }
 
     private fun getWorth(item: ItemStack): Item.Cost {
-        val plug = Bukkit.getPluginManager().getPlugin("Essentials") ?: return Item.Cost(Double.POSITIVE_INFINITY, 0.0)
+        val plug = Bukkit.getPluginManager().getPlugin("Essentials") ?: return Item.Cost.NotSet
         val ess = plug as Essentials
 
-        val buy = ess.worth.getPrice(ess, item)?.toDouble() ?: return Item.Cost(Double.POSITIVE_INFINITY, 0.0)
+        val buy = ess.worth.getPrice(ess, item)?.toDouble() ?: return Item.Cost.NotSet
         val sell = buy * 0.75
-        return Item.Cost(buy, sell)
+        return Item.Cost.Value(buy, sell)
     }
 }
