@@ -22,7 +22,7 @@ object ImportListener : Listener {
     val chests = object : Tag<Material> {
         val materials = mutableSetOf(Material.CHEST, Material.TRAPPED_CHEST)
 
-        @Suppress("deprecation")
+        @Suppress("DEPRECATION")
         override fun getKey(): NamespacedKey = NamespacedKey("dannyshop", "chest_tag")
         override fun getValues(): MutableSet<Material> = materials
         override fun isTagged(item: Material): Boolean = materials.contains(item)
@@ -30,8 +30,10 @@ object ImportListener : Listener {
 
     @EventHandler
     fun onPlayerPunch(event: PlayerInteractEvent) {
+        val player = event.player
+
         if (event.action != Action.LEFT_CLICK_BLOCK) return
-        if (!event.hasItem() || !ImportCommand.isWand(event.item!!)) return
+        if (!event.hasItem() || !ImportCommand.isWand(event.item!!) || !player.hasPermission("dannyshop.import")) return
         if (!chests.isTagged(event.clickedBlock!!.type)) return
         event.isCancelled = true
 
@@ -42,8 +44,8 @@ object ImportListener : Listener {
             Shop.addCategory(category)
         }
 
-        event.player.sendMessage("${ChatColor.GOLD}[DannyShop] Importing items from chest into category ${ChatColor.YELLOW}${category.name}")
-        importItems(event.player, category, state.inventory)
+        player.sendMessage("${ChatColor.GOLD}[DannyShop] Importing items from chest into category ${ChatColor.YELLOW}${category.name}")
+        importItems(player, category, state.inventory)
     }
 
     private fun importItems(player: Player, category: Category, inv: Inventory) {
