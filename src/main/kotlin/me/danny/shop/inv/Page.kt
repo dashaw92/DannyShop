@@ -7,7 +7,7 @@ import org.bukkit.potion.PotionType
 sealed class Page<T>(
     var items: Collection<T>,
     val start: Pair<Int, Int>,
-    dim: Pair<Int, Int>,
+    val dim: Pair<Int, Int>,
     private val buttons: Pair<Int, Int>
 ) {
     protected var page = 0
@@ -27,8 +27,17 @@ sealed class Page<T>(
     }
 
     fun render(inv: Inventory) {
+        clearDisplay(inv)
         display(inv)
         drawButtons(inv)
+    }
+
+    private fun clearDisplay(inv: Inventory) {
+        for (y in start.second until start.second + dim.second) {
+            for (x in start.first until start.first + dim.first) {
+                inv.setItem(y * 9 + x, null)
+            }
+        }
     }
 
     protected abstract fun display(inv: Inventory)
