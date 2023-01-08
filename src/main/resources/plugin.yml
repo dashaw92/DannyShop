@@ -12,5 +12,6 @@ libraries:
   - org.spongepowered:configurate-yaml:4.1.2
 commands:
   dannyshop:
+    aliases: [ "shop", "danshop", "dshop", "dannyssupercoolshopplugin", "anexcessivelylongaliasfortheshop" ]
     description: DannyShop main command
     usage: /<command> args
