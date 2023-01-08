@@ -1,15 +1,12 @@
 package me.danny.shop
 
-import Demo.items
-import ImportCommand
+import me.danny.shop.commands.ImportCommand
 import me.danny.shop.data.Category
 import me.danny.shop.data.DannyShopLoadables
+import me.danny.shop.data.Demo.items
 import me.danny.shop.data.Item
 import me.danny.shop.data.Shop
-import me.danny.shop.inv.ImportListener
-import me.danny.shop.inv.Menu
-import me.danny.shop.inv.MenuListener
-import me.danny.shop.inv.ShopMenu
+import me.danny.shop.inv.*
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
@@ -47,7 +44,7 @@ class DannyShop : JavaPlugin() {
             return true
         }
 
-        when(args.first().lowercase()) {
+        when (args.first().lowercase()) {
             "test" -> {
                 buildSampleShop()
                 sender.sendMessage("Done! Check config!")
@@ -55,6 +52,14 @@ class DannyShop : JavaPlugin() {
 
             "open" -> ShopMenu(SHOP, sender)
             "import" -> ImportCommand.onCommand(sender, args.sliceArray(2 until args.size))
+            "catedit" -> {
+                if (!sender.hasPermission("dannyshop.admin")) {
+                    sender.sendMessage("${ChatColor.RED}You lack permission.")
+                    return true
+                }
+
+                CategoryEditor(sender)
+            }
         }
         return true
     }

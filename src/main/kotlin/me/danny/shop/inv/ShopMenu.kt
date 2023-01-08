@@ -5,12 +5,19 @@ import me.danny.shop.data.Shop
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
-import org.bukkit.potion.PotionType
+import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 
 class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "${ChatColor.GOLD}DannyShop", viewer) {
+
+    companion object {
+        @Suppress("DEPRECATION")
+        private val ITEM_KEY = NamespacedKey("dannyshop", "item_iid")
+    }
 
     private var categories: List<Category> = shop.categories().take(6)
     private val itemPage: ItemPage
@@ -18,8 +25,8 @@ class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "${ChatColor.GO
 
     init {
         val selected = categories.firstOrNull() ?: Category("All", Material.CHEST)
-        itemPage = ItemPage(shop.items(selected))
-        categoryPage = CategoryPage(shop.categories(), selected)
+        itemPage = ItemPage(shop.items(selected), Pair(inv.size - 2, inv.size - 1))
+        categoryPage = CategoryPage(shop.categories(), selected, Pair(1, 46))
         build()
     }
 
@@ -55,20 +62,8 @@ class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "${ChatColor.GO
         (47 until inv.size)
             .forEach { inv.setItem(it, ctrlBorder) }
 
-        categoryPage.display(inv)
-        itemPage.display(inv)
-
-        val prevItemPage = Item.makeTippedArrow("${ChatColor.RED}Previous page", PotionType.INSTANT_HEAL)
-        val nextItemPage = Item.makeTippedArrow("${ChatColor.DARK_GREEN}Next page", PotionType.JUMP)
-
-        if(itemPage.page() > 0) inv.setItem(inv.size - 2, prevItemPage)
-        if(itemPage.page() + 1 < itemPage.numPages()) inv.setItem(inv.size - 1, nextItemPage)
-
-        val catScrollUp = Item.makeTippedArrow("${ChatColor.RED}Previous categories", PotionType.INSTANT_HEAL)
-        val catScrollDown = Item.makeTippedArrow("${ChatColor.DARK_GREEN}More categories", PotionType.JUMP)
-
-        if(categoryPage.page() > 0) inv.setItem(1, catScrollUp)
-        if(categoryPage.page() + 1 < categoryPage.numPages()) inv.setItem(46, catScrollDown)
+        categoryPage.render(inv)
+        itemPage.render(inv)
 
         viewer.openInventory(inv)
     }
@@ -89,33 +84,14 @@ class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "${ChatColor.GO
         }
     }
 
-    sealed class Page<T>(var items: Collection<T>, val startX: Int, val startY: Int, val width: Int, val height: Int) {
-        protected var page = 0
-        protected val size = width * height
-
-        fun page() = page
-        open fun numPages(): Int = 1 + items.size / size
-
-        fun nextPage() {
-            if(page + 1 == numPages()) return
-            page += 1
-        }
-
-        fun prevPage() {
-            if(page == 0) return
-            page -= 1
-        }
-
-        abstract fun display(inv: Inventory)
-    }
-
-    class ItemPage(coll: Collection<me.danny.shop.data.Item>) : Page<me.danny.shop.data.Item>(coll, 2, 0, 7, 5) {
+    class ItemPage(coll: Collection<me.danny.shop.data.Item>, buttons: Pair<Int, Int>) :
+        Page<me.danny.shop.data.Item>(coll, Pair(2, 0), Pair(7, 5), buttons) {
         override fun display(inv: Inventory) {
-            var invIdx = startY * 9 + startX
-            for(item in items.drop(page * size).take(size)) {
-                inv.setItem(invIdx, item.item.display())
+            var invIdx = start.second * 9 + start.first
+            for (item in items.drop(page * size).take(size)) {
+                inv.setItem(invIdx, makeMenuItem(item))
                 invIdx += 1
-                if(invIdx % 9 == 0) invIdx += 2
+                if (invIdx % 9 == 0) invIdx += 2
             }
         }
 
@@ -123,9 +99,47 @@ class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "${ChatColor.GO
             page = 0
             items = shop.items(category)
         }
+
+        private fun makeMenuItem(item: me.danny.shop.data.Item): ItemStack {
+            val tagged = Item.attachKey(item.item.display(), ITEM_KEY, PersistentDataType.STRING, item.iid.id)
+
+            val header =
+                "${ChatColor.GOLD}+${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}------[${ChatColor.DARK_RED} DannyShop ${ChatColor.GOLD}${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}]------${ChatColor.GOLD}+"
+            val footer =
+                "${ChatColor.GOLD}+${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}-----------------------${ChatColor.GOLD}+"
+            val fields: MutableList<String> = mutableListOf()
+
+            fields.add("${ChatColor.LIGHT_PURPLE}Worth:")
+            when (item.cost) {
+                is me.danny.shop.data.Item.Cost.NotSet -> fields.add("${ChatColor.RED}  No price set!")
+                is me.danny.shop.data.Item.Cost.Value -> {
+                    fields.add("  ${ChatColor.YELLOW}Buy: ${ChatColor.GRAY}\$%.2f".format(item.cost.buy))
+                    fields.add("  ${ChatColor.YELLOW}Sell: ${ChatColor.GRAY}\$%.2f".format(item.cost.sell))
+                }
+            }
+
+            when (item.cooldown) {
+                is me.danny.shop.data.Item.Cooldown.None -> fields.add("${ChatColor.LIGHT_PURPLE}Cooldown: ${ChatColor.DARK_GREEN}None")
+                is me.danny.shop.data.Item.Cooldown.Infinite -> fields.add("${ChatColor.LIGHT_PURPLE}Cooldown: ${ChatColor.DARK_RED}Purchasable only once")
+                is me.danny.shop.data.Item.Cooldown.Duration -> fields.add(
+                    "${ChatColor.LIGHT_PURPLE}Cooldown: ${ChatColor.GRAY}%d%s".format(
+                        item.cooldown.time.time,
+                        item.cooldown.time.suffix
+                    )
+                )
+            }
+
+            val display: MutableList<String> = fields.map { field ->
+                "${ChatColor.GOLD}| %s ${ChatColor.GOLD}|".format(field.padEnd(40))
+            }.toMutableList()
+            display.add(0, header)
+            display.add(footer)
+            return Item.addLore(tagged, *display.toTypedArray())
+        }
     }
 
-    class CategoryPage(coll: Collection<Category>, private var selected: Category) : Page<Category>(coll, 0, 0, 1, 6) {
+    class CategoryPage(coll: Collection<Category>, private var selected: Category, buttons: Pair<Int, Int>) :
+        Page<Category>(coll, Pair(0, 0), Pair(1, 6), buttons) {
         override fun numPages(): Int = items.size - size + 1
 
         override fun display(inv: Inventory) {
@@ -134,7 +148,7 @@ class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "${ChatColor.GO
                 .take(size)
                 .map {
                     var item = Item.makeItem(it.display, "${ChatColor.BLUE}${it.name}")
-                    if(it == selected) item = Item.addEnchantGlow(item)
+                    if (it == selected) item = Item.addEnchantGlow(item)
                     item
                 }
                 .forEachIndexed { index, item -> inv.setItem(index * 9, item) }

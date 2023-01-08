@@ -12,13 +12,14 @@ object MenuListener : Listener {
 
     @EventHandler
     fun onClick(event: InventoryClickEvent) {
-        val holder = event.inventory.holder
-        if(holder !is Menu) return
+        val holder = event.view.topInventory.holder
+        if (holder !is Menu || holder !is FullInvListener) return
 
         event.isCancelled = true
         if (event.click != ClickType.LEFT && event.click != ClickType.RIGHT
             && event.click != ClickType.SHIFT_LEFT && event.click != ClickType.SHIFT_RIGHT
-            || event.currentItem == null || event.currentItem?.type == Material.AIR) {
+            || event.currentItem == null || event.currentItem?.type == Material.AIR
+        ) {
             return
         }
 

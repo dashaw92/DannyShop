@@ -5,9 +5,9 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
-import java.util.UUID
+import java.util.*
 
-abstract class Menu(var rows: Int, var title: String, protected val viewer: Player) : InventoryHolder {
+abstract class Menu(private var rows: Int, title: String, protected val viewer: Player) : InventoryHolder {
     companion object {
         protected val openInvs: MutableMap<UUID, Menu> = mutableMapOf()
 
@@ -26,8 +26,7 @@ abstract class Menu(var rows: Int, var title: String, protected val viewer: Play
     protected var inv: Inventory
 
     init {
-        if(title.length > 32) title = title.substring(0, 32)
-        rows = 6.coerceAtLeast(1.coerceAtMost(rows))
+        rows = 6.coerceAtMost(1.coerceAtLeast(rows))
         this.inv = Bukkit.createInventory(this, rows * 9, title)
         viewer.openInventory(inv)
     }
@@ -41,3 +40,10 @@ abstract class Menu(var rows: Int, var title: String, protected val viewer: Play
     protected abstract fun build()
     abstract fun onClick(event: InventoryClickEvent)
 }
+
+/**
+ * Menus that implement this marker interface accept
+ * click events from the entire inventory, not just
+ * the custom menu's inventory.
+ */
+interface FullInvListener

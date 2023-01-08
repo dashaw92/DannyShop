@@ -100,6 +100,11 @@ object Item {
         return clone
     }
 
+    fun <T, Z : Any> getValue(item: ItemStack, key: NamespacedKey, type: PersistentDataType<T, Z>, default: Z): Z {
+        val im = item.itemMeta!!
+        return im.persistentDataContainer.getOrDefault(key, type, default)
+    }
+
     fun getPotionType(arrow: ItemStack): PotionType {
         val im = arrow.itemMeta
         return if (im !is PotionMeta) PotionType.AWKWARD else im.basePotionData.type //awkward...
