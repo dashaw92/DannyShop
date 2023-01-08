@@ -1,6 +1,6 @@
 package me.danny.shop.commands
 
-import me.danny.shop.inv.Item
+import me.danny.shop.inv.ItemBuilder
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -11,8 +11,8 @@ object ImportCommand {
 
     @Suppress("DEPRECATION")
     private val WAND_KEY = NamespacedKey("dannyshop", "wand_item")
-    private val IMPORT_WAND = Item.attachMarker(
-        Item.makeItem(
+    private val IMPORT_WAND = ItemBuilder.attachMarker(
+        ItemBuilder.makeItem(
             Material.WOODEN_HOE, "${ChatColor.DARK_AQUA}DannyShop Import Wand",
             "${ChatColor.YELLOW}Left click a named chest to import the items",
             "${ChatColor.YELLOW}in the chest with default options.",
@@ -22,7 +22,7 @@ object ImportCommand {
         ), WAND_KEY
     )
 
-    fun isWand(item: ItemStack) = Item.hasMarker(item, WAND_KEY)
+    fun isWand(item: ItemStack) = ItemBuilder.hasMarker(item, WAND_KEY)
 
     @Suppress("UNUSED_PARAMETER")
     fun onCommand(player: Player, args: Array<out String>) {

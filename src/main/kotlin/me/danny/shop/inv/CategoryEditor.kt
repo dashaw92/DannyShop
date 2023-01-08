@@ -13,7 +13,7 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.persistence.PersistentDataType
 
 class CategoryEditor(player: Player) :
-    Menu(5, "${ChatColor.DARK_RED}DannyShop ${ChatColor.GRAY}- ${ChatColor.BLUE}Category Editor", player),
+    Menu(5, "- ${ChatColor.BLUE}Category Editor", player),
     FullInvListener {
 
     companion object {
@@ -46,7 +46,7 @@ class CategoryEditor(player: Player) :
         private val page = CategoryPages(DannyShop.SHOP.categories(), Pair(inv.size - 2, inv.size - 1))
 
         override fun build(inv: Inventory) {
-            val border = Item.makeItem(Material.ORANGE_STAINED_GLASS_PANE, " ")
+            val border = ItemBuilder.makeItem(Material.ORANGE_STAINED_GLASS_PANE, " ")
             (0 until inv.size).forEach { inv.setItem(it, border) }
             page.render(inv)
         }
@@ -61,12 +61,12 @@ class CategoryEditor(player: Player) :
                     page.nextPage(); build(inv)
                 }
 
-                event.currentItem != null && Item.hasKey(
+                event.currentItem != null && ItemBuilder.hasKey(
                     event.currentItem!!,
                     CATEGORY_KEY,
                     PersistentDataType.STRING
                 ) -> {
-                    val name = Item.getValue(event.currentItem!!, CATEGORY_KEY, PersistentDataType.STRING, "")
+                    val name = ItemBuilder.getValue(event.currentItem!!, CATEGORY_KEY, PersistentDataType.STRING, "")
                     if (name.trim().isBlank()) return ViewAction.Pass
 
                     val category = Shop.getCategory(name) ?: return ViewAction.Pass
@@ -85,8 +85,8 @@ class CategoryEditor(player: Player) :
                     .drop(page * size)
                     .take(size)
                     .map {
-                        Item.attachKey(
-                            Item.makeItem(it.display, "${ChatColor.BLUE}${it.name}"),
+                        ItemBuilder.attachKey(
+                            ItemBuilder.makeItem(it.display, "${ChatColor.BLUE}${it.name}"),
                             CATEGORY_KEY,
                             PersistentDataType.STRING,
                             it.name
@@ -102,17 +102,17 @@ class CategoryEditor(player: Player) :
 
     private class EditorView(val category: Category) : MenuView {
         override fun build(inv: Inventory) {
-            val filler = Item.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
+            val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
             (0 until inv.size)
                 .forEach { inv.setItem(it, filler) }
 
             inv.setItem(
-                22, Item.makeItem(
+                22, ItemBuilder.makeItem(
                     category.display, "${ChatColor.BLUE}${category.name}",
                     "${ChatColor.YELLOW}Click an item to change the icon"
                 )
             )
-            inv.setItem(inv.size - 1, Item.makeItem(Material.ARROW, "${ChatColor.BLUE}Back"))
+            inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "${ChatColor.BLUE}Back"))
         }
 
         override fun onClick(inv: Inventory, event: InventoryClickEvent): ViewAction {

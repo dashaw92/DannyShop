@@ -17,7 +17,7 @@ sealed class Page<T>(
     open fun numPages(): Int = 1 + items.size / size
 
     fun nextPage() {
-        if (page + 1 == numPages()) return
+        if (page + 1 >= numPages()) return
         page += 1
     }
 
@@ -43,8 +43,8 @@ sealed class Page<T>(
     protected abstract fun display(inv: Inventory)
 
     private fun drawButtons(inv: Inventory) {
-        val prevPage = Item.makeTippedArrow("${ChatColor.RED}Previous", PotionType.INSTANT_HEAL)
-        val nextPage = Item.makeTippedArrow("${ChatColor.DARK_GREEN}Next", PotionType.JUMP)
+        val prevPage = ItemBuilder.makeTippedArrow("${ChatColor.RED}Previous", PotionType.INSTANT_HEAL)
+        val nextPage = ItemBuilder.makeTippedArrow("${ChatColor.DARK_GREEN}Next", PotionType.JUMP)
         if (page() > 0) inv.setItem(buttons.first, prevPage)
         if (page() + 1 < numPages()) inv.setItem(buttons.second, nextPage)
     }

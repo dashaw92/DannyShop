@@ -1,0 +1,28 @@
+package me.danny.shop.inv
+
+import me.danny.shop.DannyShop
+import me.danny.shop.data.Item
+import net.md_5.bungee.api.ChatColor
+import org.bukkit.Material
+import org.bukkit.entity.Player
+import org.bukkit.event.inventory.InventoryClickEvent
+
+class PurchaseMenu(viewer: Player, val item: Item, val returnInfo: ShopMenu.ShopReturnInfo) :
+    Menu(3, "- ${ChatColor.DARK_GREEN}Purchase", viewer) {
+
+    init {
+        build()
+    }
+
+    override fun build() {
+        inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "${org.bukkit.ChatColor.BLUE}Back"))
+    }
+
+    override fun onClick(event: InventoryClickEvent) {
+        if (event.slot == inv.size - 1) {
+            ShopMenu(DannyShop.SHOP, viewer, returnInfo.itemPage, returnInfo.categoryPage)
+            return
+        }
+    }
+
+}

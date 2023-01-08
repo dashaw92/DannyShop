@@ -32,8 +32,11 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
     }
 
     fun categories(): Collection<Category> = CATEGORIES
-    fun items(category: Category): Collection<Item> = items.getOrDefault(category, listOf())
+    fun items(category: Category): Collection<Item> =
+        items.entries.find { (key, _) -> key.name == category.name }?.value ?: listOf()
+
     fun isEmpty(): Boolean = items.values.flatten().isEmpty()
+    fun itemByIid(iid: String): Item? = items.values.flatten().find { it.iid.id == iid }
 }
 
 /**
@@ -101,11 +104,15 @@ data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: 
         }
         data class Exp(val exp: Double) : ItemType {
             override fun inner(): Any = exp
-            override fun display(): ItemStack = me.danny.shop.inv.Item.makeItem(Material.EXPERIENCE_BOTTLE, "${ChatColor.GOLD}%.0f Experience".format(exp))
+            override fun display(): ItemStack = me.danny.shop.inv.ItemBuilder.makeItem(
+                Material.EXPERIENCE_BOTTLE,
+                "${ChatColor.GOLD}%.0f Experience".format(exp)
+            )
         }
         data class Command(val command: String) : ItemType {
             override fun inner(): Any = command
-            override fun display(): ItemStack = me.danny.shop.inv.Item.makeItem(Material.COMMAND_BLOCK, "${ChatColor.BLUE}Run command", command)
+            override fun display(): ItemStack =
+                me.danny.shop.inv.ItemBuilder.makeItem(Material.COMMAND_BLOCK, "${ChatColor.BLUE}Run command", command)
         }
 
         fun inner(): Any
