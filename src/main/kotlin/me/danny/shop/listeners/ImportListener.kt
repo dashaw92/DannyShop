@@ -62,10 +62,9 @@ object ImportListener : Listener {
             val cooldown = Item.Cooldown.None
 
             val shopItem = Item(iid, type, cost, cooldown, quantities, category)
-            player.sendMessage("Adding \"${iid.id}\" to category \"${category.name}\"")
+            player.sendMessage("${ChatColor.GOLD}[DannyShop] Imported ${ChatColor.GRAY}\"${iid.id}\"")
             DannyShop.SHOP.addItem(shopItem)
         }
-        println(DannyShop.SHOP)
     }
 
     @EventHandler
