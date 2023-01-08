@@ -4,7 +4,7 @@ import org.bukkit.ChatColor
 import org.bukkit.inventory.Inventory
 import org.bukkit.potion.PotionType
 
-sealed class Page<T>(
+abstract class Page<T>(
     var items: Collection<T>,
     val start: Pair<Int, Int>,
     val dim: Pair<Int, Int>,

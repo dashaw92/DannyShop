@@ -1,4 +1,4 @@
-package me.danny.shop.inv
+package me.danny.shop.listeners
 
 import com.earth2me.essentials.Essentials
 import me.danny.shop.DannyShop

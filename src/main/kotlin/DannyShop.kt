@@ -1,11 +1,11 @@
 package me.danny.shop
 
-import ShopCommand
+import me.danny.shop.commands.ShopCommand
 import me.danny.shop.data.DannyShopLoadables
 import me.danny.shop.data.Shop
-import me.danny.shop.inv.ImportListener
 import me.danny.shop.inv.Menu
-import me.danny.shop.inv.MenuListener
+import me.danny.shop.inv.listeners.MenuListener
+import me.danny.shop.listeners.ImportListener
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 

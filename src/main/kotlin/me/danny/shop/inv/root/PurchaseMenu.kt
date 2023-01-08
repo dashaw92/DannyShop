@@ -1,7 +1,9 @@
-package me.danny.shop.inv
+package me.danny.shop.inv.root
 
 import me.danny.shop.DannyShop
 import me.danny.shop.data.Item
+import me.danny.shop.inv.ItemBuilder
+import me.danny.shop.inv.Menu
 import net.md_5.bungee.api.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player

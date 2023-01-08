@@ -1,9 +1,13 @@
-package me.danny.shop.inv
+package me.danny.shop.inv.root
 
 import me.danny.shop.data.Category
 import me.danny.shop.data.Item
 import me.danny.shop.data.Item.*
 import me.danny.shop.data.Shop
+import me.danny.shop.inv.ItemBuilder
+import me.danny.shop.inv.Menu
+import me.danny.shop.inv.Page
+import me.danny.shop.inv.editor.items.ItemEditor
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material

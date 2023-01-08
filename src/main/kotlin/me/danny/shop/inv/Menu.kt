@@ -6,9 +6,10 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
+import org.bukkit.inventory.ItemStack
 import java.util.*
 
-abstract class Menu(private var rows: Int, title: String, protected val viewer: Player) : InventoryHolder {
+abstract class Menu(private var rows: Int, title: String, val viewer: Player) : InventoryHolder {
     companion object {
         @JvmStatic
         protected val prefix = "${ChatColor.DARK_RED}DannyShop ${ChatColor.GRAY}"
@@ -50,3 +51,7 @@ abstract class Menu(private var rows: Int, title: String, protected val viewer: 
  * the custom menu's inventory.
  */
 interface FullInvListener
+
+fun Inventory.fill(filler: ItemStack) {
+    (0 until size).forEach { setItem(it, filler) }
+}
