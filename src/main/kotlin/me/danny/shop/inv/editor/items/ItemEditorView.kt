@@ -12,7 +12,7 @@ import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 
-class EditorMainView(private val editor: ItemEditor) : MenuView {
+class ItemEditorView(private val editor: ItemEditor) : MenuView {
 
     override fun build(inv: Inventory) {
         val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
@@ -46,7 +46,7 @@ class EditorMainView(private val editor: ItemEditor) : MenuView {
 
     override fun onClick(inv: Inventory, event: InventoryClickEvent): ViewAction {
         if (event.slot == inv.size - 1) {
-            ShopMenu(DannyShop.SHOP, editor.viewer, editor.returnInfo.itemPage, editor.returnInfo.categoryPage)
+            ShopMenu(DannyShop.SHOP, editor.viewer, editor.returnInfo)
             return ViewAction.Pass
         }
 

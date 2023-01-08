@@ -11,7 +11,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 class ItemEditor(viewer: Player, val item: Item, val returnInfo: ShopMenu.ShopReturnInfo) :
     Menu(3, "- ${ChatColor.BLUE}Item Editor", viewer) {
 
-    private var view: MenuView = EditorMainView(this)
+    private var view: MenuView = ItemEditorView(this)
 
     init {
         build()
