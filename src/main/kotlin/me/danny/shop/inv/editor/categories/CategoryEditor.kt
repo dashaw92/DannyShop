@@ -1,7 +1,9 @@
 package me.danny.shop.inv.editor.categories
 
 import me.danny.shop.inv.*
-import me.danny.shop.inv.MenuView.ViewAction
+import me.danny.shop.inv.view.ViewAction
+import me.danny.shop.me.danny.shop.inv.FullInvListener
+import me.danny.shop.me.danny.shop.inv.view.MenuView
 import org.bukkit.ChatColor
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player

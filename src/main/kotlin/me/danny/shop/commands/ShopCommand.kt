@@ -2,7 +2,7 @@ package me.danny.shop.commands
 
 import me.danny.shop.DannyShop
 import me.danny.shop.inv.editor.categories.CategoryEditor
-import me.danny.shop.inv.root.ShopMenu
+import me.danny.shop.me.danny.shop.inv.shop.ShopMenu
 import org.bukkit.ChatColor
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor

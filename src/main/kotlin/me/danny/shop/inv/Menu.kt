@@ -6,7 +6,6 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
-import org.bukkit.inventory.ItemStack
 import java.util.*
 
 abstract class Menu(private var rows: Int, title: String, val viewer: Player) : InventoryHolder {
@@ -43,15 +42,4 @@ abstract class Menu(private var rows: Int, title: String, val viewer: Player) : 
 
     protected abstract fun build()
     abstract fun onClick(event: InventoryClickEvent)
-}
-
-/**
- * Menus that implement this marker interface accept
- * click events from the entire inventory, not just
- * the custom menu's inventory.
- */
-interface FullInvListener
-
-fun Inventory.fill(filler: ItemStack) {
-    (0 until size).forEach { setItem(it, filler) }
 }

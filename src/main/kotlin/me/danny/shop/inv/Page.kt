@@ -1,9 +1,15 @@
 package me.danny.shop.inv
 
 import org.bukkit.ChatColor
+import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.potion.PotionType
 
+/**
+ * Represents a rectangle in an inventory
+ * with support for paging via the sizes provided,
+ * along with buttons to navigate the pages
+ */
 abstract class Page<T>(
     var items: Collection<T>,
     val start: Pair<Int, Int>,
@@ -47,5 +53,17 @@ abstract class Page<T>(
         val nextPage = ItemBuilder.makeTippedArrow("${ChatColor.DARK_GREEN}Next", PotionType.JUMP)
         if (page() > 0) inv.setItem(buttons.first, prevPage)
         if (page() + 1 < numPages()) inv.setItem(buttons.second, nextPage)
+    }
+
+    fun onClick(event: InventoryClickEvent, callback: () -> Unit) {
+        when (event.slot) {
+            buttons.first -> {
+                prevPage(); callback()
+            }
+
+            buttons.second -> {
+                nextPage(); callback()
+            }
+        }
     }
 }

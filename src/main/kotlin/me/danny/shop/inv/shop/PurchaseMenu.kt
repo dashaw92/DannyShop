@@ -1,4 +1,4 @@
-package me.danny.shop.inv.root
+package me.danny.shop.me.danny.shop.inv.shop
 
 import me.danny.shop.DannyShop
 import me.danny.shop.data.Item
