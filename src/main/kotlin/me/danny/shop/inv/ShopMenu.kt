@@ -39,28 +39,11 @@ class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "", viewer) {
 
     override fun build() {
         if (shop.isEmpty()) {
-            inv = Bukkit.createInventory(this, 27, "- ${ChatColor.DARK_GRAY}Uh oh!")
-            val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
-            val notice = ItemBuilder.makeItem(
-                Material.REDSTONE_TORCH, "${ChatColor.GOLD}The shop is empty!",
-                "${ChatColor.YELLOW}But don't worry! Creating a shop is simple!",
-                "${ChatColor.YELLOW}Check out the command ${ChatColor.LIGHT_PURPLE}/dannyshop import${ChatColor.YELLOW}.",
-            )
-            (0 until inv.size).forEach { inv.setItem(it, filler) }
-            inv.setItem(13, notice)
-            viewer.openInventory(inv)
+            showEmptyShop()
             return
         }
 
-        val page = itemPage.page() + 1
-        val maxPages = itemPage.numPages()
-        inv = Bukkit.createInventory(
-            this, 6 * 9,
-            "$prefix- ${ChatColor.BLUE}${categoryPage.selected().name} ${ChatColor.DARK_GRAY}(%d/%d)".format(
-                page,
-                maxPages
-            )
-        )
+        rebuildInv()
 
         val catBorder = ItemBuilder.makeItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE, " ")
         listOf(1, 10, 19, 28, 37, 46)
@@ -72,6 +55,31 @@ class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "", viewer) {
         categoryPage.render(inv)
         itemPage.render(inv)
 
+        viewer.openInventory(inv)
+    }
+
+    private fun rebuildInv() {
+        val page = itemPage.page() + 1
+        val maxPages = itemPage.numPages()
+        inv = Bukkit.createInventory(
+            this, 6 * 9,
+            "$prefix- ${ChatColor.BLUE}${categoryPage.selected().name} ${ChatColor.DARK_GRAY}(%d/%d)".format(
+                page,
+                maxPages
+            )
+        )
+    }
+
+    private fun showEmptyShop() {
+        inv = Bukkit.createInventory(this, 27, "- ${ChatColor.DARK_GRAY}Uh oh!")
+        val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
+        val notice = ItemBuilder.makeItem(
+            Material.REDSTONE_TORCH, "${ChatColor.GOLD}The shop is empty!",
+            "${ChatColor.YELLOW}But don't worry! Creating a shop is simple!",
+            "${ChatColor.YELLOW}Check out the command ${ChatColor.LIGHT_PURPLE}/dannyshop import${ChatColor.YELLOW}.",
+        )
+        (0 until inv.size).forEach { inv.setItem(it, filler) }
+        inv.setItem(13, notice)
         viewer.openInventory(inv)
     }
 
@@ -117,7 +125,7 @@ class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "", viewer) {
         }
     }
 
-    class ItemPage(val viewer: Player, coll: Collection<Item>, buttons: Pair<Int, Int>) :
+    class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair<Int, Int>) :
         Page<Item>(coll, Pair(2, 0), Pair(7, 5), buttons) {
         override fun display(inv: Inventory) {
             var invIdx = start.second * 9 + start.first
@@ -137,7 +145,7 @@ class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "", viewer) {
             val tagged = ItemBuilder.attachKey(item.item.display(), ITEM_KEY, PersistentDataType.STRING, item.iid.id)
 
             val header =
-                "${ChatColor.GOLD}+${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}------[${ChatColor.DARK_RED} DannyShop ${ChatColor.GOLD}${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}]------"
+                "${ChatColor.GOLD}+${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}[${ChatColor.DARK_RED} DannyShop ${ChatColor.GOLD}${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}]------------"
             val footer =
                 "${ChatColor.GOLD}+${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}----------------------"
             val fields: MutableList<String> = mutableListOf()
@@ -162,15 +170,18 @@ class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "", viewer) {
                 )
             }
 
+            fields.add("")
+            fields.add("${ChatColor.YELLOW}[Buy/Sell: ${ChatColor.GOLD}Click${ChatColor.YELLOW}]")
+            if (viewer.hasPermission("dannyshop.admin")) {
+                fields.add("${ChatColor.DARK_AQUA}[Edit: ${ChatColor.AQUA}Right Click${ChatColor.DARK_AQUA}]")
+            }
+
             val display: MutableList<String> = fields.map { field ->
                 "${ChatColor.GOLD}| $field "
             }.toMutableList()
             display.add(0, header)
             display.add(footer)
 
-            if (viewer.hasPermission("dannyshop.admin")) {
-                display.add("${ChatColor.DARK_AQUA}[Admin: Right click to edit item]")
-            }
             return ItemBuilder.addLore(tagged, *display.toTypedArray())
         }
     }
