@@ -14,7 +14,7 @@ import java.util.*
 import java.util.stream.Collectors
 
 
-object Item {
+object ItemBuilder {
     fun makeItem(mat: Material, name: String, vararg lore: String?): ItemStack {
         return makeItem(mat, 1, name, *lore)
     }
