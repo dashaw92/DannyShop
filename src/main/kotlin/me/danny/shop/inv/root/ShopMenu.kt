@@ -18,7 +18,7 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 
-class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "", viewer) {
+class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer) {
 
     companion object {
         @Suppress("DEPRECATION")
@@ -26,18 +26,13 @@ class ShopMenu(private val shop: Shop, viewer: Player) : Menu(6, "", viewer) {
     }
 
     private var categories: List<Category> = shop.categories().take(6)
-    private var itemPage: ItemPage
-    private var categoryPage: CategoryPage
-
-    constructor(shop: Shop, viewer: Player, itemPage: ItemPage, categoryPage: CategoryPage) : this(shop, viewer) {
-        this.itemPage = itemPage
-        this.categoryPage = categoryPage
-    }
+    private val selected = categories.firstOrNull() ?: Category("All", Material.CHEST)
+    private var itemPage: ItemPage =
+        shopReturnInfo?.itemPage ?: ItemPage(viewer, shop.items(selected), Pair(inv.size - 2, inv.size - 1))
+    private var categoryPage: CategoryPage =
+        shopReturnInfo?.categoryPage ?: CategoryPage(shop.categories(), selected, Pair(1, 46))
 
     init {
-        val selected = categories.firstOrNull() ?: Category("All", Material.CHEST)
-        itemPage = ItemPage(viewer, shop.items(selected), Pair(inv.size - 2, inv.size - 1))
-        categoryPage = CategoryPage(shop.categories(), selected, Pair(1, 46))
         build()
     }
 
