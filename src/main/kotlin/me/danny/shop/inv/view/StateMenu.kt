@@ -2,6 +2,7 @@ package me.danny.shop.me.danny.shop.inv.view
 
 import me.danny.shop.inv.Menu
 import me.danny.shop.inv.view.ViewAction
+import me.danny.shop.me.danny.shop.inv.color
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -10,7 +11,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
  * Represents a menu that utilizes the view system to render
  * Does all of the plumbing to set it up
  */
-abstract class StateMenu(size: Int, title: String, viewer: Player) : Menu(size, title, viewer) {
+abstract class StateMenu(size: Int, private val title: String, viewer: Player) : Menu(size, title, viewer) {
 
     var view: MenuView = this.loadView()
 
@@ -35,20 +36,34 @@ abstract class StateMenu(size: Int, title: String, viewer: Player) : Menu(size, 
     final override fun onClick(event: InventoryClickEvent) {
         when (val outcome = view.onClick(inv, event)) {
             is ViewAction.ChangeView -> {
-                view = outcome.newView; build()
-            }
+                view = outcome.newView
 
-            is ViewAction.Resize -> {
-                val newRows = outcome.rows.coerceIn(1, 6)
-                val title = "$prefix${(outcome.title ?: event.view.title)}"
+                when (val open = view.onOpen()) {
+                    is ViewAction.Resize -> handleResize(open)
+                    else -> {} //ignore all other actions
+                }
 
-                inv = Bukkit.createInventory(this, newRows * 9, title)
                 build()
-                viewer.openInventory(inv)
             }
 
+            is ViewAction.Resize -> handleResize(outcome)
+            is ViewAction.Refresh -> build()
             else -> {}
         }
     }
 
+    private fun handleResize(resize: ViewAction.Resize) {
+        val newRows = resize.rows.coerceIn(1, 6)
+        val newTitle = when (resize.title) {
+            null -> title
+            else -> resize.title
+        }
+        inv = Bukkit.createInventory(
+            this,
+            newRows * 9,
+            "$prefix$newTitle".color()
+        )
+        build()
+        viewer.openInventory(inv)
+    }
 }

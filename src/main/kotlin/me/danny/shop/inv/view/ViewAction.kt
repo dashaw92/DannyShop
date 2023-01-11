@@ -12,6 +12,11 @@ sealed interface ViewAction {
     object Pass : ViewAction
 
     /**
+     * Request the parent re-build the inventory
+     */
+    object Refresh : ViewAction
+
+    /**
      * Request the base menu change to the provided view
      */
     data class ChangeView(val newView: MenuView) : ViewAction

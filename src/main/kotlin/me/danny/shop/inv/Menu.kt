@@ -1,5 +1,6 @@
 package me.danny.shop.inv
 
+import me.danny.shop.me.danny.shop.inv.color
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
@@ -14,7 +15,7 @@ import java.util.*
 abstract class Menu(private var rows: Int, title: String, val viewer: Player) : InventoryHolder {
     companion object {
         @JvmStatic
-        protected val prefix = "${ChatColor.DARK_RED}DannyShop ${ChatColor.GRAY}"
+        protected val prefix = "${ChatColor.DARK_RED}Shop ${ChatColor.GRAY}"
         protected val openInvs: MutableMap<UUID, Menu> = mutableMapOf()
 
         fun closeOpenInvs() {
@@ -32,7 +33,11 @@ abstract class Menu(private var rows: Int, title: String, val viewer: Player) : 
 
     init {
         rows = rows.coerceIn(1, 6)
-        this.inv = Bukkit.createInventory(this, rows * 9, "$prefix$title")
+        this.inv = Bukkit.createInventory(
+            this,
+            rows * 9,
+            "$prefix$title".color()
+        )
         viewer.openInventory(inv)
     }
 

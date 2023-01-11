@@ -12,12 +12,14 @@ import org.bukkit.inventory.Inventory
 
 class CategoryEditorView(val category: Category) : MenuView {
 
+    override fun onOpen(): ViewAction = ViewAction.Resize(3)
+
     override fun build(inv: Inventory) {
         val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
 
         inv.setItem(
-            22, ItemBuilder.makeItem(
+            13, ItemBuilder.makeItem(
                 category.display, "${ChatColor.BLUE}${category.name}",
                 "${ChatColor.YELLOW}Click an item to change the icon"
             )
