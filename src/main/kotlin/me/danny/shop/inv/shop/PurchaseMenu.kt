@@ -12,6 +12,10 @@ import org.bukkit.event.inventory.InventoryClickEvent
 class PurchaseMenu(viewer: Player, val item: Item, private val returnInfo: ShopMenu.ShopReturnInfo) :
     Menu(3, "- ${ChatColor.DARK_GREEN}Purchase", viewer) {
 
+    init {
+        build()
+    }
+
     override fun build() {
         inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "${ChatColor.BLUE}Back"))
     }

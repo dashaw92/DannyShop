@@ -34,7 +34,6 @@ abstract class Menu(private var rows: Int, title: String, val viewer: Player) : 
         rows = rows.coerceIn(1, 6)
         this.inv = Bukkit.createInventory(this, rows * 9, "$prefix$title")
         viewer.openInventory(inv)
-        this.build()
     }
 
     fun close() {

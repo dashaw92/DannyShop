@@ -10,6 +10,10 @@ import org.bukkit.entity.Player
 class ItemEditor(viewer: Player, val item: Item, val returnInfo: ShopMenu.ShopReturnInfo) :
     StateMenu(3, "- ${ChatColor.BLUE}Item Editor", viewer) {
 
+    init {
+        build()
+    }
+
     override fun loadView(): MenuView = ItemEditorView(this)
 
 }

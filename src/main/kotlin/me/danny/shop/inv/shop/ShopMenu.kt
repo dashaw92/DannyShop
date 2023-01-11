@@ -33,6 +33,10 @@ class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopRetur
     private var categoryPage: CategoryPage =
         shopReturnInfo?.categoryPage ?: CategoryPage(shop.categories(), selected, Pair(1, 46))
 
+    init {
+        build()
+    }
+
     override fun build() {
         if (shop.isEmpty()) {
             showEmptyShop()

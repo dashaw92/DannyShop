@@ -14,6 +14,10 @@ class CategoryEditor(player: Player) :
     StateMenu(5, "- ${ChatColor.BLUE}Category Editor", player),
     FullInvListener {
 
+    init {
+        build()
+    }
+
     override fun loadView(): MenuView = CategoryListingView()
 
     companion object {
