@@ -8,6 +8,9 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 import java.util.*
 
+/**
+ * Base type for all GUIs in the plugin
+ */
 abstract class Menu(private var rows: Int, title: String, val viewer: Player) : InventoryHolder {
     companion object {
         @JvmStatic
@@ -15,8 +18,7 @@ abstract class Menu(private var rows: Int, title: String, val viewer: Player) : 
         protected val openInvs: MutableMap<UUID, Menu> = mutableMapOf()
 
         fun closeOpenInvs() {
-            openInvs.keys.map(Bukkit::getPlayer)
-                .filterNotNull()
+            openInvs.keys.mapNotNull(Bukkit::getPlayer)
                 .forEach(Player::closeInventory)
             openInvs.clear()
         }
@@ -29,9 +31,10 @@ abstract class Menu(private var rows: Int, title: String, val viewer: Player) : 
     protected var inv: Inventory
 
     init {
-        rows = 6.coerceAtMost(1.coerceAtLeast(rows))
+        rows = rows.coerceIn(1, 6)
         this.inv = Bukkit.createInventory(this, rows * 9, "$prefix$title")
         viewer.openInventory(inv)
+        this.build()
     }
 
     fun close() {

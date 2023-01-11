@@ -9,6 +9,10 @@ import me.danny.shop.listeners.ImportListener
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
+/**
+ * The one-stop shop plugin
+ * ( pun intended ;) )
+ */
 class DannyShop : JavaPlugin() {
     companion object {
         lateinit var SHOP: Shop

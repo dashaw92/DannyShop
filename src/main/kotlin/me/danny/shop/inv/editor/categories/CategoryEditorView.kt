@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 
 class CategoryEditorView(val category: Category) : MenuView {
+
     override fun build(inv: Inventory) {
         val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
@@ -25,7 +26,7 @@ class CategoryEditorView(val category: Category) : MenuView {
     }
 
     override fun onClick(inv: Inventory, event: InventoryClickEvent): ViewAction {
-        if (event.slot == inv.size - 1) return ViewAction.ChangeView(CategoryListingView(inv))
+        if (event.slot == inv.size - 1) return ViewAction.ChangeView(CategoryListingView())
         if (event.clickedInventory == inv) return ViewAction.Pass
 
         category.changeDisplay(event.currentItem!!.type)

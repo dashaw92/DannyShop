@@ -7,6 +7,9 @@ import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.Menu
 import me.danny.shop.inv.editor.items.ItemEditor
 import me.danny.shop.inv.shop.CategoryPage
+import me.danny.shop.me.danny.shop.data.Key
+import me.danny.shop.me.danny.shop.data.hasKey
+import me.danny.shop.me.danny.shop.data.keyValue
 import me.danny.shop.me.danny.shop.inv.fill
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
@@ -20,7 +23,7 @@ class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopRetur
 
     companion object {
         @Suppress("DEPRECATION")
-        internal val ITEM_KEY = NamespacedKey("dannyshop", "item_iid")
+        internal val ITEM_KEY = Key(NamespacedKey("dannyshop", "item_iid"), PersistentDataType.STRING)
     }
 
     private var categories: List<Category> = shop.categories().take(6)
@@ -29,10 +32,6 @@ class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopRetur
         shopReturnInfo?.itemPage ?: ItemPage(viewer, shop.items(selected), Pair(inv.size - 2, inv.size - 1))
     private var categoryPage: CategoryPage =
         shopReturnInfo?.categoryPage ?: CategoryPage(shop.categories(), selected, Pair(1, 46))
-
-    init {
-        build()
-    }
 
     override fun build() {
         if (shop.isEmpty()) {
@@ -81,8 +80,8 @@ class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopRetur
     }
 
     override fun onClick(event: InventoryClickEvent) {
-        if (ItemBuilder.hasKey(event.currentItem!!, ITEM_KEY, PersistentDataType.STRING)) {
-            val iid = ItemBuilder.getValue(event.currentItem!!, ITEM_KEY, PersistentDataType.STRING, "")
+        if (event.currentItem!!.hasKey(ITEM_KEY)) {
+            val iid = event.currentItem?.keyValue(ITEM_KEY) ?: ""
             if (iid.trim().isBlank()) return
 
             val item = shop.itemByIid(iid) ?: return

@@ -17,9 +17,14 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
+/**
+ * Listens for players punching chests with the import wand
+ * When this occurs, attempt to import the items in the chest
+ * into the shop
+ */
 object ImportListener : Listener {
 
-    val chests = object : Tag<Material> {
+    private val chests = object : Tag<Material> {
         val materials = mutableSetOf(Material.CHEST, Material.TRAPPED_CHEST)
 
         @Suppress("DEPRECATION")

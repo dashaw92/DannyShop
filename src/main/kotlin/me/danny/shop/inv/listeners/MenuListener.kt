@@ -1,7 +1,7 @@
 package me.danny.shop.inv.listeners
 
-import me.danny.shop.inv.FullInvListener
 import me.danny.shop.inv.Menu
+import me.danny.shop.me.danny.shop.inv.FullInvListener
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

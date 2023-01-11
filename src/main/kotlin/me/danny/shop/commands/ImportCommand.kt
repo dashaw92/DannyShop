@@ -1,6 +1,8 @@
 package me.danny.shop.commands
 
 import me.danny.shop.inv.ItemBuilder
+import me.danny.shop.me.danny.shop.data.attachMarker
+import me.danny.shop.me.danny.shop.data.hasMarker
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -11,18 +13,16 @@ object ImportCommand {
 
     @Suppress("DEPRECATION")
     private val WAND_KEY = NamespacedKey("dannyshop", "wand_item")
-    private val IMPORT_WAND = ItemBuilder.attachMarker(
-        ItemBuilder.makeItem(
-            Material.WOODEN_HOE, "${ChatColor.DARK_AQUA}DannyShop Import Wand",
-            "${ChatColor.YELLOW}Left click a named chest to import the items",
-            "${ChatColor.YELLOW}in the chest with default options.",
-            "${ChatColor.YELLOW}Worth will be determined by Essentials' ${ChatColor.LIGHT_PURPLE}worth.yml",
-            "${ChatColor.YELLOW}If Essentials is not on the server, you will",
-            "${ChatColor.YELLOW}have to manually do this!"
-        ), WAND_KEY
-    )
+    private val IMPORT_WAND = ItemBuilder.makeItem(
+        Material.WOODEN_HOE, "&3DannyShop Import Wand",
+        "&eLeft click a named chest to import the items",
+        "&ein the chest with default options.",
+        "&eWorth will be determined by Essentials' &dworth.yml",
+        "&eIf Essentials is not on the server, you will",
+        "&ehave to manually do this!"
+    ).attachMarker(WAND_KEY)
 
-    fun isWand(item: ItemStack) = ItemBuilder.hasMarker(item, WAND_KEY)
+    fun isWand(item: ItemStack) = item.hasMarker(WAND_KEY)
 
     @Suppress("UNUSED_PARAMETER")
     fun onCommand(player: Player, args: Array<out String>) {

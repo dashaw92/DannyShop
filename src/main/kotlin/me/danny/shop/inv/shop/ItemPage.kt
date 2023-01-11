@@ -5,11 +5,12 @@ import me.danny.shop.data.Item
 import me.danny.shop.data.Shop
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.Page
+import me.danny.shop.me.danny.shop.data.attachKey
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
-import org.bukkit.persistence.PersistentDataType
 
 class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair<Int, Int>) :
     Page<Item>(coll, Pair(2, 0), Pair(7, 5), buttons) {
@@ -29,12 +30,15 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
 
     private fun makeMenuItem(item: Item): ItemStack {
         val tagged =
-            ItemBuilder.attachKey(item.item.display(), ShopMenu.ITEM_KEY, PersistentDataType.STRING, item.iid.id)
+            ItemBuilder.addAttribute(
+                item.item.display().attachKey(ShopMenu.ITEM_KEY, item.iid.id),
+                ItemFlag.HIDE_ATTRIBUTES
+            )
 
         val header =
-            "${ChatColor.GOLD}+${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}[${ChatColor.DARK_RED} DannyShop ${ChatColor.GOLD}${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}]------------"
+            "${ChatColor.GOLD}┌┤${ChatColor.DARK_RED} DannyShop ${ChatColor.GOLD}├──"
         val footer =
-            "${ChatColor.GOLD}+${ChatColor.STRIKETHROUGH}${ChatColor.BOLD}----------------------"
+            "${ChatColor.GOLD}└───────────"
         val fields: MutableList<String> = mutableListOf()
 
         fields.add("${ChatColor.LIGHT_PURPLE}Cost:")
@@ -58,13 +62,13 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
         }
 
         fields.add("")
-        fields.add("${ChatColor.YELLOW}[Buy/Sell: ${ChatColor.GOLD}Click${ChatColor.YELLOW}]")
+        fields.add("${ChatColor.YELLOW}[Purchase: ${ChatColor.GOLD}Click${ChatColor.YELLOW}]")
         if (viewer.hasPermission("dannyshop.admin")) {
             fields.add("${ChatColor.DARK_AQUA}[Edit: ${ChatColor.AQUA}Right Click${ChatColor.DARK_AQUA}]")
         }
 
         val display: MutableList<String> = fields.map { field ->
-            "${ChatColor.GOLD}| $field "
+            "${ChatColor.GOLD}│ $field"
         }.toMutableList()
         display.add(0, header)
         display.add(footer)

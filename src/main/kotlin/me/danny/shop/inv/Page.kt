@@ -22,12 +22,12 @@ abstract class Page<T>(
     fun page() = page
     open fun numPages(): Int = 1 + items.size / size
 
-    fun nextPage() {
+    private fun nextPage() {
         if (page + 1 >= numPages()) return
         page += 1
     }
 
-    fun prevPage() {
+    private fun prevPage() {
         if (page == 0) return
         page -= 1
     }
