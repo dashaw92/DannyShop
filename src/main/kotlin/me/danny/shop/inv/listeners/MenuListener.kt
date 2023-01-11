@@ -23,6 +23,7 @@ object MenuListener : Listener {
 
         if (event.click != ClickType.LEFT && event.click != ClickType.RIGHT
             && event.click != ClickType.SHIFT_LEFT && event.click != ClickType.SHIFT_RIGHT
+            && event.click != ClickType.DROP
             || event.currentItem == null || event.currentItem?.type == Material.AIR
         ) {
             if (holder !is HotbarSlotListener || event.click != ClickType.NUMBER_KEY) return
