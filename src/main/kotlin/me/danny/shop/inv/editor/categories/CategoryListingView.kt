@@ -1,6 +1,5 @@
 package me.danny.shop.inv.editor.categories
 
-import me.danny.shop.DannyShop
 import me.danny.shop.data.Shop
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.view.ViewAction
@@ -19,7 +18,7 @@ class CategoryListingView : MenuView {
 
     override fun build(inv: Inventory) {
         if (!this::page.isInitialized) {
-            page = CategoryPages(DannyShop.SHOP.categories(), Pair(inv.size - 2, inv.size - 1))
+            page = CategoryPages(Pair(inv.size - 2, inv.size - 1))
         }
 
         val border = ItemBuilder.makeItem(Material.ORANGE_STAINED_GLASS_PANE, " ")

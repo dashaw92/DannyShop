@@ -53,10 +53,7 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
             is Item.Cooldown.None -> fields.add("&dCooldown: &2None")
             is Item.Cooldown.Infinite -> fields.add("&dCooldown: &4Purchasable only once")
             is Item.Cooldown.Duration -> fields.add(
-                "&dCooldown: &7%d%s".format(
-                    item.cooldown.time.time,
-                    item.cooldown.time.suffix
-                )
+                "&dCooldown: &7${item.cooldown.time.display()}"
             )
         }
 

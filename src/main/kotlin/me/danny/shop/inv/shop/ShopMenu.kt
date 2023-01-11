@@ -9,6 +9,7 @@ import me.danny.shop.inv.shop.CategoryPage
 import me.danny.shop.me.danny.shop.data.Key
 import me.danny.shop.me.danny.shop.data.hasKey
 import me.danny.shop.me.danny.shop.data.keyValue
+import me.danny.shop.me.danny.shop.inv.color
 import me.danny.shop.me.danny.shop.inv.fill
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
@@ -68,7 +69,7 @@ class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopRetur
     }
 
     private fun showEmptyShop() {
-        inv = Bukkit.createInventory(this, 27, "- &8Uh oh!")
+        inv = Bukkit.createInventory(this, 27, "$prefix- &8Uh oh!".color())
         val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
         val notice = ItemBuilder.makeItem(
             Material.REDSTONE_TORCH, "&6The shop is empty!",

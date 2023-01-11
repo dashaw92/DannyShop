@@ -1,14 +1,17 @@
 package me.danny.shop.inv.editor.categories
 
+import me.danny.shop.DannyShop
 import me.danny.shop.data.Category
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.Page
 import me.danny.shop.me.danny.shop.data.attachKey
 import org.bukkit.inventory.Inventory
 
-class CategoryPages(coll: Collection<Category>, buttons: Pair<Int, Int>) :
-    Page<Category>(coll, Pair(1, 1), Pair(7, 3), buttons) {
+class CategoryPages(buttons: Pair<Int, Int>) :
+    Page<Category>(DannyShop.SHOP.categories(), Pair(1, 1), Pair(7, 3), buttons) {
     override fun display(inv: Inventory) {
+        items = DannyShop.SHOP.categories()
+
         var invIdx = start.second * 9 + start.second
         val items = items
             .drop(page * size)

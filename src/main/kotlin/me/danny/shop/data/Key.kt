@@ -33,5 +33,9 @@ fun ItemStack.attachMarker(key: NamespacedKey): ItemStack {
     return this
 }
 
+fun ItemStack.attachMarker(key: Key<Byte, Byte>): ItemStack = attachKey(key, 1)
+
 fun ItemStack.hasMarker(key: NamespacedKey): Boolean =
     itemMeta!!.persistentDataContainer.has(key, PersistentDataType.BYTE)
+
+fun ItemStack.hasMarker(key: Key<Byte, Byte>): Boolean = hasMarker(key.key)

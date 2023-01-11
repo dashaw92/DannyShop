@@ -3,6 +3,7 @@ package me.danny.shop.inv.editor.items
 import me.danny.shop.DannyShop
 import me.danny.shop.data.Item
 import me.danny.shop.inv.ItemBuilder
+import me.danny.shop.inv.editor.items.properties.CooldownPropEditor
 import me.danny.shop.inv.editor.items.properties.QuantitesPropEditor
 import me.danny.shop.inv.view.ViewAction
 import me.danny.shop.me.danny.shop.inv.editor.items.properties.CostPropEditor
@@ -56,11 +57,13 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
             return ViewAction.Pass
         }
 
-        return when (event.currentItem!!.type) {
-            Material.EMERALD -> ViewAction.ChangeView(CostPropEditor(editor))
-            Material.WRITABLE_BOOK -> ViewAction.ChangeView(QuantitesPropEditor(editor))
-            else -> ViewAction.Pass
-        }
+        val newView = when (event.currentItem!!.type) {
+            Material.EMERALD -> CostPropEditor(editor)
+            Material.WRITABLE_BOOK -> QuantitesPropEditor(editor)
+            Material.CLOCK -> CooldownPropEditor(editor)
+            else -> null
+        } ?: return ViewAction.Pass
+        return ViewAction.ChangeView(newView)
     }
 
     private fun itemType(item: Item): String {

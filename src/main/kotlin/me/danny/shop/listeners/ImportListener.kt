@@ -56,6 +56,8 @@ object ImportListener : Listener {
 
     private fun importItems(player: Player, category: Category, inv: Inventory) {
         for (item in inv.filterNotNull()) {
+            if (item.type.isAir) continue
+
             val iid = Item.IID.generate()
             val type = if (item.hasItemMeta()) {
                 Item.ItemType.Item(item)
@@ -63,8 +65,16 @@ object ImportListener : Listener {
                 Item.ItemType.Mat(item.type)
             }
 
-            val cost = getWorth(item)
-            val quantities = Item.Quantities(listOf(1, 32, 64), Item.Quantities.Allowed.Any)
+            val cost = when (type) {
+                is Item.ItemType.Mat, is Item.ItemType.Item -> getWorth(item)
+                else -> Item.Cost.NotSet
+            }
+
+            val quantities = when (type) {
+                is Item.ItemType.Mat -> Item.Quantities(listOf(1, 32, 64), Item.Quantities.Allowed.Any)
+                else -> Item.Quantities(listOf(1), Item.Quantities.Allowed.Predefined)
+            }
+
             val cooldown = Item.Cooldown.None
 
             val shopItem = Item(iid, type, cost, cooldown, quantities, category)

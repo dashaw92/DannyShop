@@ -45,6 +45,10 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
     fun isEmpty(): Boolean = items.values.flatten().isEmpty()
     fun itemByIid(iid: String): Item? = items.values.flatten().find { it.iid.id == iid }
     fun itemByIid(iid: Item.IID): Item? = items.values.flatten().find { it.iid == iid }
+    fun deleteCategory(category: Category) {
+        items.remove(category)
+        CATEGORIES.remove(category)
+    }
 }
 
 /**
@@ -175,7 +179,15 @@ data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: 
             data class Years(val years: Long) : Time(years * 12 * 4 * 7 * 24, TimeUnit.HOURS, "y")
 
             fun convertTo(unit: TimeUnit): Long = unit.convert(time, base)
-            fun display(): String = "$time$suffix"
+            fun display(): String {
+                return when (this) {
+                    is Millis, is Seconds, is Minutes, is Hours -> "$time$suffix"
+                    is Days -> "${time / 24}d"
+                    is Weeks -> "${time / 24 / 7}w"
+                    is Months -> "${time / 24 / 7 / 4}mo"
+                    is Years -> "${time / 24 / 7 / 4 / 12}y"
+                }
+            }
         }
     }
 
