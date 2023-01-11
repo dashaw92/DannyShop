@@ -9,7 +9,7 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 
-class PurchaseMenu(viewer: Player, val item: Item, private val returnInfo: ShopMenu.ShopReturnInfo) :
+class PurchaseMenu(viewer: Player, val item: Item.IID, private val returnInfo: ShopMenu.ShopReturnInfo) :
     Menu(3, "- ${ChatColor.DARK_GREEN}Purchase", viewer) {
 
     init {

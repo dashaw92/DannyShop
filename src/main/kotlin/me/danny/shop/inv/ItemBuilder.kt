@@ -1,6 +1,6 @@
 package me.danny.shop.inv
 
-import net.md_5.bungee.api.ChatColor
+import me.danny.shop.me.danny.shop.inv.color
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemFlag
@@ -9,7 +9,6 @@ import org.bukkit.inventory.meta.PotionMeta
 import org.bukkit.potion.PotionData
 import org.bukkit.potion.PotionType
 import java.util.*
-import java.util.stream.Collectors
 
 
 /**
@@ -24,7 +23,7 @@ object ItemBuilder {
     fun makeItem(mat: Material, amount: Int, name: String, vararg lore: String?): ItemStack {
         var item = ItemStack(mat, amount)
         val im = item.itemMeta!!
-        im.setDisplayName(ChatColor.translateAlternateColorCodes('&', name))
+        im.setDisplayName(name.color())
         item.itemMeta = im
         if (lore.isNotEmpty()) item = setLore(item, *lore)
         return item
@@ -34,7 +33,7 @@ object ItemBuilder {
         val original = item.itemMeta!!.lore
         val current = original?.toMutableList() ?: mutableListOf()
         Arrays.stream(lore)
-            .map { line -> ChatColor.translateAlternateColorCodes('&', line) }
+            .map(String::color)
             .forEach(current::add)
         val clone = item.clone()
         val meta = clone.itemMeta!!
@@ -46,9 +45,8 @@ object ItemBuilder {
     private fun setLore(item: ItemStack, vararg lore: String?): ItemStack {
         val clone = item.clone()
         val im = item.itemMeta!!
-        val colored: List<String> = Arrays.stream(lore)
-            .map { line -> ChatColor.translateAlternateColorCodes('&', line) }
-            .collect(Collectors.toList())
+        val colored: List<String> = lore
+            .mapNotNull { it?.color() }
         im.lore = colored
         clone.itemMeta = im
         return clone

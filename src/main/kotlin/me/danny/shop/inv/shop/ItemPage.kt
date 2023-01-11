@@ -45,8 +45,8 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
         when (item.cost) {
             is Item.Cost.NotSet -> fields.add("${ChatColor.RED}  No price set!")
             is Item.Cost.Value -> {
-                fields.add("  ${ChatColor.YELLOW}Buy: ${ChatColor.GRAY}\$%.2f".format(item.cost.buy))
-                fields.add("  ${ChatColor.YELLOW}Sell: ${ChatColor.GRAY}\$%.2f".format(item.cost.sell))
+                fields.add("  ${ChatColor.YELLOW}Buy: ${ChatColor.GRAY}\$%,.2f".format(item.cost.buy))
+                fields.add("  ${ChatColor.YELLOW}Sell: ${ChatColor.GRAY}\$%,.2f".format(item.cost.sell))
             }
         }
 

@@ -92,9 +92,9 @@ class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopRetur
 
             val returnInfo = ShopReturnInfo(itemPage, categoryPage)
             if (event.click.isRightClick && viewer.hasPermission("dannyshop.admin"))
-                ItemEditor(viewer, item, returnInfo)
+                ItemEditor(viewer, item.iid, returnInfo)
             else
-                PurchaseMenu(viewer, item, returnInfo)
+                PurchaseMenu(viewer, item.iid, returnInfo)
             return
         }
 

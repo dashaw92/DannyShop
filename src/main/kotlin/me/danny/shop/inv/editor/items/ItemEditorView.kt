@@ -4,6 +4,7 @@ import me.danny.shop.DannyShop
 import me.danny.shop.data.Item
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.view.ViewAction
+import me.danny.shop.me.danny.shop.inv.editor.items.properties.CostPropEditor
 import me.danny.shop.me.danny.shop.inv.fill
 import me.danny.shop.me.danny.shop.inv.shop.ShopMenu
 import me.danny.shop.me.danny.shop.inv.view.MenuView
@@ -14,28 +15,33 @@ import org.bukkit.inventory.Inventory
 
 class ItemEditorView(private val editor: ItemEditor) : MenuView {
 
+    override fun onOpen(): ViewAction = ViewAction.Resize(3)
+
     override fun build(inv: Inventory) {
+        val item = DannyShop.SHOP.itemByIid(editor.item)!!
+
         val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
         inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "${ChatColor.BLUE}Back"))
 
         val id = ItemBuilder.makeItem(
-            Material.PAPER, "${ChatColor.GREEN}IID: ${ChatColor.GRAY}${editor.item.iid.id}",
-            "${ChatColor.DARK_AQUA}Type: ${ChatColor.GRAY}${itemType()}",
+            Material.PAPER, "${ChatColor.GREEN}IID: ${ChatColor.GRAY}${item.iid.id}",
+            "${ChatColor.DARK_AQUA}Type: ${ChatColor.GRAY}${itemType(item)}",
         )
 
         val footer = arrayOf("", "${ChatColor.YELLOW}[Edit: Click]")
 
-        val costButton = ItemBuilder.makeItem(Material.EMERALD, "${ChatColor.GREEN}Prices", *cost(), *footer)
-        val cooldownButton = ItemBuilder.makeItem(Material.CLOCK, "${ChatColor.GREEN}Cooldown", *cooldown(), *footer)
+        val costButton = ItemBuilder.makeItem(Material.EMERALD, "${ChatColor.GREEN}Prices", *cost(item), *footer)
+        val cooldownButton =
+            ItemBuilder.makeItem(Material.CLOCK, "${ChatColor.GREEN}Cooldown", *cooldown(item), *footer)
         val categoryButton = ItemBuilder.makeItem(
             Material.CHEST,
             "${ChatColor.GREEN}Category",
-            "${ChatColor.GRAY}${editor.item.category.name}",
+            "${ChatColor.GRAY}${item.category.name}",
             *footer
         )
         val quantitiesButton =
-            ItemBuilder.makeItem(Material.WRITABLE_BOOK, "${ChatColor.GREEN}Quantities", *quantities(), *footer)
+            ItemBuilder.makeItem(Material.WRITABLE_BOOK, "${ChatColor.GREEN}Quantities", *quantities(item), *footer)
 
         inv.setItem(11, costButton)
         inv.setItem(12, cooldownButton)
@@ -50,11 +56,14 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
             return ViewAction.Pass
         }
 
-        return ViewAction.Pass
+        return when (event.currentItem!!.type) {
+            Material.EMERALD -> ViewAction.ChangeView(CostPropEditor(editor))
+            else -> ViewAction.Pass
+        }
     }
 
-    private fun itemType(): String {
-        return when (editor.item.item) {
+    private fun itemType(item: Item): String {
+        return when (item.item) {
             is Item.ItemType.Mat -> "Material"
             is Item.ItemType.Item -> "ItemStack"
             is Item.ItemType.Exp -> "Experience"
@@ -62,8 +71,8 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
         }
     }
 
-    private fun cost(): Array<String> {
-        return when (editor.item.cost) {
+    private fun cost(item: Item): Array<String> {
+        return when (item.cost) {
             is Item.Cost.NotSet -> arrayOf(
                 "${ChatColor.RED}Not set!",
                 "",
@@ -72,14 +81,14 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
             )
 
             is Item.Cost.Value -> arrayOf(
-                "${ChatColor.YELLOW}Buy: ${ChatColor.GRAY}\$%.2f".format(editor.item.cost.buy),
-                "${ChatColor.YELLOW}Sell: ${ChatColor.GRAY}\$%.2f".format(editor.item.cost.sell),
+                "${ChatColor.YELLOW}Buy: ${ChatColor.GRAY}\$%,.2f".format(item.cost.buy),
+                "${ChatColor.YELLOW}Sell: ${ChatColor.GRAY}\$%,.2f".format(item.cost.sell),
             )
         }
     }
 
-    private fun cooldown(): Array<String> {
-        return when (editor.item.cooldown) {
+    private fun cooldown(item: Item): Array<String> {
+        return when (item.cooldown) {
             is Item.Cooldown.None -> arrayOf(
                 "${ChatColor.GRAY}None",
                 "",
@@ -93,20 +102,20 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
             )
 
             is Item.Cooldown.Duration -> arrayOf(
-                "${ChatColor.YELLOW}Timed: ${ChatColor.GRAY}${editor.item.cooldown.time.time}${editor.item.cooldown.time.suffix}",
+                "${ChatColor.YELLOW}Timed: ${ChatColor.GRAY}${item.cooldown.time.time}${item.cooldown.time.suffix}",
                 "",
                 "${ChatColor.GRAY}${ChatColor.ITALIC}Players must wait before purchasing again"
             )
         }
     }
 
-    private fun quantities(): Array<String> {
+    private fun quantities(item: Item): Array<String> {
         return arrayOf(
-            "${ChatColor.YELLOW}Predefined: ${ChatColor.GRAY}${editor.item.quantities.predefined}",
-            "${ChatColor.YELLOW}Mode: ${ChatColor.GRAY}${editor.item.quantities.allowed}",
+            "${ChatColor.YELLOW}Predefined: ${ChatColor.GRAY}${item.quantities.predefined}",
+            "${ChatColor.YELLOW}Mode: ${ChatColor.GRAY}${item.quantities.allowed}",
             "",
             "${ChatColor.GRAY}${ChatColor.ITALIC}%s".format(
-                when (editor.item.quantities.allowed) {
+                when (item.quantities.allowed) {
                     Item.Quantities.Allowed.Any -> "Players can buy any amount of this at once"
                     Item.Quantities.Allowed.Predefined -> "Players may only buy a predefined amount"
                 }

@@ -2,6 +2,7 @@ package me.danny.shop.inv.listeners
 
 import me.danny.shop.inv.Menu
 import me.danny.shop.me.danny.shop.inv.FullInvListener
+import me.danny.shop.me.danny.shop.inv.HotbarSlotListener
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -24,7 +25,7 @@ object MenuListener : Listener {
             && event.click != ClickType.SHIFT_LEFT && event.click != ClickType.SHIFT_RIGHT
             || event.currentItem == null || event.currentItem?.type == Material.AIR
         ) {
-            return
+            if (holder !is HotbarSlotListener || event.click != ClickType.NUMBER_KEY) return
         }
 
         holder.onClick(event)

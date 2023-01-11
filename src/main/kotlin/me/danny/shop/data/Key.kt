@@ -7,7 +7,10 @@ import org.bukkit.persistence.PersistentDataType
 /**
  * Wrap over a Namespaced key to avoid using the data type argument everywhere
  */
-data class Key<T, Z>(val key: NamespacedKey, val type: PersistentDataType<T, Z>)
+data class Key<T, Z>(val key: NamespacedKey, val type: PersistentDataType<T, Z>) {
+    @Suppress("DEPRECATION")
+    constructor(key: String, type: PersistentDataType<T, Z>) : this(NamespacedKey("dannyshop", key), type)
+}
 
 fun <T, Z> ItemStack.keyValue(key: Key<T, Z>): Z? {
     val meta = itemMeta!!

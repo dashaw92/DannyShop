@@ -12,12 +12,18 @@ import org.bukkit.inventory.Inventory
 interface MenuView {
 
     /**
-     *
+     * Use this method to customize the inventory
+     * when your view is first used
+     */
+    fun onOpen(): ViewAction = ViewAction.Pass
+
+    /**
+     * Render the view here
      */
     fun build(inv: Inventory)
 
     /**
-     *
+     * Handle button clicks here
      */
     fun onClick(inv: Inventory, event: InventoryClickEvent): ViewAction
 

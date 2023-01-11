@@ -31,12 +31,20 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
         items.computeIfAbsent(item.category) { mutableListOf() } += item
     }
 
+    fun replaceItem(id: Item.IID, replacement: Item) {
+        val old = itemByIid(id.id) ?: return
+        val items = items.entries.find { (key, _) -> key.name == old.category.name }?.value ?: return
+        val idx = items.indexOf(old)
+        items[idx] = replacement
+    }
+
     fun categories(): Collection<Category> = CATEGORIES
     fun items(category: Category): Collection<Item> =
         items.entries.find { (key, _) -> key.name == category.name }?.value ?: listOf()
 
     fun isEmpty(): Boolean = items.values.flatten().isEmpty()
     fun itemByIid(iid: String): Item? = items.values.flatten().find { it.iid.id == iid }
+    fun itemByIid(iid: Item.IID): Item? = items.values.flatten().find { it.iid == iid }
 }
 
 /**
@@ -62,6 +70,10 @@ data class Category(val name: String, var display: Material) {
  * * Cooldown - How often a player may purchase the item
  * * Quantities - Details about sellable item quantities
  * * Category - The group this item will belong to
+ *
+ * Instances of this should NOT be held onto.
+ * Use the item's IID to fetch it from the Shop.
+ * Instances of this class may be outdated otherwise.
  */
 data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: Cooldown, val quantities: Quantities, val category: Category) {
 
