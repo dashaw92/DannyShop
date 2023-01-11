@@ -1,7 +1,6 @@
 package me.danny.shop.me.danny.shop.inv.shop
 
 import me.danny.shop.data.Category
-import me.danny.shop.data.Item.*
 import me.danny.shop.data.Shop
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.Menu
@@ -14,7 +13,6 @@ import me.danny.shop.me.danny.shop.inv.fill
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
-import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.persistence.PersistentDataType
@@ -22,8 +20,7 @@ import org.bukkit.persistence.PersistentDataType
 class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer) {
 
     companion object {
-        @Suppress("DEPRECATION")
-        internal val ITEM_KEY = Key(NamespacedKey("dannyshop", "item_iid"), PersistentDataType.STRING)
+        internal val ITEM_KEY = Key("item_iid", PersistentDataType.STRING)
     }
 
     private var categories: List<Category> = shop.categories().take(6)
@@ -71,12 +68,12 @@ class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopRetur
     }
 
     private fun showEmptyShop() {
-        inv = Bukkit.createInventory(this, 27, "- ${ChatColor.DARK_GRAY}Uh oh!")
+        inv = Bukkit.createInventory(this, 27, "- &8Uh oh!")
         val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
         val notice = ItemBuilder.makeItem(
-            Material.REDSTONE_TORCH, "${ChatColor.GOLD}The shop is empty!",
-            "${ChatColor.YELLOW}But don't worry! Creating a shop is simple!",
-            "${ChatColor.YELLOW}Check out the command ${ChatColor.LIGHT_PURPLE}/dannyshop import${ChatColor.YELLOW}.",
+            Material.REDSTONE_TORCH, "&6The shop is empty!",
+            "&eBut don't worry! Creating a shop is simple!",
+            "&eCheck out the command &d/dannyshop import&e.",
         )
         inv.fill(filler)
         inv.setItem(13, notice)

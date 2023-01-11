@@ -6,7 +6,6 @@ import me.danny.shop.data.Shop
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.Page
 import me.danny.shop.me.danny.shop.data.attachKey
-import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemFlag
@@ -36,25 +35,25 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
             )
 
         val header =
-            "${ChatColor.GOLD}┌┤${ChatColor.DARK_RED} DannyShop ${ChatColor.GOLD}├──"
+            "&6┌┤&4 DannyShop &6├──"
         val footer =
-            "${ChatColor.GOLD}└───────────"
+            "&6└───────────"
         val fields: MutableList<String> = mutableListOf()
 
-        fields.add("${ChatColor.LIGHT_PURPLE}Cost:")
+        fields.add("&dCost:")
         when (item.cost) {
-            is Item.Cost.NotSet -> fields.add("${ChatColor.RED}  No price set!")
+            is Item.Cost.NotSet -> fields.add("&c  No price set!")
             is Item.Cost.Value -> {
-                fields.add("  ${ChatColor.YELLOW}Buy: ${ChatColor.GRAY}\$%,.2f".format(item.cost.buy))
-                fields.add("  ${ChatColor.YELLOW}Sell: ${ChatColor.GRAY}\$%,.2f".format(item.cost.sell))
+                fields.add("  &eBuy: &7\$%,.2f".format(item.cost.buy))
+                fields.add("  &eSell: &7\$%,.2f".format(item.cost.sell))
             }
         }
 
         when (item.cooldown) {
-            is Item.Cooldown.None -> fields.add("${ChatColor.LIGHT_PURPLE}Cooldown: ${ChatColor.DARK_GREEN}None")
-            is Item.Cooldown.Infinite -> fields.add("${ChatColor.LIGHT_PURPLE}Cooldown: ${ChatColor.DARK_RED}Purchasable only once")
+            is Item.Cooldown.None -> fields.add("&dCooldown: &2None")
+            is Item.Cooldown.Infinite -> fields.add("&dCooldown: &4Purchasable only once")
             is Item.Cooldown.Duration -> fields.add(
-                "${ChatColor.LIGHT_PURPLE}Cooldown: ${ChatColor.GRAY}%d%s".format(
+                "&dCooldown: &7%d%s".format(
                     item.cooldown.time.time,
                     item.cooldown.time.suffix
                 )
@@ -62,14 +61,12 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
         }
 
         fields.add("")
-        fields.add("${ChatColor.YELLOW}[Purchase: ${ChatColor.GOLD}Click${ChatColor.YELLOW}]")
+        fields.add("&e[Purchase: &6Click&e]")
         if (viewer.hasPermission("dannyshop.admin")) {
-            fields.add("${ChatColor.DARK_AQUA}[Edit: ${ChatColor.AQUA}Right Click${ChatColor.DARK_AQUA}]")
+            fields.add("&3[Edit: &bRight Click&3]")
         }
 
-        val display: MutableList<String> = fields.map { field ->
-            "${ChatColor.GOLD}│ $field"
-        }.toMutableList()
+        val display: MutableList<String> = fields.map { field -> "&6│ $field" }.toMutableList()
         display.add(0, header)
         display.add(footer)
 

@@ -175,6 +175,7 @@ data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: 
             data class Years(val years: Long) : Time(years * 12 * 4 * 7 * 24, TimeUnit.HOURS, "y")
 
             fun convertTo(unit: TimeUnit): Long = unit.convert(time, base)
+            fun display(): String = "$time$suffix"
         }
     }
 

@@ -3,7 +3,7 @@ package me.danny.shop.commands
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.me.danny.shop.data.attachMarker
 import me.danny.shop.me.danny.shop.data.hasMarker
-import org.bukkit.ChatColor
+import me.danny.shop.me.danny.shop.inv.color
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
@@ -27,11 +27,11 @@ object ImportCommand {
     @Suppress("UNUSED_PARAMETER")
     fun onCommand(player: Player, args: Array<out String>) {
         if (!player.hasPermission("dannyshop.import")) {
-            player.sendMessage("${ChatColor.RED}You lack permission.")
+            player.sendMessage("&cYou lack permission.".color())
             return
         }
 
         player.inventory.addItem(IMPORT_WAND)
-        player.sendMessage("${ChatColor.GOLD}[DannyShop] Import wand given! Info on the wand's tooltip!")
+        player.sendMessage("&6[DannyShop] Import wand given! Info on the wand's tooltip!".color())
     }
 }

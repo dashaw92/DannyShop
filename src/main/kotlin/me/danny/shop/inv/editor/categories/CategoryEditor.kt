@@ -5,13 +5,12 @@ import me.danny.shop.me.danny.shop.data.Key
 import me.danny.shop.me.danny.shop.inv.FullInvListener
 import me.danny.shop.me.danny.shop.inv.view.MenuView
 import me.danny.shop.me.danny.shop.inv.view.StateMenu
-import org.bukkit.ChatColor
 import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
 
 class CategoryEditor(player: Player) :
-    StateMenu(5, "- ${ChatColor.BLUE}Category Editor", player),
+    StateMenu(5, "- &9Category Editor", player),
     FullInvListener {
 
     init {

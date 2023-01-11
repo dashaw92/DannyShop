@@ -4,20 +4,19 @@ import me.danny.shop.DannyShop
 import me.danny.shop.data.Item
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.Menu
-import net.md_5.bungee.api.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 
 class PurchaseMenu(viewer: Player, val item: Item.IID, private val returnInfo: ShopMenu.ShopReturnInfo) :
-    Menu(3, "- ${ChatColor.DARK_GREEN}Purchase", viewer) {
+    Menu(3, "- &2Purchase", viewer) {
 
     init {
         build()
     }
 
     override fun build() {
-        inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "${ChatColor.BLUE}Back"))
+        inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "&9Back"))
     }
 
     override fun onClick(event: InventoryClickEvent) {

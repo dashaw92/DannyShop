@@ -4,7 +4,6 @@ import me.danny.shop.data.Category
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.Page
 import me.danny.shop.me.danny.shop.data.attachKey
-import org.bukkit.ChatColor
 import org.bukkit.inventory.Inventory
 
 class CategoryPages(coll: Collection<Category>, buttons: Pair<Int, Int>) :
@@ -15,7 +14,7 @@ class CategoryPages(coll: Collection<Category>, buttons: Pair<Int, Int>) :
             .drop(page * size)
             .take(size)
             .map {
-                ItemBuilder.makeItem(it.display, "${ChatColor.BLUE}${it.name}")
+                ItemBuilder.makeItem(it.display, "&9${it.name}")
                     .attachKey(CategoryEditor.CATEGORY_KEY, it.name)
             }
 

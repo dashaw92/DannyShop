@@ -1,6 +1,5 @@
 package me.danny.shop.inv
 
-import org.bukkit.ChatColor
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.potion.PotionType
@@ -49,8 +48,8 @@ abstract class Page<T>(
     protected abstract fun display(inv: Inventory)
 
     private fun drawButtons(inv: Inventory) {
-        val prevPage = ItemBuilder.makeTippedArrow("${ChatColor.RED}Previous", PotionType.INSTANT_HEAL)
-        val nextPage = ItemBuilder.makeTippedArrow("${ChatColor.DARK_GREEN}Next", PotionType.JUMP)
+        val prevPage = ItemBuilder.makeTippedArrow("&cPrevious", PotionType.INSTANT_HEAL)
+        val nextPage = ItemBuilder.makeTippedArrow("&2Next", PotionType.JUMP)
         if (page() > 0) inv.setItem(buttons.first, prevPage)
         if (page() + 1 < numPages()) inv.setItem(buttons.second, nextPage)
     }

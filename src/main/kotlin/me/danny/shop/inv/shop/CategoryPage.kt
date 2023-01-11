@@ -3,7 +3,6 @@ package me.danny.shop.inv.shop
 import me.danny.shop.data.Category
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.Page
-import org.bukkit.ChatColor
 import org.bukkit.inventory.Inventory
 
 class CategoryPage(coll: Collection<Category>, private var selected: Category, buttons: Pair<Int, Int>) :
@@ -18,7 +17,7 @@ class CategoryPage(coll: Collection<Category>, private var selected: Category, b
             .drop(page)
             .take(size)
             .map {
-                var item = ItemBuilder.makeItem(it.display, "${ChatColor.BLUE}${it.name}")
+                var item = ItemBuilder.makeItem(it.display, "&9${it.name}")
                 if (it == selected) item = ItemBuilder.addEnchantGlow(item)
                 item
             }

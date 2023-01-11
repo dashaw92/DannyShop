@@ -13,7 +13,6 @@ import java.util.*
 
 /**
  * Convenience functions for building custom items
- * TODO: Maybe convert this to use extension functions?
  */
 object ItemBuilder {
     fun makeItem(mat: Material, name: String, vararg lore: String?): ItemStack {

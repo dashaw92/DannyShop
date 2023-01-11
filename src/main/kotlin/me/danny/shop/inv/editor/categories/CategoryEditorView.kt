@@ -5,7 +5,6 @@ import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.view.ViewAction
 import me.danny.shop.me.danny.shop.inv.fill
 import me.danny.shop.me.danny.shop.inv.view.MenuView
-import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
@@ -20,11 +19,11 @@ class CategoryEditorView(val category: Category) : MenuView {
 
         inv.setItem(
             13, ItemBuilder.makeItem(
-                category.display, "${ChatColor.BLUE}${category.name}",
-                "${ChatColor.YELLOW}Click an item to change the icon"
+                category.display, "&9${category.name}",
+                "&eClick an item to change the icon"
             )
         )
-        inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "${ChatColor.BLUE}Back"))
+        inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "&9Back"))
     }
 
     override fun onClick(inv: Inventory, event: InventoryClickEvent): ViewAction {

@@ -8,7 +8,6 @@ import me.danny.shop.me.danny.shop.inv.editor.items.properties.CostPropEditor
 import me.danny.shop.me.danny.shop.inv.fill
 import me.danny.shop.me.danny.shop.inv.shop.ShopMenu
 import me.danny.shop.me.danny.shop.inv.view.MenuView
-import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
@@ -22,26 +21,26 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
 
         val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
-        inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "${ChatColor.BLUE}Back"))
+        inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "&9Back"))
 
         val id = ItemBuilder.makeItem(
-            Material.PAPER, "${ChatColor.GREEN}IID: ${ChatColor.GRAY}${item.iid.id}",
-            "${ChatColor.DARK_AQUA}Type: ${ChatColor.GRAY}${itemType(item)}",
+            Material.PAPER, "&aIID: &7${item.iid.id}",
+            "&3Type: &7${itemType(item)}",
         )
 
-        val footer = arrayOf("", "${ChatColor.YELLOW}[Edit: Click]")
+        val footer = arrayOf("", "&e[Edit: Click]")
 
-        val costButton = ItemBuilder.makeItem(Material.EMERALD, "${ChatColor.GREEN}Prices", *cost(item), *footer)
+        val costButton = ItemBuilder.makeItem(Material.EMERALD, "&aPrices", *cost(item), *footer)
         val cooldownButton =
-            ItemBuilder.makeItem(Material.CLOCK, "${ChatColor.GREEN}Cooldown", *cooldown(item), *footer)
+            ItemBuilder.makeItem(Material.CLOCK, "&aCooldown", *cooldown(item), *footer)
         val categoryButton = ItemBuilder.makeItem(
             Material.CHEST,
-            "${ChatColor.GREEN}Category",
-            "${ChatColor.GRAY}${item.category.name}",
+            "&aCategory",
+            "&7${item.category.name}",
             *footer
         )
         val quantitiesButton =
-            ItemBuilder.makeItem(Material.WRITABLE_BOOK, "${ChatColor.GREEN}Quantities", *quantities(item), *footer)
+            ItemBuilder.makeItem(Material.WRITABLE_BOOK, "&aQuantities", *quantities(item), *footer)
 
         inv.setItem(11, costButton)
         inv.setItem(12, cooldownButton)
@@ -74,15 +73,15 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
     private fun cost(item: Item): Array<String> {
         return when (item.cost) {
             is Item.Cost.NotSet -> arrayOf(
-                "${ChatColor.RED}Not set!",
+                "&cNot set!",
                 "",
-                "${ChatColor.RED}${ChatColor.ITALIC}Players cannot purchase this!",
-                "${ChatColor.RED}${ChatColor.ITALIC}Set a price to fix!"
+                "&c&oPlayers cannot purchase this!",
+                "&c&oSet a price to fix!"
             )
 
             is Item.Cost.Value -> arrayOf(
-                "${ChatColor.YELLOW}Buy: ${ChatColor.GRAY}\$%,.2f".format(item.cost.buy),
-                "${ChatColor.YELLOW}Sell: ${ChatColor.GRAY}\$%,.2f".format(item.cost.sell),
+                "&eBuy: &7\$%,.2f".format(item.cost.buy),
+                "&eSell: &7\$%,.2f".format(item.cost.sell),
             )
         }
     }
@@ -90,31 +89,31 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
     private fun cooldown(item: Item): Array<String> {
         return when (item.cooldown) {
             is Item.Cooldown.None -> arrayOf(
-                "${ChatColor.GRAY}None",
+                "&7None",
                 "",
-                "${ChatColor.GRAY}${ChatColor.ITALIC}Players may purchase this with no limit"
+                "&7&oPlayers may purchase this with no limit"
             )
 
             is Item.Cooldown.Infinite -> arrayOf(
-                "${ChatColor.GRAY}Infinite",
+                "&7Infinite",
                 "",
-                "${ChatColor.GRAY}${ChatColor.ITALIC}Players may purchase this once"
+                "&7&oPlayers may purchase this once"
             )
 
             is Item.Cooldown.Duration -> arrayOf(
-                "${ChatColor.YELLOW}Timed: ${ChatColor.GRAY}${item.cooldown.time.time}${item.cooldown.time.suffix}",
+                "&eTimed: &7${item.cooldown.time.display()}",
                 "",
-                "${ChatColor.GRAY}${ChatColor.ITALIC}Players must wait before purchasing again"
+                "&7&oPlayers must wait before purchasing again"
             )
         }
     }
 
     private fun quantities(item: Item): Array<String> {
         return arrayOf(
-            "${ChatColor.YELLOW}Predefined: ${ChatColor.GRAY}${item.quantities.predefined}",
-            "${ChatColor.YELLOW}Mode: ${ChatColor.GRAY}${item.quantities.allowed}",
+            "&ePredefined: &7${item.quantities.predefined}",
+            "&eMode: &7${item.quantities.allowed}",
             "",
-            "${ChatColor.GRAY}${ChatColor.ITALIC}%s".format(
+            "&7&o%s".format(
                 when (item.quantities.allowed) {
                     Item.Quantities.Allowed.Any -> "Players can buy any amount of this at once"
                     Item.Quantities.Allowed.Predefined -> "Players may only buy a predefined amount"

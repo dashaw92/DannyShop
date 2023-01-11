@@ -6,6 +6,7 @@ import me.danny.shop.commands.ImportCommand
 import me.danny.shop.data.Category
 import me.danny.shop.data.Item
 import me.danny.shop.data.Shop
+import me.danny.shop.me.danny.shop.inv.color
 import org.bukkit.*
 import org.bukkit.block.Chest
 import org.bukkit.entity.Player
@@ -49,7 +50,7 @@ object ImportListener : Listener {
             Shop.addCategory(category)
         }
 
-        player.sendMessage("${ChatColor.GOLD}[DannyShop] Importing items from chest into category ${ChatColor.YELLOW}${category.name}")
+        player.sendMessage("&6[DannyShop] Importing items from chest into category &e${category.name}".color())
         importItems(player, category, state.inventory)
     }
 
@@ -67,7 +68,7 @@ object ImportListener : Listener {
             val cooldown = Item.Cooldown.None
 
             val shopItem = Item(iid, type, cost, cooldown, quantities, category)
-            player.sendMessage("${ChatColor.GOLD}[DannyShop] Imported ${ChatColor.GRAY}\"${iid.id}\"")
+            player.sendMessage("&6[DannyShop] Imported &7\"${iid.id}\"".color())
             DannyShop.SHOP.addItem(shopItem)
         }
     }
@@ -75,7 +76,7 @@ object ImportListener : Listener {
     @EventHandler
     fun onWandDrop(event: PlayerDropItemEvent) {
         if (ImportCommand.isWand(event.itemDrop.itemStack)) {
-            event.player.sendMessage("${ChatColor.GOLD}[DannyShop] Removed import wand!")
+            event.player.sendMessage("&6[DannyShop] Removed import wand!".color())
             event.itemDrop.remove()
         }
     }
