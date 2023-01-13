@@ -1,8 +1,8 @@
 package me.danny.shop.me.danny.shop.inv.shop
 
+import me.danny.shop.DannyShop
 import me.danny.shop.data.Category
 import me.danny.shop.data.Item
-import me.danny.shop.data.Shop
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.Page
 import me.danny.shop.me.danny.shop.data.attachKey
@@ -22,9 +22,15 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
         }
     }
 
-    fun changeCategory(shop: Shop, category: Category) {
+    fun scrollToItem(item: Item) {
+        items = DannyShop.SHOP.items(item.category)
+        val newPage = items.indexOfFirst { it.iid.id == item.iid.id } / size
+        page = newPage
+    }
+
+    fun changeCategory(category: Category) {
         page = 0
-        items = shop.items(category)
+        items = DannyShop.SHOP.items(category)
     }
 
     private fun makeMenuItem(item: Item): ItemStack {
@@ -58,9 +64,9 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
         }
 
         fields.add("")
-        fields.add("&e[Purchase: &6Click&e]")
+        fields.add("&e[Purchase: Click]")
         if (viewer.hasPermission("dannyshop.admin")) {
-            fields.add("&3[Edit: &bRight Click&3]")
+            fields.add("&3[Edit: Right Click]")
         }
 
         val display: MutableList<String> = fields.map { field -> "&6│ $field" }.toMutableList()

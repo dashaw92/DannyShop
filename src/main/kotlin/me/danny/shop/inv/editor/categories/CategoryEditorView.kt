@@ -24,7 +24,7 @@ class CategoryEditorView(val category: Category) : MenuView {
     override fun onOpen(): ViewAction = ViewAction.Resize(3)
 
     override fun build(inv: Inventory) {
-        val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
+        val filler = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
 
         inv.setItem(

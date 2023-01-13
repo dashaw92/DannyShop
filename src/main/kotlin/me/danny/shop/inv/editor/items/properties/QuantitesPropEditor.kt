@@ -35,7 +35,7 @@ class QuantitesPropEditor(private val editor: ItemEditor) : MenuView {
     override fun onOpen(): ViewAction = ViewAction.Resize(4, "&7- &9Adjust Quantities")
 
     override fun build(inv: Inventory) {
-        val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
+        val filler = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
 
         val allowedButton = ItemBuilder.makeItem(
@@ -113,7 +113,7 @@ class QuantitesPropEditor(private val editor: ItemEditor) : MenuView {
                 ClickType.SHIFT_RIGHT -> amount -= 32
                 ClickType.NUMBER_KEY -> amount += (event.hotbarButton + 1)
                 ClickType.DROP -> {
-                    quantities.remove(amount)
+                    quantities.removeAt(page.indexOf(event.slot))
                     page.update(quantities)
                     build(inv)
                     return ViewAction.Pass
@@ -158,7 +158,7 @@ class QuantitesPropEditor(private val editor: ItemEditor) : MenuView {
 
         private fun makeButton(value: Int): ItemStack {
             return ItemBuilder.makeItem(
-                Material.POLISHED_ANDESITE, "&2Quantity: &a$value",
+                Material.POLISHED_ANDESITE, value, "&2Quantity: &a$value",
                 "",
                 "&6Left click&e to add 1",
                 "&6Right click&e to remove 1",

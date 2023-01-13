@@ -21,14 +21,16 @@ abstract class Page<T>(
     fun page() = page
     open fun numPages(): Int = 1 + items.size / size
 
-    private fun nextPage() {
-        if (page + 1 >= numPages()) return
+    private fun nextPage(): Boolean {
+        if (page + 1 >= numPages()) return false
         page += 1
+        return true
     }
 
-    private fun prevPage() {
-        if (page == 0) return
+    private fun prevPage(): Boolean {
+        if (page == 0) return false
         page -= 1
+        return true
     }
 
     fun render(inv: Inventory) {
@@ -57,11 +59,11 @@ abstract class Page<T>(
     fun onClick(event: InventoryClickEvent, callback: () -> Unit) {
         when (event.slot) {
             buttons.first -> {
-                prevPage(); callback()
+                if (prevPage()) callback()
             }
 
             buttons.second -> {
-                nextPage(); callback()
+                if (nextPage()) callback()
             }
         }
     }

@@ -39,7 +39,7 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
     override fun onOpen(): ViewAction = ViewAction.Resize(5, "&7- &9Adjust Pricing")
 
     override fun build(inv: Inventory) {
-        val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
+        val filler = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
 
         val amounts = listOf(1.0, 10.0, 100.0, 250.0, 1000.0, 10000.0, 100_000.0, 1_000_000.0, 100_000_000.0)

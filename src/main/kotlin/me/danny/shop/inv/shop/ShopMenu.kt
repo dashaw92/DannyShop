@@ -100,7 +100,7 @@ class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopRetur
             event.slot % 9 == 0 -> {
                 val row = event.slot / 9
                 val selected = categoryPage.displayedCategories()[row]
-                itemPage.changeCategory(shop, selected)
+                itemPage.changeCategory(selected)
                 categoryPage.changeCategory(selected)
                 build()
                 return

@@ -29,7 +29,7 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
     override fun onOpen(): ViewAction = ViewAction.Resize(2, "&7- &9Adjust Cooldown")
 
     override fun build(inv: Inventory) {
-        val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
+        val filler = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
 
         placeUnitButtons(inv, 1..8)
@@ -210,7 +210,7 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
         is Item.Cooldown.Duration -> State.Timed
     }
     private var duration: Long = when (item.cooldown) {
-        is Item.Cooldown.Duration -> item.cooldown.time.time
+        is Item.Cooldown.Duration -> item.cooldown.time.toExternal()
         else -> 1
     }
     private var unit: Time = when (item.cooldown) {

@@ -34,8 +34,13 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
     fun replaceItem(id: Item.IID, replacement: Item) {
         val old = itemByIid(id.id) ?: return
         val items = items.entries.find { (key, _) -> key.name == old.category.name }?.value ?: return
-        val idx = items.indexOf(old)
-        items[idx] = replacement
+        if (old.category.name != replacement.category.name) {
+            items.removeAll { it.iid.id == old.iid.id }
+            addItem(replacement)
+        } else {
+            val idx = items.indexOf(old)
+            items[idx] = replacement
+        }
     }
 
     fun categories(): Collection<Category> = CATEGORIES
@@ -179,6 +184,16 @@ data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: 
             data class Years(val years: Long) : Time(years * 12 * 4 * 7 * 24, TimeUnit.HOURS, "y")
 
             fun convertTo(unit: TimeUnit): Long = unit.convert(time, base)
+            fun toExternal(): Long {
+                return when (this) {
+                    is Millis, is Seconds, is Minutes, is Hours -> time
+                    is Days -> time / 24
+                    is Weeks -> time / 24 / 7
+                    is Months -> time / 24 / 7 / 4
+                    is Years -> time / 24 / 7 / 4 / 12
+                }
+            }
+
             fun display(): String {
                 return when (this) {
                     is Millis, is Seconds, is Minutes, is Hours -> "$time$suffix"
@@ -462,7 +477,6 @@ object DannyShopLoadables {
         val root = loader.load()
         root.set(null)
         root.node("shop").set(shop)
-//        root.node("test").set(Category("Nature", Material.GRASS_BLOCK))
         loader.save(root)
     }
 }

@@ -4,6 +4,7 @@ import me.danny.shop.DannyShop
 import me.danny.shop.data.Item
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.editor.items.properties.CooldownPropEditor
+import me.danny.shop.inv.editor.items.properties.ItemCategoryEditor
 import me.danny.shop.inv.editor.items.properties.QuantitesPropEditor
 import me.danny.shop.inv.view.ViewAction
 import me.danny.shop.me.danny.shop.inv.editor.items.properties.CostPropEditor
@@ -21,7 +22,7 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
     override fun build(inv: Inventory) {
         val item = DannyShop.SHOP.itemByIid(editor.item)!!
 
-        val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
+        val filler = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
         inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "&9Back"))
 
@@ -61,6 +62,7 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
             Material.EMERALD -> CostPropEditor(editor)
             Material.WRITABLE_BOOK -> QuantitesPropEditor(editor)
             Material.CLOCK -> CooldownPropEditor(editor)
+            Material.CHEST -> ItemCategoryEditor(editor)
             else -> null
         } ?: return ViewAction.Pass
         return ViewAction.ChangeView(newView)

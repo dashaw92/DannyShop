@@ -7,8 +7,9 @@ import me.danny.shop.inv.Page
 import me.danny.shop.me.danny.shop.data.attachKey
 import org.bukkit.inventory.Inventory
 
-class CategoryPages(buttons: Pair<Int, Int>) :
+class CategoryPages(buttons: Pair<Int, Int>, var selected: Category? = null) :
     Page<Category>(DannyShop.SHOP.categories(), Pair(1, 1), Pair(7, 3), buttons) {
+
     override fun display(inv: Inventory) {
         items = DannyShop.SHOP.categories()
 
@@ -17,8 +18,13 @@ class CategoryPages(buttons: Pair<Int, Int>) :
             .drop(page * size)
             .take(size)
             .map {
-                ItemBuilder.makeItem(it.display, "&9${it.name}")
+                val item = ItemBuilder.makeItem(it.display, "&9${it.name}")
                     .attachKey(CategoryEditor.CATEGORY_KEY, it.name)
+                if (it.name == selected?.name) {
+                    ItemBuilder.addEnchantGlow(item)
+                } else {
+                    item
+                }
             }
 
         for (item in items) {
