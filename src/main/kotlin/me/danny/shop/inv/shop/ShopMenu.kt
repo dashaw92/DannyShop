@@ -1,11 +1,14 @@
 package me.danny.shop.me.danny.shop.inv.shop
 
 import me.danny.shop.data.Category
+import me.danny.shop.data.Item
 import me.danny.shop.data.Shop
+import me.danny.shop.economy.Economy
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.Menu
 import me.danny.shop.inv.editor.items.ItemEditor
 import me.danny.shop.inv.shop.CategoryPage
+import me.danny.shop.inv.shop.purchasing.PurchaseMenu
 import me.danny.shop.me.danny.shop.data.Key
 import me.danny.shop.me.danny.shop.data.hasKey
 import me.danny.shop.me.danny.shop.data.keyValue
@@ -15,6 +18,7 @@ import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.persistence.PersistentDataType
 
@@ -89,10 +93,23 @@ class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopRetur
             val item = shop.itemByIid(iid) ?: return
 
             val returnInfo = ShopReturnInfo(itemPage, categoryPage)
-            if (event.click.isRightClick && viewer.hasPermission("dannyshop.admin"))
+            if (event.click == ClickType.SHIFT_LEFT && viewer.hasPermission("dannyshop.admin")) {
                 ItemEditor(viewer, item.iid, returnInfo)
-            else
-                PurchaseMenu(viewer, item.iid, returnInfo)
+            } else {
+                if (!Economy.hasEconomy()) {
+                    viewer.sendMessage("&6[DannyShop] &cCannot purchase this! No economy is active!".color())
+                    return
+                }
+
+                when (item.cost) {
+                    is Item.Cost.Value -> {
+                        if (event.click == ClickType.RIGHT) PurchaseMenu(viewer, item.iid, returnInfo)
+                        else Economy.purchase(viewer, item.iid, item.cost.buy)
+                    }
+
+                    else -> viewer.sendMessage("&6[DannyShop] &cCannot purchase this! No price is set.".color())
+                }
+            }
             return
         }
 

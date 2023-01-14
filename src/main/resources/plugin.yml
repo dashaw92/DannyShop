@@ -6,6 +6,7 @@ description: Danny's shop plugin for Spigot
 api-version: 1.19
 softdepend:
   - Essentials
+  - Vault
 website: https://github.com/dashaw92/DannyShop
 libraries:
   - org.jetbrains.kotlin:kotlin-stdlib:1.8.0

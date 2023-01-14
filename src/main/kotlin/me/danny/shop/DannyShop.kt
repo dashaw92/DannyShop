@@ -3,6 +3,7 @@ package me.danny.shop
 import me.danny.shop.commands.ShopCommand
 import me.danny.shop.data.DannyShopLoadables
 import me.danny.shop.data.Shop
+import me.danny.shop.economy.Economy
 import me.danny.shop.inv.Menu
 import me.danny.shop.inv.listeners.MenuListener
 import me.danny.shop.listeners.ImportListener
@@ -20,6 +21,11 @@ class DannyShop : JavaPlugin() {
     }
 
     override fun onEnable() {
+        if (!Economy.hasEconomy()) {
+            logger.warning("Vault not found!")
+            logger.warning("The shop may be edited, but no items may be purchased!")
+        }
+
         SHOP = DannyShopLoadables.loadShop(this)
         Bukkit.getPluginManager().registerEvents(MenuListener, this)
         Bukkit.getPluginManager().registerEvents(ImportListener, this)

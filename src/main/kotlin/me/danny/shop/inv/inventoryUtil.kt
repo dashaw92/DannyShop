@@ -9,3 +9,9 @@ fun Inventory.fill(filler: ItemStack) {
 }
 
 fun String.color(): String = ChatColor.translateAlternateColorCodes('&', this)
+
+fun ItemStack.setName(name: String) {
+    val meta = itemMeta ?: return
+    meta.setDisplayName(name.color())
+    itemMeta = meta
+}

@@ -46,10 +46,12 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
             "&6└───────────"
         val fields: MutableList<String> = mutableListOf()
 
+        var addPurchaseOption = false
         fields.add("&dCost:")
         when (item.cost) {
             is Item.Cost.NotSet -> fields.add("&c  No price set!")
             is Item.Cost.Value -> {
+                addPurchaseOption = true
                 fields.add("  &eBuy: &7\$%,.2f".format(item.cost.buy))
                 fields.add("  &eSell: &7\$%,.2f".format(item.cost.sell))
             }
@@ -63,10 +65,17 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
             )
         }
 
-        fields.add("")
-        fields.add("&e[Purchase: Click]")
+        if (addPurchaseOption) {
+            fields.add("")
+            fields.add("&e[Purchase: Click]")
+            fields.add("&e[Bulk: Right click]")
+        }
         if (viewer.hasPermission("dannyshop.admin")) {
-            fields.add("&3[Edit: Right Click]")
+            //Without this, there will be an ugly
+            //empty line for viewers without perms
+            //on items with no prices set
+            if (!addPurchaseOption) fields.add("")
+            fields.add("&3[Edit: Shift click]")
         }
 
         val display: MutableList<String> = fields.map { field -> "&6│ $field" }.toMutableList()
