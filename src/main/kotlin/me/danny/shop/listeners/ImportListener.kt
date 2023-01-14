@@ -95,8 +95,8 @@ object ImportListener : Listener {
         val plug = Bukkit.getPluginManager().getPlugin("Essentials") ?: return Item.Cost.NotSet
         val ess = plug as Essentials
 
-        val buy = ess.worth.getPrice(ess, item)?.toDouble() ?: return Item.Cost.NotSet
-        val sell = buy * 0.75
+        val sell = ess.worth.getPrice(ess, item)?.toDouble() ?: return Item.Cost.NotSet
+        val buy = 1.25 * sell
         return Item.Cost.Value(buy, sell)
     }
 }
