@@ -18,6 +18,8 @@ class DannyShop : JavaPlugin() {
     companion object {
         lateinit var SHOP: Shop
             private set
+
+        fun instance(): DannyShop = Bukkit.getPluginManager().getPlugin("DannyShop") as DannyShop
     }
 
     override fun onEnable() {

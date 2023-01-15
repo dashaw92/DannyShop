@@ -1,6 +1,5 @@
 package me.danny.shop.commands
 
-import me.danny.shop.DannyShop
 import me.danny.shop.inv.editor.categories.CategoryEditor
 import me.danny.shop.me.danny.shop.inv.color
 import me.danny.shop.me.danny.shop.inv.shop.ShopMenu
@@ -17,7 +16,7 @@ object ShopCommand : CommandExecutor {
         }
 
         if (args.isEmpty()) {
-            ShopMenu(DannyShop.SHOP, sender)
+            ShopMenu(sender)
             return true
         }
 

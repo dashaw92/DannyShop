@@ -40,7 +40,7 @@ class PurchaseMenu(viewer: Player, item: Item.IID, private val returnInfo: ShopM
     override fun onClick(event: InventoryClickEvent) {
         val clicked = event.currentItem!!
         if (event.slot == inv.size - 1) {
-            ShopMenu(DannyShop.SHOP, viewer, returnInfo)
+            ShopMenu(viewer, returnInfo)
             return
         }
 

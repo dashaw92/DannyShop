@@ -54,7 +54,7 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
 
     override fun onClick(inv: Inventory, event: InventoryClickEvent): ViewAction {
         if (event.slot == inv.size - 1) {
-            ShopMenu(DannyShop.SHOP, editor.viewer, editor.returnInfo)
+            ShopMenu(editor.viewer, editor.returnInfo)
             return ViewAction.Pass
         }
 

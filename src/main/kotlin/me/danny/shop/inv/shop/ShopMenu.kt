@@ -1,33 +1,46 @@
 package me.danny.shop.me.danny.shop.inv.shop
 
+import me.danny.shop.DannyShop
 import me.danny.shop.data.Category
 import me.danny.shop.data.Item
-import me.danny.shop.data.Shop
 import me.danny.shop.economy.Economy
 import me.danny.shop.inv.ItemBuilder
 import me.danny.shop.inv.Menu
 import me.danny.shop.inv.editor.items.ItemEditor
+import me.danny.shop.inv.egg.game.MinesweeperHub
 import me.danny.shop.inv.shop.CategoryPage
 import me.danny.shop.inv.shop.purchasing.PurchaseMenu
 import me.danny.shop.me.danny.shop.data.Key
 import me.danny.shop.me.danny.shop.data.hasKey
 import me.danny.shop.me.danny.shop.data.keyValue
+import me.danny.shop.me.danny.shop.inv.HotbarSlotListener
 import me.danny.shop.me.danny.shop.inv.color
 import me.danny.shop.me.danny.shop.inv.fill
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.persistence.PersistentDataType
+import java.util.*
 
-class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer) {
+class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer), HotbarSlotListener {
 
     companion object {
+        private val cheaters = mutableListOf<UUID>()
+
+        private fun random(): Int = (1..9).random()
+
+        @JvmStatic
+        val expected = listOf(random(), random(), random(), random())
         internal val ITEM_KEY = Key("item_iid", PersistentDataType.STRING)
     }
 
+    private val cheatCode = mutableListOf<Int>()
+
+    private val shop = DannyShop.SHOP
     private var categories: List<Category> = shop.categories().take(6)
     private val selected = categories.firstOrNull() ?: Category("All", Material.CHEST)
     private var itemPage: ItemPage =
@@ -56,6 +69,15 @@ class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopRetur
 
         categoryPage.render(inv)
         itemPage.render(inv)
+
+        if (cheaters.contains(viewer.uniqueId)) {
+            inv.setItem(
+                inv.size - 7, ItemBuilder.makeItem(
+                    Material.TNT_MINECART, "&dPlay DannySweeper",
+                    "&2${expected.joinToString(prefix = "[", postfix = "]")}"
+                )
+            )
+        }
 
         viewer.openInventory(inv)
     }
@@ -126,6 +148,39 @@ class ShopMenu(private val shop: Shop, viewer: Player, shopReturnInfo: ShopRetur
 
         itemPage.onClick(event, ::build)
         categoryPage.onClick(event, ::build)
+
+        if (event.slot == inv.size - 7) {
+            if (cheaters.contains(viewer.uniqueId)) {
+                MinesweeperHub(viewer)
+                return
+            }
+
+            if (event.click != ClickType.NUMBER_KEY) {
+                cheatCode.clear()
+                return
+            }
+
+            cheatCode += event.hotbarButton + 1
+            if (cheatCode.last() != expected[cheatCode.size - 1]) {
+                viewer.playSound(viewer.location, Sound.ENTITY_VILLAGER_NO, 1.0f, (2..4).random() * 0.2f)
+                val codes = cheatCode.map { "&2$it" }
+                    .dropLast(1)
+                    .toMutableList()
+                codes += "&d?"
+                viewer.sendMessage("&6[DannyShop] &7${codes.joinToString()}".color())
+                cheatCode.clear()
+                return
+            }
+
+            if (cheatCode == expected) {
+                cheaters += viewer.uniqueId
+                viewer.sendMessage("&6[DannyShop] &6☺ &2${cheatCode.joinToString(prefix = "[", postfix = "]")}".color())
+                viewer.playSound(viewer.location, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 0.5f)
+                MinesweeperHub(viewer)
+            } else {
+                viewer.playSound(viewer.location, Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, (cheatCode.size + 1) * 0.2f)
+            }
+        }
     }
 
     data class ShopReturnInfo(val itemPage: ItemPage, val categoryPage: CategoryPage)
