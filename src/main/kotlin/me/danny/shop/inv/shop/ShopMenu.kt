@@ -4,8 +4,7 @@ import me.danny.shop.DannyShop
 import me.danny.shop.data.Category
 import me.danny.shop.data.Item
 import me.danny.shop.economy.Economy
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.inv.Menu
+import me.danny.shop.inv.*
 import me.danny.shop.inv.editor.items.ItemEditor
 import me.danny.shop.inv.egg.game.MinesweeperHub
 import me.danny.shop.inv.shop.CategoryPage
@@ -38,7 +37,36 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
         internal val ITEM_KEY = Key("item_iid", PersistentDataType.STRING)
     }
 
-    private val cheatCode = mutableListOf<Int>()
+    private val cheatCode: Chord<GameState> = ChordBuilder { GameState(expected, mutableListOf()) }
+        .loopStep(expected.size) { event, state ->
+            val player = event.whoClicked as Player
+            if (event.click != ClickType.NUMBER_KEY) {
+                state.current.clear()
+                return@loopStep StateResult.Rejected
+            }
+
+            state.current += event.hotbarButton + 1
+
+            if (state.current.last() != state.expected[state.current.size - 1]) {
+                player.playSound(player.location, Sound.ENTITY_VILLAGER_NO, 1.0f, (2..4).random() * 0.2f)
+                val codes = state.current.map { "&2$it" }
+                    .dropLast(1)
+                    .toMutableList()
+                codes += "&d?"
+                player.sendMessage("&6[DannyShop] &7${codes.joinToString()}".color())
+                return@loopStep StateResult.ResetSteps
+            }
+
+            player.playSound(player.location, Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, (state.current.size + 1) * 0.2f)
+            StateResult.Accepted
+        }.withTerminal { state ->
+            if (state.current == expected) {
+                cheaters += viewer.uniqueId
+                viewer.sendMessage("&6[DannyShop] &6☺ &2${expected.joinToString()}".color())
+                viewer.playSound(viewer.location, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 0.5f)
+                MinesweeperHub(viewer)
+            }
+        }.build()
 
     private val shop = DannyShop.SHOP
     private var categories: List<Category> = shop.categories().take(6)
@@ -155,33 +183,10 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
                 return
             }
 
-            if (event.click != ClickType.NUMBER_KEY) {
-                cheatCode.clear()
-                return
-            }
-
-            cheatCode += event.hotbarButton + 1
-            if (cheatCode.last() != expected[cheatCode.size - 1]) {
-                viewer.playSound(viewer.location, Sound.ENTITY_VILLAGER_NO, 1.0f, (2..4).random() * 0.2f)
-                val codes = cheatCode.map { "&2$it" }
-                    .dropLast(1)
-                    .toMutableList()
-                codes += "&d?"
-                viewer.sendMessage("&6[DannyShop] &7${codes.joinToString()}".color())
-                cheatCode.clear()
-                return
-            }
-
-            if (cheatCode == expected) {
-                cheaters += viewer.uniqueId
-                viewer.sendMessage("&6[DannyShop] &6☺ &2${cheatCode.joinToString(prefix = "[", postfix = "]")}".color())
-                viewer.playSound(viewer.location, Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 0.5f)
-                MinesweeperHub(viewer)
-            } else {
-                viewer.playSound(viewer.location, Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, (cheatCode.size + 1) * 0.2f)
-            }
+            cheatCode.next(event)
         }
     }
 
     data class ShopReturnInfo(val itemPage: ItemPage, val categoryPage: CategoryPage)
+    data class GameState(val expected: List<Int>, val current: MutableList<Int>)
 }
