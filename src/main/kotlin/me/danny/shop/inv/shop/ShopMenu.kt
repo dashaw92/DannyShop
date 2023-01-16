@@ -12,7 +12,6 @@ import me.danny.shop.inv.shop.purchasing.PurchaseMenu
 import me.danny.shop.me.danny.shop.data.Key
 import me.danny.shop.me.danny.shop.data.hasKey
 import me.danny.shop.me.danny.shop.data.keyValue
-import me.danny.shop.me.danny.shop.inv.HotbarSlotListener
 import me.danny.shop.me.danny.shop.inv.color
 import me.danny.shop.me.danny.shop.inv.fill
 import org.bukkit.Bukkit
@@ -25,7 +24,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.persistence.PersistentDataType
 import java.util.*
 
-class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer), HotbarSlotListener {
+class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer) {
 
     companion object {
         private val cheaters = mutableListOf<UUID>()
@@ -33,7 +32,8 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
         private fun random(): Int = (1..9).random()
 
         @JvmStatic
-        val expected = listOf(random(), random(), random(), random())
+//        val expected = listOf(random(), random(), random(), random())
+        val expected = listOf(1, 1, 1, 1)
         internal val ITEM_KEY = Key("item_iid", PersistentDataType.STRING)
     }
 
