@@ -1,11 +1,10 @@
 package me.danny.shop.inv.shop.purchasing
 
-import me.danny.shop.data.Item
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.inv.Page
-import me.danny.shop.me.danny.shop.data.attachKey
-import me.danny.shop.me.danny.shop.inv.setName
-import org.bukkit.inventory.Inventory
+import me.danny.shop.data.*
+import me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.data.*
+import me.danny.shop.me.danny.shop.inv.*
+import org.bukkit.inventory.*
 
 class QuantityDisplay(private val item: Item) :
     Page<Int>(item.quantities.predefined, Pair(1, 1), Pair(7, 3), Pair(45 - 3, 45 - 2)) {
@@ -39,7 +38,7 @@ class QuantityDisplay(private val item: Item) :
 
                 ItemBuilder.addLore(display, *lore.toTypedArray())
             }
-            .map { it.attachKey(PurchaseMenu.PRICE_KEY, costPerUnit * it.amount) }
+            .map { it.attachMarker(PurchaseMenu.PRICE_KEY) }
 
         var invIdx = start.second * 9 + start.second
         for (icon in icons) {

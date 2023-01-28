@@ -4,6 +4,9 @@ import com.earth2me.essentials.*
 import me.danny.shop.*
 import me.danny.shop.data.*
 import me.danny.shop.data.Item
+import me.danny.shop.data.Item.Cost
+import me.danny.shop.data.Item.ItemType
+import me.danny.shop.data.Item.ItemType.Mat
 import me.danny.shop.me.danny.shop.inv.*
 import org.bukkit.*
 import org.bukkit.entity.*
@@ -43,32 +46,59 @@ object Economy {
         econ.depositPlayer(player, amount)
     }
 
-    fun purchase(player: Player, id: ID, price: Double, amount: Int = 1) {
-        if (player.inventory.firstEmpty() == -1) {
-            player.sendMessage("&6[DannyShop] &7You have no space to purchase this.".color())
-            return
+    private fun hasSpace(player: Player, item: Item, amount: Int): Boolean {
+        val similarCheck = when (item.item) {
+            is Mat -> ItemStack(item.item.material, amount)
+            is ItemType.Item -> {
+                val stack = item.item.display().clone()
+                stack.amount = amount
+                stack
+            }
+
+            else -> return true
         }
 
+        val slotsNeeded = ceil(amount / 64.0).toInt()
+        val empty = player.inventory.storageContents.count { it == null || it.type.isAir }
+        if (empty < slotsNeeded) {
+            if (amount < 64) {
+                val first = player.inventory.find { similarCheck.isSimilar(it) }
+                if (first != null && 64 - first.amount >= amount) {
+                    return true
+                }
+            }
+
+            player.sendMessage("&6[DannyShop] &7You need $slotsNeeded empty slot(s) to buy this.".color())
+            return false
+        }
+        return true
+    }
+
+    fun purchase(player: Player, id: ID, amount: Int = 1) {
         val item = DannyShop.SHOP.itemByIid(id)!!
+        if (item.cost !is Cost.Value) return
+        val price = item.cost.buy * amount
+
+        if (!hasSpace(player, item, amount)) return
 
         when (val resp = buy(player.uniqueId, price)) {
             is Result.Success -> {
                 player.sendMessage("&6[DannyShop] &7$%,.2f&a taken from your balance.".format(price).color())
                 when (item.item) {
-                    is Item.ItemType.Mat -> player.inventory.addItem(ItemStack(item.item.material, amount))
-                    is Item.ItemType.Item -> {
+                    is Mat -> player.inventory.addItem(ItemStack(item.item.material, amount))
+                    is ItemType.Item -> {
                         val stack = item.item.display().clone()
                         stack.amount = amount
                         player.inventory.addItem(stack)
                     }
 
-                    is Item.ItemType.Exp -> {
+                    is ItemType.Exp -> {
                         val exp = (item.item.exp * amount).roundToInt()
                         player.giveExp(exp)
                         player.sendMessage("&6[DannyShop] &7%,d&e experience given to you.".format(exp).color())
                     }
 
-                    is Item.ItemType.Command -> {
+                    is ItemType.Command -> {
                         var cmd = item.item.command
                             .replace("\$PLAYER", player.name)
                             .replace("\$UUID", player.uniqueId.toString())
@@ -94,13 +124,13 @@ object Economy {
         }
     }
 
-    internal fun getWorth(item: ItemStack): Item.Cost {
-        val plug = Bukkit.getPluginManager().getPlugin("Essentials") ?: return Item.Cost.NotSet
+    internal fun getWorth(item: ItemStack): Cost {
+        val plug = Bukkit.getPluginManager().getPlugin("Essentials") ?: return Cost.NotSet
         val ess = plug as Essentials
 
-        val sell = ess.worth.getPrice(ess, item)?.toDouble() ?: return Item.Cost.NotSet
+        val sell = ess.worth.getPrice(ess, item)?.toDouble() ?: return Cost.NotSet
         val buy = 1.25 * sell
-        return Item.Cost.Value(buy, sell)
+        return Cost.Value(buy, sell)
     }
 
     private sealed interface Result {

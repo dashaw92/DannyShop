@@ -1,7 +1,10 @@
 package me.danny.shop.inv.shop.purchasing
 
+import me.danny.libinput.providers.*
 import me.danny.shop.*
 import me.danny.shop.data.*
+import me.danny.shop.data.Item.Cost
+import me.danny.shop.data.Item.Quantities.Allowed.Any
 import me.danny.shop.economy.*
 import me.danny.shop.inv.*
 import me.danny.shop.me.danny.shop.data.*
@@ -16,21 +19,31 @@ class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: ShopMenu.Sh
     Menu(5, "- &2Purchase", viewer) {
 
     companion object {
-        internal val PRICE_KEY = Key("qty_price_buy", PersistentDataType.DOUBLE)
+        internal val PRICE_KEY = Key("qty_price_buy", PersistentDataType.BYTE)
     }
 
     private val item = DannyShop.SHOP.itemByIid(item)!!
     private val page = QuantityDisplay(this.item)
+    private var customAmount = this.item.quantities.predefined.first()
 
     init {
         build()
     }
 
     override fun build() {
-        val filler = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
+        val filler = ItemBuilder.makeItem(Material.ORANGE_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
 
         page.render(inv)
+        if (item.quantities.allowed == Any) {
+            val customQuantity = ItemBuilder.makeItem(
+                Material.SPRUCE_SIGN, "&6Buy custom amount",
+                "&2x$customAmount &7($%,.2f)".format((item.cost as Cost.Value).buy * customAmount),
+                "",
+                "&e[Edit: Right click]"
+            )
+            inv.setItem(inv.size - 9, customQuantity)
+        }
         inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "&9Back"))
     }
 
@@ -42,11 +55,43 @@ class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: ShopMenu.Sh
         }
 
         if (clicked.hasKey(PRICE_KEY)) {
-            val price = clicked.keyValue(PRICE_KEY)!!
-            Economy.purchase(viewer, item.iid, price, clicked.amount)
+            Economy.purchase(viewer, item.iid, clicked.amount)
             return
         }
 
+        if (clicked.type == Material.SPRUCE_SIGN) {
+            if (event.click == ClickType.RIGHT) {
+                val provider = if (SignInput.isAvailable()) {
+                    SignInput()
+                        .withMaterial(Material.SPRUCE_WALL_SIGN)
+                        .withLines(arrayOf("", "^^^^^", "DannyShop", "Buy custom amount"))
+                } else {
+                    ChatInput()
+                        .withEscapeWords("cancel")
+                        .withPrefix("&6[DannyShop] &e".color())
+                        .withPrompt("Buy custom amount".color())
+                        .requestLines(1)
+                }
+                provider.getInput(viewer, ::handleCustomQuantity)
+            } else {
+                Economy.purchase(viewer, item.iid, customAmount)
+            }
+        }
         page.onClick(event, ::build)
+    }
+
+    private fun handleCustomQuantity(player: Player, input: Input) {
+        val quantity = when (input) {
+            is SingleLine -> input.line
+            is MultipleLines -> input.lines.first()
+        }.toIntOrNull()
+
+        if (quantity != null && quantity > 0) {
+            Economy.purchase(player, item.iid, quantity)
+            customAmount = quantity
+        }
+
+        build()
+        player.openInventory(inv)
     }
 }

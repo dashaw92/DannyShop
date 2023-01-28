@@ -3,6 +3,7 @@ package me.danny.shop.me.danny.shop.inv.shop
 import me.danny.shop.*
 import me.danny.shop.data.*
 import me.danny.shop.data.Item
+import me.danny.shop.data.Item.Quantities.Allowed.Any
 import me.danny.shop.economy.*
 import me.danny.shop.inv.*
 import me.danny.shop.inv.LoreList.toEntry
@@ -105,8 +106,12 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
 
                 when (item.cost) {
                     is Item.Cost.Value -> {
-                        if (event.click == ClickType.RIGHT) PurchaseMenu(viewer, item.iid, returnInfo)
-                        else Economy.purchase(viewer, item.iid, item.cost.buy)
+                        if (event.click == ClickType.RIGHT && (item.quantities.allowed == Any || item.quantities.predefined.size > 1)) PurchaseMenu(
+                            viewer,
+                            item.iid,
+                            returnInfo
+                        )
+                        else Economy.purchase(viewer, item.iid)
                     }
 
                     else -> viewer.sendMessage("&6[DannyShop] &cCannot purchase this! No price is set.".color())

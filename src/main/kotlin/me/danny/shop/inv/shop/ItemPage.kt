@@ -5,6 +5,7 @@ import me.danny.shop.data.*
 import me.danny.shop.data.Item
 import me.danny.shop.data.Item.ItemType
 import me.danny.shop.data.Item.ItemType.*
+import me.danny.shop.data.Item.Quantities.Allowed.Any
 import me.danny.shop.inv.*
 import me.danny.shop.me.danny.shop.data.*
 import me.danny.shop.me.danny.shop.inv.shop.ShopMenu.FilterType
@@ -93,7 +94,9 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
         if (addPurchaseOption) {
             fields.add("")
             fields.add("&e[Purchase: Click]")
-            fields.add("&e[Bulk: Right click]")
+            if (item.quantities.allowed == Any || item.quantities.predefined.size > 1) {
+                fields.add("&e[Bulk: Right click]")
+            }
         }
         if (viewer.hasPermission("dannyshop.admin")) {
             //Without this, there will be an ugly
