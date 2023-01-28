@@ -1,11 +1,10 @@
 package me.danny.shop.inv.editor.categories
 
-import me.danny.shop.DannyShop
-import me.danny.shop.data.Category
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.inv.Page
-import me.danny.shop.me.danny.shop.data.attachKey
-import org.bukkit.inventory.Inventory
+import me.danny.shop.*
+import me.danny.shop.data.*
+import me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.data.*
+import org.bukkit.inventory.*
 
 class CategoryPages(buttons: Pair<Int, Int>, var selected: Category? = null) :
     Page<Category>(DannyShop.SHOP.categories(), Pair(1, 1), Pair(7, 3), buttons) {
@@ -19,7 +18,7 @@ class CategoryPages(buttons: Pair<Int, Int>, var selected: Category? = null) :
             .take(size)
             .map {
                 val item = ItemBuilder.makeItem(it.display, "&9${it.name}")
-                    .attachKey(CategoryEditor.CATEGORY_KEY, it.name)
+                    .attachKey(CategoryEditor.CATEGORY_KEY, it.cid.id)
                 if (it.name == selected?.name) {
                     ItemBuilder.addEnchantGlow(item)
                 } else {

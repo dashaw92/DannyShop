@@ -43,11 +43,13 @@ object ImportListener : Listener {
 
         val state = event.clickedBlock!!.state as Chest
         if (state.customName == null) return
-        val category = Category(state.customName!!, Material.BOOK)
-        if (Shop.getCategory(category.name) == null) {
-            Shop.addCategory(category)
-            player.sendMessage("&6[DannyShop] Created category &e${category.name}".color())
+        val name = state.customName!!
+        if (Shop.findCategoryByName(name) == null) {
+            Shop.addCategory(Category(name, Material.BOOK))
+            player.sendMessage("&6[DannyShop] Created category &e$name".color())
         }
+
+        val category = Shop.findCategoryByName(name)!!
 
         player.sendMessage("&6[DannyShop] Importing items from chest into category &e${category.name}".color())
         importItems(player, category, state.inventory)
@@ -57,7 +59,7 @@ object ImportListener : Listener {
         for (item in inv.filterNotNull()) {
             if (item.type.isAir) continue
 
-            val iid = Item.IID.generate()
+            val iid = ID.generate()
             val type = itemType(item)
 
             val cost = when (type) {

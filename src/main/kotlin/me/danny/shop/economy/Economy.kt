@@ -2,6 +2,7 @@ package me.danny.shop.economy
 
 import com.earth2me.essentials.*
 import me.danny.shop.*
+import me.danny.shop.data.*
 import me.danny.shop.data.Item
 import me.danny.shop.me.danny.shop.inv.*
 import org.bukkit.*
@@ -42,7 +43,7 @@ object Economy {
         econ.depositPlayer(player, amount)
     }
 
-    fun purchase(player: Player, id: Item.IID, price: Double, amount: Int = 1) {
+    fun purchase(player: Player, id: ID, price: Double, amount: Int = 1) {
         if (player.inventory.firstEmpty() == -1) {
             player.sendMessage("&6[DannyShop] &7You have no space to purchase this.".color())
             return

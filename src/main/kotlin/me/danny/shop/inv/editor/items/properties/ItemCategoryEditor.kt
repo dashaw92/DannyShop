@@ -33,7 +33,7 @@ class ItemCategoryEditor(private val editor: ItemEditor) : MenuView {
         if (event.slot == inv.size - 1) return ViewAction.ChangeView(ItemEditorView(editor))
 
         if (clicked.hasKey(CategoryEditor.CATEGORY_KEY)) {
-            val category = Shop.getCategory(clicked.keyValue(CategoryEditor.CATEGORY_KEY)!!)!!
+            val category = Shop.getCategory(ID(clicked.keyValue(CategoryEditor.CATEGORY_KEY)!!))!!
             val clone = item.copy(category = category)
             DannyShop.SHOP.replaceItem(item.iid, clone)
             page.selected = category

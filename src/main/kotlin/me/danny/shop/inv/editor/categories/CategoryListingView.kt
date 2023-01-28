@@ -30,10 +30,8 @@ class CategoryListingView : MenuView {
     override fun onClick(inv: Inventory, event: InventoryClickEvent): ViewAction {
         when {
             event.currentItem!!.hasKey(CategoryEditor.CATEGORY_KEY) -> {
-                val name = event.currentItem!!.keyValue(CategoryEditor.CATEGORY_KEY) ?: ""
-                if (name.trim().isBlank()) return ViewAction.Pass
-
-                val category = Shop.getCategory(name) ?: return ViewAction.Pass
+                val cid = ID(event.currentItem!!.keyValue(CategoryEditor.CATEGORY_KEY) ?: return ViewAction.Pass)
+                val category = Shop.getCategory(cid) ?: return ViewAction.Pass
                 return ViewAction.ChangeView(CategoryEditorView(category))
             }
 

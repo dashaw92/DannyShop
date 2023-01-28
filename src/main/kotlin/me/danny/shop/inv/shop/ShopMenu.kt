@@ -27,7 +27,7 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
     private var categories: List<Category> = shop.categories().take(6)
     private val selected = categories.firstOrNull() ?: Category("All", Material.CHEST)
     private var itemPage: ItemPage =
-        shopReturnInfo?.itemPage ?: ItemPage(viewer, shop.items(selected), Pair(inv.size - 2, inv.size - 1))
+        shopReturnInfo?.itemPage ?: ItemPage(viewer, shop.items(selected.cid), Pair(inv.size - 2, inv.size - 1))
     private var categoryPage: CategoryPage =
         shopReturnInfo?.categoryPage ?: CategoryPage(shop.categories(), selected, Pair(1, 46))
     private var filterType = shopReturnInfo?.filter ?: FilterType.All

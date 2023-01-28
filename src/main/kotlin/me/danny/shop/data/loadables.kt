@@ -22,7 +22,8 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
         internal val CATEGORIES = mutableListOf<Category>()
 
         fun addCategory(category: Category): Boolean = CATEGORIES.add(category)
-        fun getCategory(name: String): Category? = CATEGORIES.find { it.name == name }
+        fun getCategory(id: ID): Category? = CATEGORIES.find { it.cid == id }
+        fun findCategoryByName(name: String): Category? = CATEGORIES.find { it.name == name }
     }
 
     fun addItem(item: Item) {
@@ -35,10 +36,10 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
         items.computeIfAbsent(item.category) { mutableListOf() } += item
     }
 
-    fun replaceItem(id: Item.IID, replacement: Item) {
+    fun replaceItem(id: ID, replacement: Item) {
         val old = itemByIid(id.id) ?: return
-        val items = items.entries.find { (key, _) -> key.name == old.category.name }?.value ?: return
-        if (old.category.name != replacement.category.name) {
+        val items = items.entries.find { (key, _) -> key.cid == old.category.cid }?.value ?: return
+        if (old.category.cid != replacement.category.cid) {
             items.removeAll { it.iid.id == old.iid.id }
             addItem(replacement)
         } else {
@@ -48,15 +49,37 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
     }
 
     fun categories(): Collection<Category> = CATEGORIES
-    fun items(category: Category): Collection<Item> =
-        items.entries.find { (key, _) -> key.name == category.name }?.value ?: listOf()
+    fun items(category: ID): Collection<Item> =
+        items.entries.find { (key, _) -> key.cid.id == category.id }?.value ?: listOf()
 
     fun isEmpty(): Boolean = items.values.flatten().isEmpty()
     fun itemByIid(iid: String): Item? = items.values.flatten().find { it.iid.id == iid }
-    fun itemByIid(iid: Item.IID): Item? = items.values.flatten().find { it.iid == iid }
-    fun deleteCategory(category: Category) {
+    fun itemByIid(iid: ID): Item? = items.values.flatten().find { it.iid == iid }
+    fun deleteCategory(cid: ID) {
+        val category = getCategory(cid)
         items.remove(category)
         CATEGORIES.remove(category)
+    }
+}
+
+/**
+ * A unique String identifying this Item
+ * The only constraint placed on IIDs is that
+ * they are unique. Duplicate IIDs will cause
+ * undefined behavior.
+ */
+data class ID(val id: String) {
+    companion object {
+        /**
+         * Systematically generate a new IID based off the current
+         * time and a pRNG.
+         */
+        internal fun generate(): ID {
+            System.nanoTime()
+            val now = System.currentTimeMillis()
+            val salt = (Math.random() * 1000).toInt()
+            return ID("%x%x".format(now, salt))
+        }
     }
 }
 
@@ -68,8 +91,14 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
  *
  * Categories are entirely user-defined, there are no builtin categories.
  */
-data class Category(val name: String, var display: Material) {
-    fun changeDisplay(display: Material) {
+data class Category(val cid: ID, var name: String, var display: Material) {
+    constructor(name: String, display: Material) : this(ID.generate(), name, display)
+
+    internal fun changeName(name: String) {
+        this.name = name
+    }
+
+    internal fun changeDisplay(display: Material) {
         this.display = display
     }
 }
@@ -89,7 +118,7 @@ data class Category(val name: String, var display: Material) {
  * Instances of this class may be outdated otherwise.
  */
 data class Item(
-    val iid: IID,
+    val iid: ID,
     val name: String? = null,
     val item: ItemType,
     val cost: Cost,
@@ -97,28 +126,6 @@ data class Item(
     val quantities: Quantities,
     val category: Category
 ) {
-
-    /**
-     * A unique String identifying this Item
-     * The only constraint placed on IIDs is that
-     * they are unique. Duplicate IIDs will cause
-     * undefined behavior.
-     */
-    data class IID(val id: String) {
-        companion object {
-            /**
-             * Systematically generate a new IID based off the current
-             * time and a pRNG.
-             */
-            fun generate(): IID {
-                System.nanoTime()
-                val now = System.currentTimeMillis()
-                val salt = (Math.random() * 1000).toInt()
-                return IID("%x%x".format(now, salt))
-            }
-        }
-    }
-
     /**
      * Models all possible sellable item types DannyShop supports:
      * * Material - A basic material ItemStack with no attached data
@@ -399,13 +406,13 @@ object ItemSerializer : TypeSerializer<Item> {
 
 
         with(node) {
-            val iid = Item.IID(node("iid").string!!)
+            val iid = ID(node("iid").string!!)
             val name = node("name").string
             val item = node("item").get(ItemType::class.java)!!
             val cost = node("cost").get(Item.Cost::class.java)!!
             val cooldown = node("cooldown").get(Item.Cooldown::class.java)!!
             val quantities = node("quantities").get(Item.Quantities::class.java)!!
-            val category = Shop.getCategory(node("category").string!!)!!
+            val category = Shop.getCategory(ID(node("category").string!!))!!
             return Item(iid, name, item, cost, cooldown, quantities, category)
         }
 
@@ -428,7 +435,7 @@ object ItemSerializer : TypeSerializer<Item> {
                 node("cost").set(cost)
                 node("cooldown").set(cooldown)
                 node("quantities").set(quantities)
-                node("category").set(category.name)
+                node("category").set(category.cid.id)
             }
         }
     }
@@ -437,14 +444,16 @@ object CategorySerializer : TypeSerializer<Category> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Category {
         if (node == null) throw IllegalArgumentException("what")
 
+        val cid = ID(node.node("cid").string ?: ID.generate().id)
         val name = node.node("name").string!!
         val icon = node.node("icon").get(Material::class.java)!!
-        return Category(name, icon)
+        return Category(cid, name, icon)
     }
 
     override fun serialize(type: Type?, obj: Category?, node: ConfigurationNode?) {
         if(obj == null || node == null) return
 
+        node.node("cid").set(obj.cid.id)
         node.node("name").set(obj.name)
         node.node("icon").set(obj.display)
     }
@@ -487,7 +496,7 @@ object DannyShopLoadables {
     private fun collection(): TypeSerializerCollection = TypeSerializerCollection.builder()
         .register(ItemStack::class.java, ItemStackSerializer)
         .register(Category::class.java, CategorySerializer)
-        .register(Item.ItemType::class.java, ItemTypeSerializer)
+        .register(ItemType::class.java, ItemTypeSerializer)
         .register(Item.Cost::class.java, CostSerializer)
         .register(Item.Cooldown::class.java, CooldownSerializer)
         .register(Item.Quantities::class.java, QuantitiesSerializer)

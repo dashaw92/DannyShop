@@ -45,7 +45,7 @@ class CategoryEditorView(val category: Category) : MenuView {
         if (event.slot == inv.size - 1) return ViewAction.ChangeView(CategoryListingView())
         if (event.clickedInventory == inv) {
             if (event.currentItem!!.hasMarker(DELETE_BUTTON_KEY)) {
-                DannyShop.SHOP.deleteCategory(category)
+                DannyShop.SHOP.deleteCategory(category.cid)
                 event.whoClicked.sendMessage("&6[DannyShop] &eCategory &6${category.name}&e deleted.".color())
                 return ViewAction.ChangeView(CategoryListingView())
             }

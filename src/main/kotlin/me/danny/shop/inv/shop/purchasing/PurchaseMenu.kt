@@ -1,21 +1,18 @@
 package me.danny.shop.inv.shop.purchasing
 
-import me.danny.shop.DannyShop
-import me.danny.shop.data.Item
-import me.danny.shop.economy.Economy
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.inv.Menu
-import me.danny.shop.me.danny.shop.data.Key
-import me.danny.shop.me.danny.shop.data.hasKey
-import me.danny.shop.me.danny.shop.data.keyValue
-import me.danny.shop.me.danny.shop.inv.fill
-import me.danny.shop.me.danny.shop.inv.shop.ShopMenu
-import org.bukkit.Material
-import org.bukkit.entity.Player
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.persistence.PersistentDataType
+import me.danny.shop.*
+import me.danny.shop.data.*
+import me.danny.shop.economy.*
+import me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.data.*
+import me.danny.shop.me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.inv.shop.*
+import org.bukkit.*
+import org.bukkit.entity.*
+import org.bukkit.event.inventory.*
+import org.bukkit.persistence.*
 
-class PurchaseMenu(viewer: Player, item: Item.IID, private val returnInfo: ShopMenu.ShopReturnInfo) :
+class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: ShopMenu.ShopReturnInfo) :
     Menu(5, "- &2Purchase", viewer) {
 
     companion object {

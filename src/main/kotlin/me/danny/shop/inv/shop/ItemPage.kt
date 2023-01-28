@@ -45,14 +45,14 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
     }
 
     fun scrollToItem(item: Item) {
-        items = DannyShop.SHOP.items(item.category)
+        items = DannyShop.SHOP.items(item.category.cid)
         val newPage = filteredItems().indexOfFirst { it.iid.id == item.iid.id } / size
         page = newPage
     }
 
     fun changeCategory(category: Category) {
         page = 0
-        items = DannyShop.SHOP.items(category)
+        items = DannyShop.SHOP.items(category.cid)
     }
 
     private fun makeMenuItem(item: Item): ItemStack {
