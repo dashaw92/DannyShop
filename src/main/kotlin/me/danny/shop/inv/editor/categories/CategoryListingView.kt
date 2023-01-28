@@ -1,15 +1,14 @@
 package me.danny.shop.inv.editor.categories
 
-import me.danny.shop.data.Shop
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.inv.view.ViewAction
-import me.danny.shop.me.danny.shop.data.hasKey
-import me.danny.shop.me.danny.shop.data.keyValue
-import me.danny.shop.me.danny.shop.inv.fill
-import me.danny.shop.me.danny.shop.inv.view.MenuView
-import org.bukkit.Material
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.Inventory
+import me.danny.shop.data.*
+import me.danny.shop.inv.*
+import me.danny.shop.inv.view.*
+import me.danny.shop.me.danny.shop.data.*
+import me.danny.shop.me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.inv.view.*
+import org.bukkit.*
+import org.bukkit.event.inventory.*
+import org.bukkit.inventory.*
 
 class CategoryListingView : MenuView {
     private lateinit var page: CategoryPages
@@ -21,7 +20,7 @@ class CategoryListingView : MenuView {
             page = CategoryPages(Pair(inv.size - 2, inv.size - 1))
         }
 
-        val border = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
+        val border = ItemBuilder.makeItem(Material.ORANGE_STAINED_GLASS_PANE, " ")
         inv.fill(border)
         inv.setItem(inv.size - 5, ItemBuilder.makeItem(Material.BARRIER, "&cClose"))
 

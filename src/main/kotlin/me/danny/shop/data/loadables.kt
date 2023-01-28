@@ -1,19 +1,17 @@
 package me.danny.shop.data
 
-import org.bukkit.ChatColor
-import org.bukkit.Material
-import org.bukkit.configuration.file.YamlConfiguration
-import org.bukkit.inventory.ItemStack
-import org.bukkit.plugin.Plugin
-import org.spongepowered.configurate.ConfigurationNode
-import org.spongepowered.configurate.serialize.TypeSerializer
-import org.spongepowered.configurate.serialize.TypeSerializerCollection
-import org.spongepowered.configurate.yaml.NodeStyle
-import org.spongepowered.configurate.yaml.YamlConfigurationLoader
-import java.io.File
-import java.io.StringReader
-import java.lang.reflect.Type
-import java.util.concurrent.TimeUnit
+import me.danny.shop.data.Item.ItemType
+import me.danny.shop.data.Item.ItemType.Mat
+import org.bukkit.*
+import org.bukkit.configuration.file.*
+import org.bukkit.inventory.*
+import org.bukkit.plugin.*
+import org.spongepowered.configurate.*
+import org.spongepowered.configurate.serialize.*
+import org.spongepowered.configurate.yaml.*
+import java.io.*
+import java.lang.reflect.*
+import java.util.concurrent.*
 
 /**
  * Represents the DannyShop, holding all items
@@ -28,6 +26,12 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
     }
 
     fun addItem(item: Item) {
+        when (item.item) {
+            is Mat -> if (item.item.material.isAir) return
+            is ItemType.Item -> if (item.item.item.type.isAir) return
+            else -> {}
+        }
+
         items.computeIfAbsent(item.category) { mutableListOf() } += item
     }
 
@@ -84,7 +88,15 @@ data class Category(val name: String, var display: Material) {
  * Use the item's IID to fetch it from the Shop.
  * Instances of this class may be outdated otherwise.
  */
-data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: Cooldown, val quantities: Quantities, val category: Category) {
+data class Item(
+    val iid: IID,
+    val name: String? = null,
+    val item: ItemType,
+    val cost: Cost,
+    val cooldown: Cooldown,
+    val quantities: Quantities,
+    val category: Category
+) {
 
     /**
      * A unique String identifying this Item
@@ -144,7 +156,10 @@ data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: 
      * Simple class wrapping the purchase and sell value of an item
      */
     sealed interface Cost {
-        object NotSet : Cost
+        object NotSet : Cost {
+            override fun toString(): String = "NotSet"
+        }
+
         data class Value(val buy: Double, val sell: Double) : Cost
     }
 
@@ -156,12 +171,16 @@ data class Item(val iid: IID, val item: ItemType, val cost: Cost, val cooldown: 
         /**
          * The item has no cooldown and can be purchased as often as wanted
          */
-        object None : Cooldown
+        object None : Cooldown {
+            override fun toString(): String = "None"
+        }
 
         /**
          * This item can only be purchased one time
          */
-        object Infinite : Cooldown
+        object Infinite : Cooldown {
+            override fun toString(): String = "Infinite"
+        }
 
         /**
          * Once the item is purchased, the player must wait this amount of time
@@ -376,28 +395,41 @@ object QuantitiesSerializer : TypeSerializer<Item.Quantities> {
 }
 object ItemSerializer : TypeSerializer<Item> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Item {
-        if(node == null) throw IllegalArgumentException("what")
+        if (node == null) throw IllegalArgumentException("what")
 
-        val iid = Item.IID(node.node("iid").string!!)
-        val item = node.node("item").get(Item.ItemType::class.java)!!
-        val cost = node.node("cost").get(Item.Cost::class.java)!!
-        val cooldown = node.node("cooldown").get(Item.Cooldown::class.java)!!
-        val quantities = node.node("quantities").get(Item.Quantities::class.java)!!
-        val category = Shop.getCategory(node.node("category").string!!)!!
 
-        return Item(iid, item, cost, cooldown, quantities, category)
+        with(node) {
+            val iid = Item.IID(node("iid").string!!)
+            val name = node("name").string
+            val item = node("item").get(ItemType::class.java)!!
+            val cost = node("cost").get(Item.Cost::class.java)!!
+            val cooldown = node("cooldown").get(Item.Cooldown::class.java)!!
+            val quantities = node("quantities").get(Item.Quantities::class.java)!!
+            val category = Shop.getCategory(node("category").string!!)!!
+            return Item(iid, name, item, cost, cooldown, quantities, category)
+        }
+
     }
 
     override fun serialize(type: Type?, obj: Item?, node: ConfigurationNode?) {
-        if(obj == null || node == null) return
+        if (obj == null || node == null) return
+
+        when (obj.item) {
+            is Mat -> if (obj.item.material.isAir) return
+            is ItemType.Item -> if (obj.item.item.type.isAir) return
+            else -> {}
+        }
 
         obj.run {
-            node.node("iid").set(iid.id)
-            node.node("item").set(item)
-            node.node("cost").set(cost)
-            node.node("cooldown").set(cooldown)
-            node.node("quantities").set(quantities)
-            node.node("category").set(category.name)
+            with(node) {
+                node("iid").set(iid.id)
+                node("name").set(name)
+                node("item").set(item)
+                node("cost").set(cost)
+                node("cooldown").set(cooldown)
+                node("quantities").set(quantities)
+                node("category").set(category.name)
+            }
         }
     }
 }
@@ -425,6 +457,13 @@ object ShopSerializer : TypeSerializer<Shop> {
         val map = mutableMapOf<Category, MutableList<Item>>()
         node.node("categories").getList(Category::class.java)?.forEach(Shop::addCategory)
         node.node("items").getList(Item::class.java)!!
+            .filter { item ->
+                when (item.item) {
+                    is Mat -> !item.item.material.isAir
+                    is ItemType.Item -> !item.item.item.type.isAir
+                    else -> true
+                }
+            }
             .map { it!! }
             .groupByTo(map) { it.category }
         return Shop(map)

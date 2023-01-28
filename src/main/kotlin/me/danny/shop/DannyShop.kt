@@ -1,14 +1,13 @@
 package me.danny.shop
 
-import me.danny.shop.commands.ShopCommand
-import me.danny.shop.data.DannyShopLoadables
-import me.danny.shop.data.Shop
-import me.danny.shop.economy.Economy
-import me.danny.shop.inv.Menu
-import me.danny.shop.inv.listeners.MenuListener
-import me.danny.shop.listeners.ImportListener
-import org.bukkit.Bukkit
-import org.bukkit.plugin.java.JavaPlugin
+import me.danny.shop.commands.*
+import me.danny.shop.data.*
+import me.danny.shop.economy.*
+import me.danny.shop.inv.*
+import me.danny.shop.inv.listeners.*
+import me.danny.shop.listeners.*
+import org.bukkit.*
+import org.bukkit.plugin.java.*
 
 /**
  * The one-stop shop plugin
@@ -20,6 +19,7 @@ class DannyShop : JavaPlugin() {
             private set
 
         fun instance(): DannyShop = Bukkit.getPluginManager().getPlugin("DannyShop") as DannyShop
+        fun hasInputAPI(): Boolean = Bukkit.getPluginManager().isPluginEnabled("InputAPI")
     }
 
     override fun onEnable() {

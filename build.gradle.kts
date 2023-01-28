@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.*
 
 plugins {
     `java-library`
@@ -9,10 +9,6 @@ plugins {
 group = "me.daniel"
 version = "${getHash()}-dev"
 val spigotVersion = "1.19.3-R0.1-SNAPSHOT"
-
-//tasks.withType<JavaCompile> {
-//    options.compilerArgs.add("--enable-preview")
-//}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_18
@@ -33,6 +29,7 @@ dependencies {
     compileOnly("org.spongepowered:configurate-yaml:4.1.2")
     compileOnly("net.essentialsx:EssentialsX:2.19.0")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    implementation(files("libs/InputAPI-e0422fa-dev.jar"))
     implementation(kotlin("stdlib"))
 }
 

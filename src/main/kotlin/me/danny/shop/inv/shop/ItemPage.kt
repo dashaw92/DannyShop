@@ -1,30 +1,52 @@
 package me.danny.shop.me.danny.shop.inv.shop
 
-import me.danny.shop.DannyShop
-import me.danny.shop.data.Category
+import me.danny.shop.*
+import me.danny.shop.data.*
 import me.danny.shop.data.Item
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.inv.Page
-import me.danny.shop.me.danny.shop.data.attachKey
-import org.bukkit.entity.Player
-import org.bukkit.inventory.Inventory
-import org.bukkit.inventory.ItemFlag
-import org.bukkit.inventory.ItemStack
+import me.danny.shop.data.Item.ItemType
+import me.danny.shop.data.Item.ItemType.*
+import me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.data.*
+import me.danny.shop.me.danny.shop.inv.shop.ShopMenu.FilterType
+import me.danny.shop.me.danny.shop.inv.shop.ShopMenu.FilterType.*
+import org.bukkit.entity.*
+import org.bukkit.inventory.*
 
 class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair<Int, Int>) :
     Page<Item>(coll, Pair(2, 0), Pair(7, 5), buttons) {
+
+    private var filter = All
+
+    private fun filteredItems(): List<Item> = items.filter {
+        when (filter) {
+            All -> true
+            Materials -> it.item is Mat
+            Items -> it.item is ItemType.Item
+            Commands -> it.item is Command
+            Experience -> it.item is Exp
+        }
+    }
+
+    override fun numPages(): Int = 1 + filteredItems().size / size
+
     override fun display(inv: Inventory) {
         var invIdx = start.second * 9 + start.first
-        for (item in items.drop(page * size).take(size)) {
+        val displayed = filteredItems().drop(page * size).take(size)
+        for (item in displayed) {
             inv.setItem(invIdx, makeMenuItem(item))
             invIdx += 1
             if (invIdx % 9 == 0) invIdx += 2
         }
     }
 
+    fun setFilter(filter: FilterType) {
+        this.filter = filter
+        if (numPages() < page + 1) page = numPages() - 1
+    }
+
     fun scrollToItem(item: Item) {
         items = DannyShop.SHOP.items(item.category)
-        val newPage = items.indexOfFirst { it.iid.id == item.iid.id } / size
+        val newPage = filteredItems().indexOfFirst { it.iid.id == item.iid.id } / size
         page = newPage
     }
 
@@ -34,11 +56,14 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
     }
 
     private fun makeMenuItem(item: Item): ItemStack {
-        val tagged =
+        var tagged =
             ItemBuilder.addAttribute(
                 item.item.display().attachKey(ShopMenu.ITEM_KEY, item.iid.id),
                 ItemFlag.HIDE_ATTRIBUTES
             )
+        if (item.name != null) {
+            tagged = ItemBuilder.setName(tagged, item.name)
+        }
 
         val header =
             "&6┌┤&4 DannyShop &6├──"

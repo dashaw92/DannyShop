@@ -1,26 +1,21 @@
 package me.danny.shop.me.danny.shop.inv.shop
 
-import me.danny.shop.DannyShop
-import me.danny.shop.data.Category
+import me.danny.shop.*
+import me.danny.shop.data.*
 import me.danny.shop.data.Item
-import me.danny.shop.economy.Economy
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.inv.Menu
-import me.danny.shop.inv.editor.items.ItemEditor
-import me.danny.shop.inv.shop.CategoryPage
-import me.danny.shop.inv.shop.purchasing.PurchaseMenu
-import me.danny.shop.me.danny.shop.data.Key
-import me.danny.shop.me.danny.shop.data.hasKey
-import me.danny.shop.me.danny.shop.data.keyValue
-import me.danny.shop.me.danny.shop.inv.color
-import me.danny.shop.me.danny.shop.inv.fill
-import org.bukkit.Bukkit
-import org.bukkit.ChatColor
-import org.bukkit.Material
-import org.bukkit.entity.Player
-import org.bukkit.event.inventory.ClickType
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.persistence.PersistentDataType
+import me.danny.shop.economy.*
+import me.danny.shop.inv.*
+import me.danny.shop.inv.LoreList.toEntry
+import me.danny.shop.inv.editor.categories.CategoryEditor.Companion.CATEGORY_KEY
+import me.danny.shop.inv.editor.items.*
+import me.danny.shop.inv.shop.*
+import me.danny.shop.inv.shop.purchasing.*
+import me.danny.shop.me.danny.shop.data.*
+import me.danny.shop.me.danny.shop.inv.*
+import org.bukkit.*
+import org.bukkit.entity.*
+import org.bukkit.event.inventory.*
+import org.bukkit.persistence.*
 
 class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer) {
 
@@ -35,6 +30,7 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
         shopReturnInfo?.itemPage ?: ItemPage(viewer, shop.items(selected), Pair(inv.size - 2, inv.size - 1))
     private var categoryPage: CategoryPage =
         shopReturnInfo?.categoryPage ?: CategoryPage(shop.categories(), selected, Pair(1, 46))
+    private var filterType = shopReturnInfo?.filter ?: FilterType.All
 
     init {
         build()
@@ -54,6 +50,10 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
         val ctrlBorder = ItemBuilder.makeItem(Material.BLUE_STAINED_GLASS_PANE, " ")
         (47 until inv.size)
             .forEach { inv.setItem(it, ctrlBorder) }
+
+        val filterButton = ItemBuilder.makeItem(Material.HOPPER, "&6Item Filter", *filterButton())
+
+        inv.setItem(inv.size - 5, filterButton)
 
         categoryPage.render(inv)
         itemPage.render(inv)
@@ -87,13 +87,14 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
     }
 
     override fun onClick(event: InventoryClickEvent) {
-        if (event.currentItem!!.hasKey(ITEM_KEY)) {
+        val clicked = event.currentItem!!
+        if (clicked.hasKey(ITEM_KEY)) {
             val iid = event.currentItem?.keyValue(ITEM_KEY) ?: ""
             if (iid.trim().isBlank()) return
 
             val item = shop.itemByIid(iid) ?: return
 
-            val returnInfo = ShopReturnInfo(itemPage, categoryPage)
+            val returnInfo = ShopReturnInfo(itemPage, categoryPage, filterType)
             if (event.click == ClickType.SHIFT_LEFT && viewer.hasPermission("dannyshop.admin")) {
                 ItemEditor(viewer, item.iid, returnInfo)
             } else {
@@ -114,8 +115,20 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
             return
         }
 
+        if (clicked.type == Material.HOPPER) {
+            filterType = when (event.click) {
+                ClickType.RIGHT -> filterType.previous()
+                else -> filterType.next()
+            }
+            itemPage.setFilter(filterType)
+            build()
+            return
+        }
+
         when {
             event.slot % 9 == 0 -> {
+                if (!clicked.hasKey(CATEGORY_KEY)) return
+
                 val row = event.slot / 9
                 val selected = categoryPage.displayedCategories()[row]
                 itemPage.changeCategory(selected)
@@ -129,5 +142,41 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
         categoryPage.onClick(event, ::build)
     }
 
-    data class ShopReturnInfo(val itemPage: ItemPage, val categoryPage: CategoryPage)
+    data class ShopReturnInfo(val itemPage: ItemPage, val categoryPage: CategoryPage, val filter: FilterType)
+
+    private fun filterButton(): Array<out String> {
+        return LoreList.makeList(
+            listOf(
+                FilterType.All toEntry listOf("Displaying everything"),
+                FilterType.Materials toEntry listOf("Displaying only raw materials"),
+                FilterType.Items toEntry listOf("Displaying only custom items"),
+                FilterType.Commands toEntry listOf("Displaying only commands"),
+                FilterType.Experience toEntry listOf("Displaying only experience packs"),
+            ), filterType
+        )
+    }
+
+    enum class FilterType {
+        All,
+        Materials,
+        Items,
+        Commands,
+        Experience;
+
+        fun previous(): FilterType = when (this) {
+            All -> Experience
+            Experience -> Commands
+            Commands -> Items
+            Items -> Materials
+            Materials -> All
+        }
+
+        fun next(): FilterType = when (this) {
+            Experience -> All
+            Commands -> Experience
+            Items -> Commands
+            Materials -> Items
+            All -> Materials
+        }
+    }
 }

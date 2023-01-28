@@ -1,24 +1,19 @@
 package me.danny.shop.inv.editor.items.properties
 
-import me.danny.shop.DannyShop
-import me.danny.shop.data.Item
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.inv.Page
-import me.danny.shop.inv.editor.items.ItemEditor
-import me.danny.shop.inv.editor.items.ItemEditorView
-import me.danny.shop.inv.view.ViewAction
-import me.danny.shop.me.danny.shop.data.Key
-import me.danny.shop.me.danny.shop.data.attachKey
-import me.danny.shop.me.danny.shop.data.hasKey
-import me.danny.shop.me.danny.shop.data.keyValue
-import me.danny.shop.me.danny.shop.inv.fill
-import me.danny.shop.me.danny.shop.inv.view.MenuView
-import org.bukkit.Material
-import org.bukkit.event.inventory.ClickType
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.Inventory
-import org.bukkit.inventory.ItemStack
-import org.bukkit.persistence.PersistentDataType
+import me.danny.shop.*
+import me.danny.shop.data.*
+import me.danny.shop.data.Item.Quantities.Allowed
+import me.danny.shop.inv.*
+import me.danny.shop.inv.LoreList.toEntry
+import me.danny.shop.inv.editor.items.*
+import me.danny.shop.inv.view.*
+import me.danny.shop.me.danny.shop.data.*
+import me.danny.shop.me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.inv.view.*
+import org.bukkit.*
+import org.bukkit.event.inventory.*
+import org.bukkit.inventory.*
+import org.bukkit.persistence.*
 
 class QuantitesPropEditor(private val editor: ItemEditor) : MenuView {
 
@@ -39,23 +34,17 @@ class QuantitesPropEditor(private val editor: ItemEditor) : MenuView {
         inv.fill(filler)
 
         val allowedButton = ItemBuilder.makeItem(
-            Material.COMPARATOR, "&3Allowed mode", *when (allowed) {
-                Item.Quantities.Allowed.Any -> arrayOf(
-                    "&2• &nAny",
-                    "&7• Predefined",
-                    "",
-                    "&ePlayers can enter a custom quantity",
-                    "&ewhen purchasing this item.",
-                )
-
-                Item.Quantities.Allowed.Predefined -> arrayOf(
-                    "&7• Any",
-                    "&2• &nPredefined",
-                    "",
-                    "&ePlayers may only purchase this item",
-                    "&ein predefined quantities."
-                )
-            }
+            Material.COMPARATOR,
+            "&3Allowed mode",
+            *LoreList.makeList(
+                listOf(
+                    Allowed.Any toEntry listOf("Players can enter a custom quantity", "when purchasing this item"),
+                    Allowed.Predefined toEntry listOf(
+                        "Players may only purchase this item",
+                        "in predefined quantities."
+                    )
+                ), allowed
+            )
         )
 
         inv.setItem(inv.size - 6, ItemBuilder.makeItem(Material.HOPPER, "&eSort"))

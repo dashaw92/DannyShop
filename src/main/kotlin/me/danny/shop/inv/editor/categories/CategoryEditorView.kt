@@ -1,19 +1,16 @@
 package me.danny.shop.inv.editor.categories
 
-import me.danny.shop.DannyShop
-import me.danny.shop.data.Category
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.inv.view.ViewAction
-import me.danny.shop.me.danny.shop.data.Key
-import me.danny.shop.me.danny.shop.data.attachMarker
-import me.danny.shop.me.danny.shop.data.hasMarker
-import me.danny.shop.me.danny.shop.inv.color
-import me.danny.shop.me.danny.shop.inv.fill
-import me.danny.shop.me.danny.shop.inv.view.MenuView
-import org.bukkit.Material
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.Inventory
-import org.bukkit.persistence.PersistentDataType
+import me.danny.shop.*
+import me.danny.shop.data.*
+import me.danny.shop.inv.*
+import me.danny.shop.inv.view.*
+import me.danny.shop.me.danny.shop.data.*
+import me.danny.shop.me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.inv.view.*
+import org.bukkit.*
+import org.bukkit.event.inventory.*
+import org.bukkit.inventory.*
+import org.bukkit.persistence.*
 
 class CategoryEditorView(val category: Category) : MenuView {
 
@@ -24,7 +21,7 @@ class CategoryEditorView(val category: Category) : MenuView {
     override fun onOpen(): ViewAction = ViewAction.Resize(3)
 
     override fun build(inv: Inventory) {
-        val filler = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
+        val filler = ItemBuilder.makeItem(Material.ORANGE_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
 
         inv.setItem(

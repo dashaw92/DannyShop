@@ -1,22 +1,18 @@
 package me.danny.shop.listeners
 
-import com.earth2me.essentials.Essentials
-import me.danny.shop.DannyShop
-import me.danny.shop.commands.ImportCommand
-import me.danny.shop.data.Category
+import com.earth2me.essentials.*
+import me.danny.shop.*
+import me.danny.shop.commands.*
+import me.danny.shop.data.*
 import me.danny.shop.data.Item
-import me.danny.shop.data.Shop
-import me.danny.shop.me.danny.shop.inv.color
+import me.danny.shop.me.danny.shop.inv.*
 import org.bukkit.*
-import org.bukkit.block.Chest
-import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.block.Action
-import org.bukkit.event.player.PlayerDropItemEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.inventory.Inventory
-import org.bukkit.inventory.ItemStack
+import org.bukkit.block.*
+import org.bukkit.entity.*
+import org.bukkit.event.*
+import org.bukkit.event.block.*
+import org.bukkit.event.player.*
+import org.bukkit.inventory.*
 
 /**
  * Listens for players punching chests with the import wand
@@ -38,16 +34,18 @@ object ImportListener : Listener {
     fun onPlayerPunch(event: PlayerInteractEvent) {
         val player = event.player
 
-        if (event.action != Action.LEFT_CLICK_BLOCK) return
         if (!event.hasItem() || !ImportCommand.isWand(event.item!!) || !player.hasPermission("dannyshop.import")) return
-        if (!chests.isTagged(event.clickedBlock!!.type)) return
+        if (event.action == Action.RIGHT_CLICK_BLOCK && chests.isTagged(event.clickedBlock!!.type)) return
         event.isCancelled = true
+        if (event.action != Action.LEFT_CLICK_BLOCK) return
+        if (!chests.isTagged(event.clickedBlock!!.type)) return
 
         val state = event.clickedBlock!!.state as Chest
         if (state.customName == null) return
         val category = Category(state.customName!!, Material.BOOK)
         if (Shop.getCategory(category.name) == null) {
             Shop.addCategory(category)
+            player.sendMessage("&6[DannyShop] Created category &e${category.name}".color())
         }
 
         player.sendMessage("&6[DannyShop] Importing items from chest into category &e${category.name}".color())
@@ -77,10 +75,12 @@ object ImportListener : Listener {
 
             val cooldown = Item.Cooldown.None
 
-            val shopItem = Item(iid, type, cost, cooldown, quantities, category)
+            val shopItem = Item(iid, null, type, cost, cooldown, quantities, category)
             player.sendMessage("&6[DannyShop] Imported &7\"${iid.id}\"".color())
             DannyShop.SHOP.addItem(shopItem)
         }
+
+        inv.clear()
     }
 
     @EventHandler

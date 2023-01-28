@@ -1,20 +1,17 @@
 package me.danny.shop.inv.editor.items.properties
 
-import me.danny.shop.DannyShop
-import me.danny.shop.data.Shop
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.inv.editor.categories.CategoryEditor
-import me.danny.shop.inv.editor.categories.CategoryPages
-import me.danny.shop.inv.editor.items.ItemEditor
-import me.danny.shop.inv.editor.items.ItemEditorView
-import me.danny.shop.inv.view.ViewAction
-import me.danny.shop.me.danny.shop.data.hasKey
-import me.danny.shop.me.danny.shop.data.keyValue
-import me.danny.shop.me.danny.shop.inv.fill
-import me.danny.shop.me.danny.shop.inv.view.MenuView
-import org.bukkit.Material
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.Inventory
+import me.danny.shop.*
+import me.danny.shop.data.*
+import me.danny.shop.inv.*
+import me.danny.shop.inv.editor.categories.*
+import me.danny.shop.inv.editor.items.*
+import me.danny.shop.inv.view.*
+import me.danny.shop.me.danny.shop.data.*
+import me.danny.shop.me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.inv.view.*
+import org.bukkit.*
+import org.bukkit.event.inventory.*
+import org.bukkit.inventory.*
 
 class ItemCategoryEditor(private val editor: ItemEditor) : MenuView {
 
@@ -24,7 +21,7 @@ class ItemCategoryEditor(private val editor: ItemEditor) : MenuView {
     override fun onOpen(): ViewAction = ViewAction.Resize(5, "&7- &9Change Category")
 
     override fun build(inv: Inventory) {
-        val filler = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
+        val filler = ItemBuilder.makeItem(Material.ORANGE_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
         page.render(inv)
 

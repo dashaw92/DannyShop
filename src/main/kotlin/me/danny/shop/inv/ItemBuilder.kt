@@ -1,13 +1,11 @@
 package me.danny.shop.inv
 
-import me.danny.shop.me.danny.shop.inv.color
-import org.bukkit.Material
-import org.bukkit.enchantments.Enchantment
-import org.bukkit.inventory.ItemFlag
-import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.PotionMeta
-import org.bukkit.potion.PotionData
-import org.bukkit.potion.PotionType
+import me.danny.shop.me.danny.shop.inv.*
+import org.bukkit.*
+import org.bukkit.enchantments.*
+import org.bukkit.inventory.*
+import org.bukkit.inventory.meta.*
+import org.bukkit.potion.*
 import java.util.*
 
 
@@ -73,6 +71,14 @@ object ItemBuilder {
         val clone = item.clone()
         val im = clone.itemMeta!!
         im.addItemFlags(*hideAttributes)
+        clone.itemMeta = im
+        return clone
+    }
+
+    fun setName(item: ItemStack, name: String): ItemStack {
+        val clone = item.clone()
+        val im = clone.itemMeta!!
+        im.setDisplayName(name.color())
         clone.itemMeta = im
         return clone
     }

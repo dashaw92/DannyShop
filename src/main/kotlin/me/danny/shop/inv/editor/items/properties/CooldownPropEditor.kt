@@ -1,22 +1,18 @@
 package me.danny.shop.inv.editor.items.properties
 
-import me.danny.shop.DannyShop
-import me.danny.shop.data.Item
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.inv.editor.items.ItemEditor
-import me.danny.shop.inv.editor.items.ItemEditorView
-import me.danny.shop.inv.view.ViewAction
-import me.danny.shop.me.danny.shop.data.Key
-import me.danny.shop.me.danny.shop.data.attachKey
-import me.danny.shop.me.danny.shop.data.hasKey
-import me.danny.shop.me.danny.shop.data.keyValue
-import me.danny.shop.me.danny.shop.inv.fill
-import me.danny.shop.me.danny.shop.inv.view.MenuView
-import org.bukkit.Material
-import org.bukkit.event.inventory.ClickType
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.Inventory
-import org.bukkit.persistence.PersistentDataType
+import me.danny.shop.*
+import me.danny.shop.data.*
+import me.danny.shop.inv.*
+import me.danny.shop.inv.LoreList.toEntry
+import me.danny.shop.inv.editor.items.*
+import me.danny.shop.inv.view.*
+import me.danny.shop.me.danny.shop.data.*
+import me.danny.shop.me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.inv.view.*
+import org.bukkit.*
+import org.bukkit.event.inventory.*
+import org.bukkit.inventory.*
+import org.bukkit.persistence.*
 
 class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
 
@@ -46,34 +42,13 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
         inv.setItem(0, time)
 
         val modeButton = ItemBuilder.makeItem(
-            Material.COMPARATOR, "&6Select cooldown type", *when (mode) {
-                State.None -> arrayOf(
-                    "&2• &nNone",
-                    "&7• Infinite",
-                    "&7• Timed",
-                    "",
-                    "&ePlayers do not have to wait",
-                    "&eto purchase this item again."
-                )
-
-                State.Infinite -> arrayOf(
-                    "&7• None",
-                    "&2• &nInfinite",
-                    "&7• Timed",
-                    "",
-                    "&ePlayers can only purchase this",
-                    "&eitem one time."
-                )
-
-                State.Timed -> arrayOf(
-                    "&7• None",
-                    "&7• Infinite",
-                    "&2• &nTimed",
-                    "",
-                    "&ePlayers have to wait to purchase",
-                    "&ethis item again."
-                )
-            }
+            Material.COMPARATOR, "&6Select cooldown type", *LoreList.makeList(
+                listOf(
+                    State.None toEntry listOf("Players do not have to wait", "to purchase this item again"),
+                    State.Infinite toEntry listOf("Players can only purchase this", "item one time."),
+                    State.Timed toEntry listOf("Players have to wait to purchase", "this item again.")
+                ), mode
+            )
         )
 
         val confirmButton = ItemBuilder.makeItem(

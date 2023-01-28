@@ -1,19 +1,17 @@
 package me.danny.shop.inv.editor.items
 
-import me.danny.shop.DannyShop
-import me.danny.shop.data.Item
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.inv.editor.items.properties.CooldownPropEditor
-import me.danny.shop.inv.editor.items.properties.ItemCategoryEditor
-import me.danny.shop.inv.editor.items.properties.QuantitesPropEditor
-import me.danny.shop.inv.view.ViewAction
-import me.danny.shop.me.danny.shop.inv.editor.items.properties.CostPropEditor
-import me.danny.shop.me.danny.shop.inv.fill
-import me.danny.shop.me.danny.shop.inv.shop.ShopMenu
-import me.danny.shop.me.danny.shop.inv.view.MenuView
-import org.bukkit.Material
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.Inventory
+import me.danny.shop.*
+import me.danny.shop.data.*
+import me.danny.shop.inv.*
+import me.danny.shop.inv.editor.items.properties.*
+import me.danny.shop.inv.view.*
+import me.danny.shop.me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.inv.editor.items.properties.*
+import me.danny.shop.me.danny.shop.inv.shop.*
+import me.danny.shop.me.danny.shop.inv.view.*
+import org.bukkit.*
+import org.bukkit.event.inventory.*
+import org.bukkit.inventory.*
 
 class ItemEditorView(private val editor: ItemEditor) : MenuView {
 
@@ -36,6 +34,7 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
         val costButton = ItemBuilder.makeItem(Material.EMERALD, "&aPrices", *cost(item), *footer)
         val cooldownButton =
             ItemBuilder.makeItem(Material.CLOCK, "&aCooldown", *cooldown(item), *footer)
+        val nameButton = ItemBuilder.makeItem(Material.NAME_TAG, "&aName", *name(item), *footer)
         val categoryButton = ItemBuilder.makeItem(
             Material.CHEST,
             "&aCategory",
@@ -47,6 +46,7 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
 
         inv.setItem(11, costButton)
         inv.setItem(12, cooldownButton)
+        inv.setItem(13, nameButton)
         inv.setItem(14, categoryButton)
         inv.setItem(15, quantitiesButton)
         inv.setItem(0, id)
@@ -63,6 +63,7 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
             Material.WRITABLE_BOOK -> QuantitesPropEditor(editor)
             Material.CLOCK -> CooldownPropEditor(editor)
             Material.CHEST -> ItemCategoryEditor(editor)
+            Material.NAME_TAG -> ItemNameEditor(editor)
             else -> null
         } ?: return ViewAction.Pass
         return ViewAction.ChangeView(newView)
@@ -111,6 +112,22 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
                 "&eTimed: &7${item.cooldown.time.display()}",
                 "",
                 "&7&oPlayers must wait before purchasing again"
+            )
+        }
+    }
+
+    private fun name(item: Item): Array<String> {
+        return when (item.name) {
+            null -> arrayOf(
+                "&cNo name set",
+                "",
+                "&7&oThis item cannot be searched for by name."
+            )
+
+            else -> arrayOf(
+                "&e${item.name}",
+                "",
+                "&7&oPlayers can search for this item by that name."
             )
         }
     }

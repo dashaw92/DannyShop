@@ -1,25 +1,30 @@
 package me.danny.shop.commands
 
-import me.danny.shop.inv.ItemBuilder
-import me.danny.shop.me.danny.shop.data.attachMarker
-import me.danny.shop.me.danny.shop.data.hasMarker
-import me.danny.shop.me.danny.shop.inv.color
-import org.bukkit.Material
-import org.bukkit.NamespacedKey
-import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
+import me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.data.*
+import me.danny.shop.me.danny.shop.inv.*
+import org.bukkit.*
+import org.bukkit.entity.*
+import org.bukkit.inventory.*
 
 object ImportCommand {
 
     @Suppress("DEPRECATION")
     private val WAND_KEY = NamespacedKey("dannyshop", "wand_item")
-    private val IMPORT_WAND = ItemBuilder.makeItem(
-        Material.WOODEN_HOE, "&3DannyShop Import Wand",
-        "&eLeft click a named chest to import the items",
-        "&ein the chest with default options.",
-        "&eWorth will be determined by Essentials' &dworth.yml",
-        "&eIf Essentials is not on the server, you will",
-        "&ehave to manually do this!"
+    private val IMPORT_WAND = ItemBuilder.addEnchantGlow(
+        ItemBuilder.addAttribute(
+            ItemBuilder.makeItem(
+                Material.WOODEN_HOE, "&3DannyShop Import Wand",
+                "&6Left click&7 a &dnamed chest&7 to import the items",
+                "&7in the chest with default options.",
+                "&7Worth will be determined by Essentials' &dworth.yml",
+                "&6If Essentials is not on the server&7, you will",
+                "&7have to manually do this!",
+                "",
+                "&3[Permission: &8&odannyshop.import&3]",
+                "&4Warning: The chest will be cleared after importing!"
+            ), *ItemFlag.values()
+        )
     ).attachMarker(WAND_KEY)
 
     fun isWand(item: ItemStack) = item.hasMarker(WAND_KEY)

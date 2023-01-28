@@ -1,8 +1,9 @@
 package me.danny.shop.inv
 
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.inventory.Inventory
-import org.bukkit.potion.PotionType
+import org.bukkit.*
+import org.bukkit.event.inventory.*
+import org.bukkit.inventory.*
+import org.bukkit.potion.*
 
 /**
  * Represents a rectangle in an inventory
@@ -40,9 +41,10 @@ abstract class Page<T>(
     }
 
     private fun clearDisplay(inv: Inventory) {
+        val filler = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
         for (y in start.second until start.second + dim.second) {
             for (x in start.first until start.first + dim.first) {
-                inv.setItem(y * 9 + x, null)
+                inv.setItem(y * 9 + x, filler)
             }
         }
     }
