@@ -1,7 +1,8 @@
 package me.danny.shop.inv.editor.items.properties
 
+import me.danny.libinput.providers.*
 import me.danny.shop.*
-import me.danny.shop.data.*
+import me.danny.shop.data.Item
 import me.danny.shop.inv.*
 import me.danny.shop.inv.LoreList.toEntry
 import me.danny.shop.inv.editor.items.*
@@ -10,6 +11,7 @@ import me.danny.shop.me.danny.shop.data.*
 import me.danny.shop.me.danny.shop.inv.*
 import me.danny.shop.me.danny.shop.inv.view.*
 import org.bukkit.*
+import org.bukkit.entity.*
 import org.bukkit.event.inventory.*
 import org.bukkit.inventory.*
 import org.bukkit.persistence.*
@@ -59,7 +61,10 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
             }
         )
 
-        inv.setItem(inv.size - 9, modeButton)
+        val inputButton = ItemBuilder.makeItem(Material.SPRUCE_SIGN, "&6Set custom cooldown")
+
+        inv.setItem(inv.size - 9, inputButton)
+        inv.setItem(inv.size - 8, modeButton)
         inv.setItem(inv.size - 2, confirmButton)
         inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "&9Back"))
     }
@@ -69,6 +74,23 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
         if (event.slot == inv.size - 1) return ViewAction.ChangeView(ItemEditorView(editor))
 
         when (clicked.type) {
+            Material.SPRUCE_SIGN -> {
+                val player = event.whoClicked as Player
+                val provider = if (SignInput.isAvailable()) {
+                    SignInput()
+                        .withLines(arrayOf("", "^^^^^", "DannyShop", "Set cooldown time"))
+                        .withMaterial(Material.SPRUCE_WALL_SIGN)
+                } else {
+                    ChatInput()
+                        .withEscapeWords("cancel")
+                        .withPrefix("&6[DannyShop] ".color())
+                        .withPrompt("&eSet cooldown time:".color())
+                        .requestLines(1)
+                }
+
+                provider.getInput(player) { pl, input -> setCooldown(pl, input, inv) }
+            }
+
             Material.CLOCK -> {
                 when (event.click) {
                     ClickType.LEFT -> duration += 1
@@ -203,4 +225,35 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
         else -> Time.Seconds
     }
 
+    private fun setCooldown(player: Player, input: Input, inv: Inventory) {
+        val time = when (input) {
+            is SingleLine -> input.line
+            is MultipleLines -> input.lines.first()
+        }
+
+        val inputDuration = time.takeWhile { it.isDigit() }
+        if (inputDuration.isNotBlank()) {
+            val parsedDuration = inputDuration.toLong()
+            if (parsedDuration > 0) {
+                duration = parsedDuration
+            }
+
+            val inputUnit = time.takeLastWhile { it.isLetter() }
+            if (inputUnit.isNotBlank()) {
+                when (inputUnit.lowercase()) {
+                    "ms" -> unit = Time.Milliseconds
+                    "s" -> unit = Time.Seconds
+                    "m" -> unit = Time.Minutes
+                    "h" -> unit = Time.Hours
+                    "d" -> unit = Time.Days
+                    "w" -> unit = Time.Weeks
+                    "mo" -> unit = Time.Months
+                    "y" -> unit = Time.Years
+                }
+            }
+        }
+
+        build(inv)
+        player.openInventory(inv)
+    }
 }
