@@ -3,6 +3,8 @@ package me.danny.shop.me.danny.shop.inv.editor.items.properties
 import me.danny.libinput.providers.*
 import me.danny.shop.*
 import me.danny.shop.data.Item
+import me.danny.shop.data.Item.ItemType
+import me.danny.shop.economy.*
 import me.danny.shop.inv.*
 import me.danny.shop.inv.editor.items.*
 import me.danny.shop.inv.view.*
@@ -28,7 +30,16 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
                 sell = item.cost.sell
             }
 
-            else -> {}
+            //Add a shortcut for when the worth.yml has changed since import
+            is Item.Cost.NotSet -> {
+                if (item.item is ItemType.Mat) {
+                    val essCost = Economy.getWorth(ItemStack(item.item.material))
+                    if (essCost is Item.Cost.Value) {
+                        buy = essCost.buy
+                        sell = essCost.sell
+                    }
+                }
+            }
         }
     }
 

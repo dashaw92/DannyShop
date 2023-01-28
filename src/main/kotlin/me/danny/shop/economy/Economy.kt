@@ -1,5 +1,6 @@
 package me.danny.shop.economy
 
+import com.earth2me.essentials.*
 import me.danny.shop.*
 import me.danny.shop.data.Item
 import me.danny.shop.me.danny.shop.inv.*
@@ -90,6 +91,15 @@ object Economy {
                 player.sendMessage("&6[DannyShop] &cAn error occurred checking your balance. No money was taken from your account.".color())
             }
         }
+    }
+
+    internal fun getWorth(item: ItemStack): Item.Cost {
+        val plug = Bukkit.getPluginManager().getPlugin("Essentials") ?: return Item.Cost.NotSet
+        val ess = plug as Essentials
+
+        val sell = ess.worth.getPrice(ess, item)?.toDouble() ?: return Item.Cost.NotSet
+        val buy = 1.25 * sell
+        return Item.Cost.Value(buy, sell)
     }
 
     private sealed interface Result {

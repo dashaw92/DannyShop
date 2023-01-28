@@ -5,6 +5,7 @@ import me.danny.shop.*
 import me.danny.shop.commands.*
 import me.danny.shop.data.*
 import me.danny.shop.data.Item
+import me.danny.shop.economy.Economy.getWorth
 import me.danny.shop.me.danny.shop.inv.*
 import org.bukkit.*
 import org.bukkit.block.*
@@ -85,15 +86,6 @@ object ImportListener : Listener {
             event.player.sendMessage("&6[DannyShop] Removed import wand!".color())
             event.itemDrop.remove()
         }
-    }
-
-    private fun getWorth(item: ItemStack): Item.Cost {
-        val plug = Bukkit.getPluginManager().getPlugin("Essentials") ?: return Item.Cost.NotSet
-        val ess = plug as Essentials
-
-        val sell = ess.worth.getPrice(ess, item)?.toDouble() ?: return Item.Cost.NotSet
-        val buy = 1.25 * sell
-        return Item.Cost.Value(buy, sell)
     }
 
     private fun itemType(item: ItemStack): Item.ItemType {
