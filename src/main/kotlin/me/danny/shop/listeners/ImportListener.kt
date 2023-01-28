@@ -57,11 +57,7 @@ object ImportListener : Listener {
             if (item.type.isAir) continue
 
             val iid = Item.IID.generate()
-            val type = if (item.hasItemMeta()) {
-                Item.ItemType.Item(item)
-            } else {
-                Item.ItemType.Mat(item.type)
-            }
+            val type = itemType(item)
 
             val cost = when (type) {
                 is Item.ItemType.Mat, is Item.ItemType.Item -> getWorth(item)
@@ -98,5 +94,27 @@ object ImportListener : Listener {
         val sell = ess.worth.getPrice(ess, item)?.toDouble() ?: return Item.Cost.NotSet
         val buy = 1.25 * sell
         return Item.Cost.Value(buy, sell)
+    }
+
+    private fun itemType(item: ItemStack): Item.ItemType {
+        if (item.hasItemMeta()) {
+            if (item.type == Material.EXPERIENCE_BOTTLE && item.itemMeta!!.hasDisplayName()) {
+                val name = item.itemMeta!!.displayName.lowercase().split(' ')
+                if (name.size > 1 && name[0] == "exp") {
+                    val amount = name[1].toDoubleOrNull()
+                    if (amount != null) {
+                        return Item.ItemType.Exp(amount)
+                    }
+                }
+            } else if (item.type == Material.COMMAND_BLOCK && item.itemMeta!!.hasDisplayName()) {
+                val name = item.itemMeta!!.displayName
+                if (name.startsWith('/')) {
+                    return Item.ItemType.Command(name)
+                }
+            }
+            return Item.ItemType.Item(item)
+        } else {
+            return Item.ItemType.Mat(item.type)
+        }
     }
 }

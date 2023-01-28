@@ -1,13 +1,13 @@
 package me.danny.shop.economy
 
-import me.danny.shop.DannyShop
+import me.danny.shop.*
 import me.danny.shop.data.Item
-import me.danny.shop.me.danny.shop.inv.color
-import org.bukkit.Bukkit
-import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
+import me.danny.shop.me.danny.shop.inv.*
+import org.bukkit.*
+import org.bukkit.entity.*
+import org.bukkit.inventory.*
 import java.util.*
-import kotlin.math.roundToInt
+import kotlin.math.*
 import net.milkbowl.vault.economy.Economy as VaultEco
 
 object Economy {
@@ -62,16 +62,18 @@ object Economy {
 
                     is Item.ItemType.Exp -> {
                         val exp = (item.item.exp * amount).roundToInt()
-                        player.exp += exp
+                        player.giveExp(exp)
                         player.sendMessage("&6[DannyShop] &7%,d&e experience given to you.".format(exp).color())
                     }
 
                     is Item.ItemType.Command -> {
-                        val cmd = item.item.command
+                        var cmd = item.item.command
                             .replace("\$PLAYER", player.name)
                             .replace("\$UUID", player.uniqueId.toString())
                             .replace("\$UUID_NO_DASHES", player.uniqueId.toString().replace("-", ""))
-                        (0..amount).forEach { _ ->
+                        if (cmd.startsWith('/')) cmd = cmd.substring(1)
+
+                        (0 until amount).forEach { _ ->
                             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd)
                         }
                     }
