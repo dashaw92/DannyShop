@@ -88,6 +88,7 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
                         .requestLines(1)
                 }
 
+                player.closeInventory()
                 provider.getInput(player) { pl, input -> setCooldown(pl, input, inv) }
             }
 

@@ -69,9 +69,10 @@ class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: ShopMenu.Sh
                     ChatInput()
                         .withEscapeWords("cancel")
                         .withPrefix("&6[DannyShop] &e".color())
-                        .withPrompt("Buy custom amount".color())
+                        .withPrompt("Buy custom amount:".color())
                         .requestLines(1)
                 }
+                viewer.closeInventory()
                 provider.getInput(viewer, ::handleCustomQuantity)
             } else {
                 Economy.purchase(viewer, item.iid, customAmount)
@@ -81,14 +82,18 @@ class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: ShopMenu.Sh
     }
 
     private fun handleCustomQuantity(player: Player, input: Input) {
-        val quantity = when (input) {
+        val quantityStr = when (input) {
             is SingleLine -> input.line
             is MultipleLines -> input.lines.first()
-        }.toIntOrNull()
+        }
+
+        val quantity = quantityStr.toIntOrNull()
 
         if (quantity != null && quantity > 0) {
-            Economy.purchase(player, item.iid, quantity)
             customAmount = quantity
+            player.sendMessage("&6[DannyShop] &7Custom amount set to &e$customAmount".color())
+        } else {
+            player.sendMessage("&6[DannyShop] &cUnable to read quantity from \"&d$quantityStr&c\"...".color())
         }
 
         build()

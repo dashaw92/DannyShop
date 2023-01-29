@@ -97,9 +97,10 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
                         .requestLines(1)
                         .withEscapeWords("cancel")
                         .withPrefix("&6[DannyShop] ".color())
-                        .withPrompt("&eSet buy price".color())
+                        .withPrompt("&eSet buy price:".color())
                 }
 
+                player.closeInventory()
                 provider.getInput(player) { pl, input -> setPrice(pl, input, { buy = it }, event.inventory) }
             }
 
@@ -114,9 +115,10 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
                         .requestLines(1)
                         .withEscapeWords("cancel")
                         .withPrefix("&6[DannyShop] ".color())
-                        .withPrompt("&eSet sell price".color())
+                        .withPrompt("&eSet sell price:".color())
                 }
 
+                player.closeInventory()
                 provider.getInput(player) { pl, input -> setPrice(pl, input, { sell = it }, event.inventory) }
             }
 
