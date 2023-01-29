@@ -18,7 +18,8 @@ class CategoryPage(coll: Collection<Category>, private var selected: Category, b
             .drop(page)
             .take(size)
             .map {
-                var item = ItemBuilder.makeItem(it.display, "&9${it.name}")
+                var item =
+                    ItemBuilder.addAttribute(ItemBuilder.makeItem(it.display, "&9${it.name}"), *ItemFlag.values())
                 if (it == selected) item = ItemBuilder.addEnchantGlow(item)
                 item.attachKey(CATEGORY_KEY, it.name)
             }

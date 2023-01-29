@@ -49,7 +49,7 @@ class ItemNameEditor(private val editor: ItemEditor) : MenuView {
                 val player = event.whoClicked as Player
                 val provider = if (SignInput.isAvailable()) {
                     SignInput()
-                        .withLines(arrayOf("", "^^^^^", "DannyShop", "New name"))
+                        .withLines(arrayOf(item.name ?: "", "^^^^^", "DannyShop", "New name"))
                         .withMaterial(Material.SPRUCE_WALL_SIGN)
 
                 } else {
@@ -60,6 +60,7 @@ class ItemNameEditor(private val editor: ItemEditor) : MenuView {
                         .withPrompt("&eEnter new name:".color())
                 }
 
+                player.closeInventory()
                 provider.getInput(player, ::handleInput)
             }
 
@@ -74,9 +75,15 @@ class ItemNameEditor(private val editor: ItemEditor) : MenuView {
             is MultipleLines -> input.lines.first()
         }
 
-        val renamed = item.copy(name = newName)
+        val renamed = if (newName.isBlank()) {
+            player.sendMessage("&6[DannyShop]&e Removed item name.".color())
+            item.copy(name = null)
+        } else {
+            player.sendMessage("&6[DannyShop]&e Renamed item to &d$newName&e!".color())
+            item.copy(name = newName)
+        }
+
         DannyShop.SHOP.replaceItem(item.iid, renamed)
-        player.sendMessage("&6[DannyShop]&e Renamed item to &d$newName&e!".color())
         ItemEditor(player, renamed.iid, editor.returnInfo)
     }
 }
