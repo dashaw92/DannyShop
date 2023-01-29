@@ -88,7 +88,7 @@ class CategoryEditorView(val category: Category) : MenuView {
             is MultipleLines -> input.lines.first()
         }
 
-        category.changeName(newName.color())
+        category.changeName(newName)
         player.sendMessage("&6[DannyShop] &7Category name changed to &e$newName".color())
         build(inv)
         player.openInventory(inv)
