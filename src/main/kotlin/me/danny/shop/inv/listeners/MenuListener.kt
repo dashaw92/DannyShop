@@ -1,14 +1,10 @@
 package me.danny.shop.inv.listeners
 
-import me.danny.shop.inv.Menu
-import me.danny.shop.me.danny.shop.inv.FullInvListener
-import org.bukkit.Material
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.inventory.ClickType
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.inventory.InventoryCloseEvent
-import org.bukkit.event.inventory.InventoryOpenEvent
+import me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.inv.*
+import org.bukkit.*
+import org.bukkit.event.*
+import org.bukkit.event.inventory.*
 
 object MenuListener : Listener {
 
@@ -34,12 +30,12 @@ object MenuListener : Listener {
     @EventHandler
     fun onInvClose(event: InventoryCloseEvent) {
         val holder = event.inventory.holder
-        if(holder is Menu) holder.close()
+        if (holder is Menu) holder.close()
     }
 
     @EventHandler
     fun onInvOpen(event: InventoryOpenEvent) {
         val holder = event.inventory.holder
-        if(holder is Menu) Menu.openInv(event.player.uniqueId, holder)
+        if (holder is Menu) Menu.openInv(event.player.uniqueId, holder)
     }
 }

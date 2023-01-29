@@ -1,11 +1,11 @@
 package me.danny.shop.me.danny.shop.inv.view
 
-import me.danny.shop.inv.Menu
-import me.danny.shop.inv.view.ViewAction
-import me.danny.shop.me.danny.shop.inv.color
-import org.bukkit.Bukkit
-import org.bukkit.entity.Player
-import org.bukkit.event.inventory.InventoryClickEvent
+import me.danny.shop.inv.*
+import me.danny.shop.inv.view.*
+import me.danny.shop.me.danny.shop.inv.*
+import org.bukkit.*
+import org.bukkit.entity.*
+import org.bukkit.event.inventory.*
 
 /**
  * Represents a menu that utilizes the view system to render

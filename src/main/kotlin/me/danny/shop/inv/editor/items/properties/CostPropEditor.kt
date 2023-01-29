@@ -99,6 +99,7 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
                 player.closeInventory()
                 provider.getInput(player) { pl, input -> setPrice(pl, input, { buy = it }, event.inventory) }
             }
+
             else -> {}
         }
 

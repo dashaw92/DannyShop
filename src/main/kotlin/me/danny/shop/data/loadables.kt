@@ -210,7 +210,7 @@ data class Item(
          */
         data class Exp(val exp: Int) : ItemType {
             override fun inner(): Any = exp
-            override fun display(): ItemStack = me.danny.shop.inv.ItemBuilder.makeItem(
+            override fun display(): ItemStack = ItemBuilder.makeItem(
                 Material.EXPERIENCE_BOTTLE,
                 "${ChatColor.GOLD}%.0f Experience".format(exp)
             )
@@ -334,7 +334,7 @@ data class Item(
 //<editor-fold desc="Type serializers">
 object ItemStackSerializer : TypeSerializer<ItemStack> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): ItemStack {
-        if(node == null) throw IllegalArgumentException("what")
+        if (node == null) throw IllegalArgumentException("what")
 
         val map = node.string!!
         return YamlConfiguration.loadConfiguration(StringReader(map)).getItemStack("itemstack")!!
@@ -471,6 +471,7 @@ object QuantitiesSerializer : TypeSerializer<Quantities> {
     }
 
 }
+
 object ItemSerializer : TypeSerializer<Item> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Item {
         if (node == null) throw IllegalArgumentException("what")
@@ -511,6 +512,7 @@ object ItemSerializer : TypeSerializer<Item> {
         }
     }
 }
+
 object CategorySerializer : TypeSerializer<Category> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Category {
         if (node == null) throw IllegalArgumentException("what")
@@ -522,7 +524,7 @@ object CategorySerializer : TypeSerializer<Category> {
     }
 
     override fun serialize(type: Type?, obj: Category?, node: ConfigurationNode?) {
-        if(obj == null || node == null) return
+        if (obj == null || node == null) return
 
         node.node("cid").set(obj.cid.id)
         node.node("name").set(obj.name)
@@ -530,9 +532,10 @@ object CategorySerializer : TypeSerializer<Category> {
     }
 
 }
+
 object ShopSerializer : TypeSerializer<Shop> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Shop {
-        if(node == null) throw IllegalArgumentException("what")
+        if (node == null) throw IllegalArgumentException("what")
 
         val map = mutableMapOf<Category, MutableList<Item>>()
         node.node("categories").getList(Category::class.java)?.forEach(Shop::addCategory)
@@ -550,7 +553,7 @@ object ShopSerializer : TypeSerializer<Shop> {
     }
 
     override fun serialize(type: Type?, obj: Shop?, node: ConfigurationNode?) {
-        if(obj == null || node == null) return
+        if (obj == null || node == null) return
 
         node.node("categories").setList(Category::class.java, obj.categories().toList())
         node.node("items").setList(Item::class.java, obj.items.values.flatten())
@@ -560,6 +563,7 @@ object ShopSerializer : TypeSerializer<Shop> {
 object DannyShopLoadables {
 
     private lateinit var loader: YamlConfigurationLoader
+
     /**
      * Exposes all custom type serializes required to successfully load
      * and save a DannyShop Item to a config file.
@@ -592,7 +596,7 @@ object DannyShopLoadables {
     }
 
     fun saveShop(shop: Shop) {
-        if(!::loader.isInitialized) return
+        if (!::loader.isInitialized) return
         val root = loader.load()
         root.set(null)
         root.node("shop").set(shop)

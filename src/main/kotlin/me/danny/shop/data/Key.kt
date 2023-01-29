@@ -1,8 +1,8 @@
 package me.danny.shop.me.danny.shop.data
 
-import org.bukkit.NamespacedKey
-import org.bukkit.inventory.ItemStack
-import org.bukkit.persistence.PersistentDataType
+import org.bukkit.*
+import org.bukkit.inventory.*
+import org.bukkit.persistence.*
 
 /**
  * Wrap over a Namespaced key to avoid using the data type argument everywhere

@@ -1,7 +1,7 @@
 package me.danny.shop.inv
 
-import org.bukkit.event.inventory.InventoryClickEvent
-import java.util.function.Supplier
+import org.bukkit.event.inventory.*
+import java.util.function.*
 
 //Built with ChordBuilder for convenience
 //Represents a "chorded" action in a menu that keeps state between clicks

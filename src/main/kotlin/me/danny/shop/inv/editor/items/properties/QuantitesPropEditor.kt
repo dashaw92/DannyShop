@@ -76,8 +76,8 @@ class QuantitesPropEditor(private val editor: ItemEditor) : MenuView {
 
             Material.COMPARATOR -> {
                 allowed = when (allowed) {
-                    Item.Quantities.Allowed.Any -> Item.Quantities.Allowed.Predefined
-                    Item.Quantities.Allowed.Predefined -> Item.Quantities.Allowed.Any
+                    Allowed.Any -> Allowed.Predefined
+                    Allowed.Predefined -> Allowed.Any
                 }
                 build(inv)
                 return ViewAction.Pass

@@ -1,12 +1,10 @@
 package me.danny.shop.commands
 
-import me.danny.shop.inv.editor.categories.CategoryEditor
-import me.danny.shop.me.danny.shop.inv.color
-import me.danny.shop.me.danny.shop.inv.shop.ShopMenu
-import org.bukkit.command.Command
-import org.bukkit.command.CommandExecutor
-import org.bukkit.command.CommandSender
-import org.bukkit.entity.Player
+import me.danny.shop.inv.editor.categories.*
+import me.danny.shop.me.danny.shop.inv.*
+import me.danny.shop.me.danny.shop.inv.shop.*
+import org.bukkit.command.*
+import org.bukkit.entity.*
 
 object ShopCommand : CommandExecutor {
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
