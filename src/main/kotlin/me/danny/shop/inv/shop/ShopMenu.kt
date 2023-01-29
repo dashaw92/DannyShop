@@ -21,36 +21,58 @@ import org.bukkit.persistence.*
 class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer) {
 
     companion object {
+        /**
+         * Attached to items to retrieve their IID in onClick
+         */
         internal val ITEM_KEY = Key("item_iid", PersistentDataType.STRING)
     }
 
+    /**
+     * Easier access to the shop
+     */
     private val shop = DannyShop.SHOP
+
     private var categories: List<Category> = shop.categories().take(6)
     private val selected = categories.firstOrNull() ?: Category("All", Material.CHEST)
+
+    /**
+     * Handles the currently displayed shop items and category listing view
+     * If the `shopReturnInfo` object provided isn't null, this will
+     * be reset to a value from before.
+     */
     private var itemPage: ItemPage =
-        shopReturnInfo?.itemPage ?: ItemPage(viewer, shop.items(selected.cid), Pair(inv.size - 2, inv.size - 1))
+        shopReturnInfo?.itemPage ?: ItemPage(
+            viewer,
+            shop.items(selected.cid),
+            FilterType.All,
+            Pair(inv.size - 2, inv.size - 1)
+        )
     private var categoryPage: CategoryPage =
         shopReturnInfo?.categoryPage ?: CategoryPage(shop.categories(), selected, Pair(1, 46))
-    private var filterType = shopReturnInfo?.filter ?: FilterType.All
 
     init {
         build()
     }
 
     override fun build() {
+        //Needed because otherwise, the shop gui would
+        //just be an empty inventory (ugly)
         if (shop.isEmpty()) {
             showEmptyShop()
             return
         }
 
+        //Changes the title
         rebuildInv()
 
+        //<editor-fold desc="Display border">
         val catBorder = ItemBuilder.makeItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE, " ")
         listOf(1, 10, 19, 28, 37, 46)
             .forEach { inv.setItem(it, catBorder) }
         val ctrlBorder = ItemBuilder.makeItem(Material.BLUE_STAINED_GLASS_PANE, " ")
         (47 until inv.size)
             .forEach { inv.setItem(it, ctrlBorder) }
+        //</editor-fold>
 
         val filterButton = ItemBuilder.makeItem(Material.HOPPER, "&6Item Filter", *filterButton())
 
@@ -95,7 +117,7 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
 
             val item = shop.itemByIid(iid) ?: return
 
-            val returnInfo = ShopReturnInfo(itemPage, categoryPage, filterType)
+            val returnInfo = ShopReturnInfo(itemPage, categoryPage)
             if (event.click == ClickType.SHIFT_LEFT && viewer.hasPermission("dannyshop.admin")) {
                 ItemEditor(viewer, item.iid, returnInfo)
             } else {
@@ -121,9 +143,9 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
         }
 
         if (clicked.type == Material.HOPPER) {
-            filterType = when (event.click) {
-                ClickType.RIGHT -> filterType.previous()
-                else -> filterType.next()
+            val filterType = when (event.click) {
+                ClickType.RIGHT -> itemPage.filterType.previous()
+                else -> itemPage.filterType.next()
             }
             itemPage.setFilter(filterType)
             build()
@@ -147,7 +169,7 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
         categoryPage.onClick(event, ::build)
     }
 
-    data class ShopReturnInfo(val itemPage: ItemPage, val categoryPage: CategoryPage, val filter: FilterType)
+    data class ShopReturnInfo(val itemPage: ItemPage, val categoryPage: CategoryPage)
 
     private fun filterButton(): Array<out String> {
         return LoreList.makeList(
@@ -157,15 +179,37 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
                 FilterType.Items toEntry listOf("Displaying only custom items"),
                 FilterType.Commands toEntry listOf("Displaying only commands"),
                 FilterType.Experience toEntry listOf("Displaying only experience packs"),
-            ), filterType
+            ), itemPage.filterType
         )
     }
 
+    /**
+     * Controls what type of items are included in the item page
+     */
     enum class FilterType {
+        /**
+         * Everything is displayed
+         */
         All,
+
+        /**
+         * Only raw materials
+         */
         Materials,
+
+        /**
+         * Only custom items
+         */
         Items,
+
+        /**
+         * Only commands
+         */
         Commands,
+
+        /**
+         * Only experience items
+         */
         Experience;
 
         fun previous(): FilterType = when (this) {

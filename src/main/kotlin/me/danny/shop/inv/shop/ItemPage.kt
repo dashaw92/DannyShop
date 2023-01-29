@@ -13,13 +13,16 @@ import me.danny.shop.me.danny.shop.inv.shop.ShopMenu.FilterType.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*
 
-class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair<Int, Int>) :
+class ItemPage(
+    private val viewer: Player,
+    coll: Collection<Item>,
+    var filterType: FilterType,
+    buttons: Pair<Int, Int>
+) :
     Page<Item>(coll, Pair(2, 0), Pair(7, 5), buttons) {
 
-    private var filter = All
-
     private fun filteredItems(): List<Item> = items.filter {
-        when (filter) {
+        when (filterType) {
             All -> true
             Materials -> it.item is Mat
             Items -> it.item is ItemType.Item
@@ -41,7 +44,7 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
     }
 
     fun setFilter(filter: FilterType) {
-        this.filter = filter
+        this.filterType = filter
         if (numPages() < page + 1) page = numPages() - 1
     }
 

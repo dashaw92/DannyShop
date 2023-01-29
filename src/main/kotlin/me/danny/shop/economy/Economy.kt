@@ -86,7 +86,7 @@ object Economy {
                     }
 
                     is ItemType.Exp -> {
-                        val exp = (item.item.exp * amount).roundToInt()
+                        val exp = item.item.exp * amount
                         player.giveExp(exp)
                         player.sendMessage("&6[DannyShop] &7%,d&e experience given to you.".format(exp).color())
                     }

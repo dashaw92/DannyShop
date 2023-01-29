@@ -1,7 +1,8 @@
 package me.danny.shop.data
 
-import me.danny.shop.data.Item.ItemType
-import me.danny.shop.data.Item.ItemType.Mat
+import me.danny.shop.data.Item.*
+import me.danny.shop.data.Item.ItemType.*
+import me.danny.shop.inv.*
 import org.bukkit.*
 import org.bukkit.configuration.file.*
 import org.bukkit.inventory.*
@@ -11,7 +12,6 @@ import org.spongepowered.configurate.serialize.*
 import org.spongepowered.configurate.yaml.*
 import java.io.*
 import java.lang.reflect.*
-import java.util.concurrent.*
 
 /**
  * Represents the DannyShop, holding all items
@@ -26,6 +26,13 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
         fun findCategoryByName(name: String): Category? = CATEGORIES.find { it.name == name }
     }
 
+    /**
+     * Add an item to the shop
+     * Does nothing if the item represents a null or Air item
+     *
+     * Will create the category the item points to if it does not
+     * exist
+     */
     fun addItem(item: Item) {
         when (item.item) {
             is Mat -> if (item.item.material.isAir) return
@@ -36,6 +43,14 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
         items.computeIfAbsent(item.category) { mutableListOf() } += item
     }
 
+    /**
+     * Replace the item by the ID with the [replacement]
+     * If there is no Item with the ID, this does nothing
+     *
+     * Care is taken to ensure the replacement item takes
+     * the same slot as the old item, so ordering should
+     * not be impacted by this method.
+     */
     fun replaceItem(id: ID, replacement: Item) {
         val old = itemByIid(id.id) ?: return
         val items = items.entries.find { (key, _) -> key.cid == old.category.cid }?.value ?: return
@@ -48,24 +63,47 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
         }
     }
 
+    /**
+     * All categories
+     */
     fun categories(): Collection<Category> = CATEGORIES
-    fun items(category: ID): Collection<Item> =
-        items.entries.find { (key, _) -> key.cid.id == category.id }?.value ?: listOf()
 
+    /**
+     * Get all items belonging to the category with ID [cid]
+     */
+    fun items(cid: ID): Collection<Item> =
+        items.entries.find { (key, _) -> key.cid.id == cid.id }?.value ?: listOf()
+
+    /**
+     * Does the shop contain any items?
+     */
     fun isEmpty(): Boolean = items.values.flatten().isEmpty()
+
+    /**
+     * Find an item by IID
+     */
     fun itemByIid(iid: String): Item? = items.values.flatten().find { it.iid.id == iid }
+
+    /**
+     * Find an item by IID
+     */
     fun itemByIid(iid: ID): Item? = items.values.flatten().find { it.iid == iid }
+
+    /**
+     * Remove the category with ID [cid]
+     * This will also delete all items belonging to that category
+     */
     fun deleteCategory(cid: ID) {
-        val category = getCategory(cid)
+        val category = getCategory(cid) ?: return
         items.remove(category)
         CATEGORIES.remove(category)
     }
 }
 
 /**
- * A unique String identifying this Item
- * The only constraint placed on IIDs is that
- * they are unique. Duplicate IIDs will cause
+ * A unique String identifying this object
+ * The only constraint placed on IDs is that
+ * they are unique. Duplicate IDs will cause
  * undefined behavior.
  */
 data class ID(val id: String) {
@@ -92,26 +130,37 @@ data class ID(val id: String) {
  * Categories are entirely user-defined, there are no builtin categories.
  */
 data class Category(val cid: ID, var name: String, var display: Material) {
+
+    /**
+     * Helper for generating a CID for the category
+     */
     constructor(name: String, display: Material) : this(ID.generate(), name, display)
 
+    /**
+     * Change the name of this category
+     */
     internal fun changeName(name: String) {
         this.name = name
     }
 
+    /**
+     * Change the icon used to represent this category
+     */
     internal fun changeDisplay(display: Material) {
         this.display = display
     }
 }
 
 /**
- * Represents a sellable item in DannyShop.
+ * Represents a purchasable item in DannyShop.
  * An Item is composed of:
- * * An IID (Item ID) - Unique ID to identify an item specifically
+ * * ID - Unique ID to identify an item
+ * * Name - Optional name used for searching for an item
  * * ItemType - Holder for one of several variants of item types
- * * Cost - How much the item buys and sells for per unit
+ * * Cost - How much the item buys for per unit
  * * Cooldown - How often a player may purchase the item
  * * Quantities - Details about sellable item quantities
- * * Category - The group this item will belong to
+ * * Category ID - The group this item will belong to
  *
  * Instances of this should NOT be held onto.
  * Use the item's IID to fetch it from the Shop.
@@ -134,25 +183,59 @@ data class Item(
      * * Command - Commands that will target the player on purchase
      */
     sealed interface ItemType {
+        /**
+         * Supports only raw materials with no extra attached data
+         */
         data class Mat(val material: Material) : ItemType {
             override fun inner(): Any = material
             override fun display(): ItemStack = ItemStack(material, 1)
         }
+
+        /**
+         * Represents a complex item (an item with extra data), such as items with:
+         * * Custom names
+         * * Custom lore
+         * * Enchantments
+         * * Persistent data keys
+         * * Potion data
+         * and more.
+         */
         data class Item(val item: ItemStack) : ItemType {
             override fun inner(): Any = item
             override fun display(): ItemStack = item
         }
-        data class Exp(val exp: Double) : ItemType {
+
+        /**
+         * Represents enchanting experience the player will receive on purchase
+         */
+        data class Exp(val exp: Int) : ItemType {
             override fun inner(): Any = exp
             override fun display(): ItemStack = me.danny.shop.inv.ItemBuilder.makeItem(
                 Material.EXPERIENCE_BOTTLE,
                 "${ChatColor.GOLD}%.0f Experience".format(exp)
             )
         }
+
+        /**
+         * Represents a command that will be executed by console on purchase.
+         * Commands support a few keywords to enable interpolation of special values:
+         * - $PLAYER - replaced with the purchasing player's raw name.
+         *   ```
+         *   "/say Hello $PLAYER" = "/say Hello Theano"
+         *   ```
+         *
+         * - $UUID - replaced with the purchasing player's UUID.
+         *   ```
+         *   "/lp user $UUID info" = "/lp user cfa295f9-e01f-44f5-93a2-2e4271d7e015 info"
+         *   ```
+         *
+         * - $UUID_NO_DASHES - replaced with the purchasing player's UUID with dashes removed.
+         *   Same as above, but with no dashes in the UUID
+         */
         data class Command(val command: String) : ItemType {
             override fun inner(): Any = command
             override fun display(): ItemStack =
-                me.danny.shop.inv.ItemBuilder.makeItem(Material.COMMAND_BLOCK, "${ChatColor.BLUE}Run command", command)
+                ItemBuilder.makeItem(Material.COMMAND_BLOCK, "${ChatColor.BLUE}Run command", command)
         }
 
         fun inner(): Any
@@ -160,9 +243,13 @@ data class Item(
     }
 
     /**
-     * Simple class wrapping the purchase and sell value of an item
+     * Simple class wrapping the purchase value of an item
      */
     sealed interface Cost {
+        /**
+         * The price for this item is not set.
+         * Items with this Cost are not purchasable.
+         */
         object NotSet : Cost {
             override fun toString(): String = "NotSet"
         }
@@ -198,37 +285,17 @@ data class Item(
         /**
          * The supported units of time Cooldown recognizes
          */
-        sealed class Time(internal val time: Long, private val base: TimeUnit, internal val suffix: String) {
+        sealed class Time(internal val time: Long, internal val suffix: String) {
+            data class Millis(val millis: Long) : Time(millis, "ms")
+            data class Seconds(val seconds: Long) : Time(seconds, "s")
+            data class Minutes(val minutes: Long) : Time(minutes, "m")
+            data class Hours(val hours: Long) : Time(hours, "h")
+            data class Days(val days: Long) : Time(days, "d")
+            data class Weeks(val weeks: Long) : Time(weeks, "w")
+            data class Months(val months: Long) : Time(months, "mo")
+            data class Years(val years: Long) : Time(years, "y")
 
-            data class Millis(val millis: Long) : Time(millis, TimeUnit.MILLISECONDS, "ms")
-            data class Seconds(val seconds: Long) : Time(seconds, TimeUnit.SECONDS, "s")
-            data class Minutes(val minutes: Long) : Time(minutes, TimeUnit.MINUTES, "m")
-            data class Hours(val hours: Long) : Time(hours, TimeUnit.HOURS, "h")
-            data class Days(val days: Long) : Time(days * 24, TimeUnit.HOURS, "d")
-            data class Weeks(val weeks: Long) : Time(weeks * 7 * 24, TimeUnit.HOURS, "w")
-            data class Months(val months: Long) : Time(months * 4 * 7 * 24, TimeUnit.HOURS, "mo")
-            data class Years(val years: Long) : Time(years * 12 * 4 * 7 * 24, TimeUnit.HOURS, "y")
-
-            fun convertTo(unit: TimeUnit): Long = unit.convert(time, base)
-            fun toExternal(): Long {
-                return when (this) {
-                    is Millis, is Seconds, is Minutes, is Hours -> time
-                    is Days -> time / 24
-                    is Weeks -> time / 24 / 7
-                    is Months -> time / 24 / 7 / 4
-                    is Years -> time / 24 / 7 / 4 / 12
-                }
-            }
-
-            fun display(): String {
-                return when (this) {
-                    is Millis, is Seconds, is Minutes, is Hours -> "$time$suffix"
-                    is Days -> "${time / 24}d"
-                    is Weeks -> "${time / 24 / 7}w"
-                    is Months -> "${time / 24 / 7 / 4}mo"
-                    is Years -> "${time / 24 / 7 / 4 / 12}y"
-                }
-            }
+            fun display(): String = "$time$suffix"
         }
     }
 
@@ -264,6 +331,7 @@ data class Item(
     }
 }
 
+//<editor-fold desc="Type serializers">
 object ItemStackSerializer : TypeSerializer<ItemStack> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): ItemStack {
         if(node == null) throw IllegalArgumentException("what")
@@ -273,7 +341,7 @@ object ItemStackSerializer : TypeSerializer<ItemStack> {
     }
 
     override fun serialize(type: Type?, obj: ItemStack?, node: ConfigurationNode?) {
-        if(obj == null || node == null) return
+        if (obj == null || node == null) return
 
         val yml = YamlConfiguration()
         yml.set("itemstack", obj)
@@ -282,96 +350,100 @@ object ItemStackSerializer : TypeSerializer<ItemStack> {
 
 
 }
-object ItemTypeSerializer : TypeSerializer<Item.ItemType> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Item.ItemType {
-        if(node == null) throw IllegalArgumentException("what")
+
+object ItemTypeSerializer : TypeSerializer<ItemType> {
+    override fun deserialize(type: Type?, node: ConfigurationNode?): ItemType {
+        if (node == null) throw IllegalArgumentException("what")
 
         val itemType = node.node("type").string!!
         val obj = node.node("object")
-        return when(itemType.lowercase()) {
-            "material" -> Item.ItemType.Mat(obj.get(Material::class.java)!!)
-            "item" -> Item.ItemType.Item(obj.get(ItemStack::class.java)!!)
-            "experience" -> Item.ItemType.Exp(obj.double)
-            "command" -> Item.ItemType.Command(obj.string!!)
+        return when (itemType.lowercase()) {
+            "material" -> Mat(obj.get(Material::class.java)!!)
+            "item" -> Item(obj.get(ItemStack::class.java)!!)
+            "experience" -> Exp(obj.int)
+            "command" -> Command(obj.string!!)
             else -> throw IllegalArgumentException("Unknown item type $itemType")
         }
     }
 
-    override fun serialize(type: Type?, obj: Item.ItemType?, node: ConfigurationNode?) {
-        if(node == null || obj == null) return
+    override fun serialize(type: Type?, obj: ItemType?, node: ConfigurationNode?) {
+        if (node == null || obj == null) return
 
         val typeNode = node.node("type")
-        when(obj) {
-            is Item.ItemType.Mat -> typeNode.set("material")
-            is Item.ItemType.Item -> typeNode.set("item")
-            is Item.ItemType.Exp -> typeNode.set("experience")
-            is Item.ItemType.Command -> typeNode.set("command")
+        when (obj) {
+            is Mat -> typeNode.set("material")
+            is ItemType.Item -> typeNode.set("item")
+            is Exp -> typeNode.set("experience")
+            is Command -> typeNode.set("command")
         }
 
         node.node("object").set(obj.inner())
     }
 
 }
-object CostSerializer : TypeSerializer<Item.Cost> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Item.Cost {
+
+object CostSerializer : TypeSerializer<Cost> {
+    override fun deserialize(type: Type?, node: ConfigurationNode?): Cost {
         if (node == null) throw IllegalArgumentException("what")
 
-        if (node.string == "not set") return Item.Cost.NotSet
+        if (node.string == "not set") return Cost.NotSet
 
         val buy = node.node("buy").double
-        return Item.Cost.Value(buy)
+        return Cost.Value(buy)
     }
 
-    override fun serialize(type: Type?, obj: Item.Cost?, node: ConfigurationNode?) {
+    override fun serialize(type: Type?, obj: Cost?, node: ConfigurationNode?) {
         if (obj == null || node == null) return
 
         when (obj) {
-            is Item.Cost.NotSet -> node.set("not set")
-            is Item.Cost.Value -> {
+            is Cost.NotSet -> node.set("not set")
+            is Cost.Value -> {
                 node.node("buy").set(obj.buy)
             }
         }
     }
 
 }
-object CooldownSerializer : TypeSerializer<Item.Cooldown> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Item.Cooldown {
-        if(node == null) throw IllegalArgumentException("what")
 
-        return when(val cooldown = node.string!!.lowercase()) {
-            "none" -> Item.Cooldown.None
-            "infinite" -> Item.Cooldown.Infinite
+object CooldownSerializer : TypeSerializer<Cooldown> {
+    override fun deserialize(type: Type?, node: ConfigurationNode?): Cooldown {
+        if (node == null) throw IllegalArgumentException("what")
+
+        return when (val cooldown = node.string!!.lowercase()) {
+            "none" -> Cooldown.None
+            "infinite" -> Cooldown.Infinite
             else -> {
-                if(cooldown.trim().isBlank()) throw IllegalArgumentException("Empty cooldown")
+                if (cooldown.trim().isBlank()) throw IllegalArgumentException("Empty cooldown")
                 val suffixIdx = cooldown.indexOfFirst(Char::isLetter)
-                if(suffixIdx == -1) throw IllegalArgumentException("No time unit in cooldown")
-                val time = cooldown.substring(0 until suffixIdx).toLongOrNull() ?: throw IllegalArgumentException("Invalid time in cooldown")
+                if (suffixIdx == -1) throw IllegalArgumentException("No time unit in cooldown")
+                val time = cooldown.substring(0 until suffixIdx).toLongOrNull()
+                    ?: throw IllegalArgumentException("Invalid time in cooldown")
                 val suffix = cooldown.substring(suffixIdx until cooldown.length)
 
-                val ctor: (Long) -> Item.Cooldown.Time = when(suffix.lowercase()) {
-                    "ms" -> Item.Cooldown.Time::Millis
-                    "s" -> Item.Cooldown.Time::Seconds
-                    "m" -> Item.Cooldown.Time::Minutes
-                    "h" -> Item.Cooldown.Time::Hours
-                    "d" -> Item.Cooldown.Time::Days
-                    "w" -> Item.Cooldown.Time::Weeks
-                    "mo" -> Item.Cooldown.Time::Months
-                    "y" -> Item.Cooldown.Time::Years
+                val ctor: (Long) -> Cooldown.Time = when (suffix.lowercase()) {
+                    "ms" -> Cooldown.Time::Millis
+                    "s" -> Cooldown.Time::Seconds
+                    "m" -> Cooldown.Time::Minutes
+                    "h" -> Cooldown.Time::Hours
+                    "d" -> Cooldown.Time::Days
+                    "w" -> Cooldown.Time::Weeks
+                    "mo" -> Cooldown.Time::Months
+                    "y" -> Cooldown.Time::Years
                     else -> throw IllegalArgumentException("Unknown time unit in cooldown (got \"${suffix}\")")
                 }
 
-                return Item.Cooldown.Duration(ctor(time))
+                return Cooldown.Duration(ctor(time))
             }
         }
     }
 
-    override fun serialize(type: Type?, obj: Item.Cooldown?, node: ConfigurationNode?) {
-        if(obj == null || node == null) return
+    override fun serialize(type: Type?, obj: Cooldown?, node: ConfigurationNode?) {
+        if (obj == null || node == null) return
 
-        when(obj) {
-            is Item.Cooldown.None -> node.set("none")
-            is Item.Cooldown.Infinite -> node.set("infinite")
-            is Item.Cooldown.Duration -> {
+        when (obj) {
+            is Cooldown.None -> node.set("none")
+            is Cooldown.Infinite -> node.set("infinite")
+            is Cooldown.Duration -> {
                 val amount = obj.time.time
                 val suffix = obj.time.suffix
                 node.set("${amount}${suffix}")
@@ -380,19 +452,20 @@ object CooldownSerializer : TypeSerializer<Item.Cooldown> {
     }
 
 }
-object QuantitiesSerializer : TypeSerializer<Item.Quantities> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Item.Quantities {
-        if(node == null) throw IllegalArgumentException("what")
+
+object QuantitiesSerializer : TypeSerializer<Quantities> {
+    override fun deserialize(type: Type?, node: ConfigurationNode?): Quantities {
+        if (node == null) throw IllegalArgumentException("what")
 
         val predefined = node.node("predefined").getList(java.lang.Integer::class.java)!!
             .map { it.toInt() }
             .toList()
-        val allowed = node.node("allowed").get(Item.Quantities.Allowed::class.java)!!
-        return Item.Quantities(predefined, allowed)
+        val allowed = node.node("allowed").get(Quantities.Allowed::class.java)!!
+        return Quantities(predefined, allowed)
     }
 
-    override fun serialize(type: Type?, obj: Item.Quantities?, node: ConfigurationNode?) {
-        if(obj == null || node == null) return
+    override fun serialize(type: Type?, obj: Quantities?, node: ConfigurationNode?) {
+        if (obj == null || node == null) return
         node.node("predefined").set(obj.predefined)
         node.node("allowed").set(obj.allowed)
     }
@@ -407,9 +480,9 @@ object ItemSerializer : TypeSerializer<Item> {
             val iid = ID(node("iid").string!!)
             val name = node("name").string
             val item = node("item").get(ItemType::class.java)!!
-            val cost = node("cost").get(Item.Cost::class.java)!!
-            val cooldown = node("cooldown").get(Item.Cooldown::class.java)!!
-            val quantities = node("quantities").get(Item.Quantities::class.java)!!
+            val cost = node("cost").get(Cost::class.java)!!
+            val cooldown = node("cooldown").get(Cooldown::class.java)!!
+            val quantities = node("quantities").get(Quantities::class.java)!!
             val category = Shop.getCategory(ID(node("category").string!!))!!
             return Item(iid, name, item, cost, cooldown, quantities, category)
         }
@@ -495,9 +568,9 @@ object DannyShopLoadables {
         .register(ItemStack::class.java, ItemStackSerializer)
         .register(Category::class.java, CategorySerializer)
         .register(ItemType::class.java, ItemTypeSerializer)
-        .register(Item.Cost::class.java, CostSerializer)
-        .register(Item.Cooldown::class.java, CooldownSerializer)
-        .register(Item.Quantities::class.java, QuantitiesSerializer)
+        .register(Cost::class.java, CostSerializer)
+        .register(Cooldown::class.java, CooldownSerializer)
+        .register(Quantities::class.java, QuantitiesSerializer)
         .register(Item::class.java, ItemSerializer)
         .register(Shop::class.java, ShopSerializer)
         .build()
@@ -526,3 +599,4 @@ object DannyShopLoadables {
         loader.save(root)
     }
 }
+//</editor-fold>

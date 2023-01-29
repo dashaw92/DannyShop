@@ -91,23 +91,40 @@ object ImportListener : Listener {
     }
 
     private fun itemType(item: ItemStack): Item.ItemType {
+        //In general, items with ItemMeta attached are custom items (ItemType.Item)
+        //wew, that's a lot of "item" for one sentence 😅
         if (item.hasItemMeta()) {
-            if (item.type == Material.EXPERIENCE_BOTTLE && item.itemMeta!!.hasDisplayName()) {
-                val name = item.itemMeta!!.displayName.lowercase().split(' ')
-                if (name.size > 1 && name[0] == "exp") {
-                    val amount = name[1].toDoubleOrNull()
-                    if (amount != null) {
-                        return Item.ItemType.Exp(amount)
-                    }
-                }
-            } else if (item.type == Material.COMMAND_BLOCK && item.itemMeta!!.hasDisplayName()) {
+            //We need to handle the custom types (experience and commands) first
+            //All custom items are defined by their name, so..:
+            if (item.itemMeta!!.hasDisplayName()) {
                 val name = item.itemMeta!!.displayName
-                if (name.startsWith('/')) {
-                    return Item.ItemType.Command(name)
+                when (item.type) {
+                    //These checks are intentionally fallthrough
+
+                    //Exp items are experience bottles with the name "Exp <amount>"
+                    Material.EXPERIENCE_BOTTLE -> {
+                        if (name.startsWith("Exp ")) {
+                            val amount = name.takeLastWhile { it.isDigit() }.toIntOrNull()
+                            if (amount != null) {
+                                return Item.ItemType.Exp(amount)
+                            }
+                        }
+                    }
+
+                    //Command items are command blocks with the name "/<command>"
+                    Material.COMMAND_BLOCK -> {
+                        if (name.startsWith('/')) {
+                            return Item.ItemType.Command(name)
+                        }
+                    }
+
+                    else -> {}
                 }
             }
+            //It's none of the special item types, so now it's a custom item
             return Item.ItemType.Item(item)
         } else {
+            //Raw materials
             return Item.ItemType.Mat(item.type)
         }
     }

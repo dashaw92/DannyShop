@@ -19,29 +19,50 @@ abstract class Page<T>(
     protected var page = 0
     protected val size = dim.first * dim.second
 
+    /**
+     * Current page
+     */
     fun page() = page
+
+    /**
+     * Total number of pages
+     * Overrideable if needed
+     */
     open fun numPages(): Int = 1 + items.size / size
 
+    /**
+     * Go to the next page or do nothing if already at the last page
+     */
     private fun nextPage(): Boolean {
         if (page + 1 >= numPages()) return false
         page += 1
         return true
     }
 
+    /**
+     * Go to the previous page or do nothing if already at the first page
+     */
     private fun prevPage(): Boolean {
         if (page == 0) return false
         page -= 1
         return true
     }
 
+    /**
+     * Aggregation of clearing, displaying, and rendering buttons
+     */
     fun render(inv: Inventory) {
         clearDisplay(inv)
         display(inv)
         drawButtons(inv)
     }
 
+    /**
+     * Clear the rectangle represented by this Page with a filler item.
+     * Can be customized by overriding [fillerItem]
+     */
     private fun clearDisplay(inv: Inventory) {
-        val filler = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
+        val filler = fillerItem()
         for (y in start.second until start.second + dim.second) {
             for (x in start.first until start.first + dim.first) {
                 inv.setItem(y * 9 + x, filler)
@@ -49,8 +70,29 @@ abstract class Page<T>(
         }
     }
 
+    /**
+     * The item that should be used to clear the Page in [clearDisplay]
+     */
+    open fun fillerItem(): ItemStack = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
+
+    /**
+     * Provide custom rendering logic to render the page.
+     * Sample code to render a rectangle:
+     * ```
+     * val invIdx = start.second * 9 + start.first
+     * val displayed = items.drop(page * size).take(size)
+     * for(item in displayed) {
+     *  inv.setItem(invIdx, item)
+     *  invIdx += 1
+     *  if (invIdx % 9 == 0) invIdx += 2
+     * }
+     * ```
+     */
     protected abstract fun display(inv: Inventory)
 
+    /**
+     * Renders the previous and next page buttons (if needed)
+     */
     private fun drawButtons(inv: Inventory) {
         val prevPage = ItemBuilder.makeTippedArrow("&cPrevious", PotionType.INSTANT_HEAL)
         val nextPage = ItemBuilder.makeTippedArrow("&2Next", PotionType.JUMP)
@@ -58,14 +100,18 @@ abstract class Page<T>(
         if (page() + 1 < numPages()) inv.setItem(buttons.second, nextPage)
     }
 
-    fun onClick(event: InventoryClickEvent, callback: () -> Unit) {
+    /**
+     * Handles previous and next page button clicks
+     * Must be called from the menu's onClick
+     */
+    fun onClick(event: InventoryClickEvent, callback: Runnable) {
         when (event.slot) {
             buttons.first -> {
-                if (prevPage()) callback()
+                if (prevPage()) callback.run()
             }
 
             buttons.second -> {
-                if (nextPage()) callback()
+                if (nextPage()) callback.run()
             }
         }
     }

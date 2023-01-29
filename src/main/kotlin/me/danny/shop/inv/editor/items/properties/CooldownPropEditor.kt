@@ -2,7 +2,7 @@ package me.danny.shop.inv.editor.items.properties
 
 import me.danny.libinput.providers.*
 import me.danny.shop.*
-import me.danny.shop.data.Item
+import me.danny.shop.data.Item.Cooldown
 import me.danny.shop.inv.*
 import me.danny.shop.inv.LoreList.toEntry
 import me.danny.shop.inv.editor.items.*
@@ -119,8 +119,8 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
 
             Material.ANVIL -> {
                 val cooldown = when (mode) {
-                    State.None -> Item.Cooldown.None
-                    State.Infinite -> Item.Cooldown.Infinite
+                    State.None -> Cooldown.None
+                    State.Infinite -> Cooldown.Infinite
                     State.Timed -> unit.toTimed(duration)
                 }
 
@@ -186,41 +186,42 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
             else name.substring(0, name.length - 1)
         }
 
-        fun toTimed(time: Long): Item.Cooldown.Duration {
-            val ctor: (Long) -> Item.Cooldown.Time = when (this) {
-                Milliseconds -> Item.Cooldown.Time::Millis
-                Seconds -> Item.Cooldown.Time::Seconds
-                Minutes -> Item.Cooldown.Time::Minutes
-                Hours -> Item.Cooldown.Time::Hours
-                Days -> Item.Cooldown.Time::Days
-                Weeks -> Item.Cooldown.Time::Weeks
-                Months -> Item.Cooldown.Time::Months
-                Years -> Item.Cooldown.Time::Years
+        fun toTimed(time: Long): Cooldown.Duration {
+            val ctor: (Long) -> Cooldown.Time = when (this) {
+                Milliseconds -> Cooldown.Time::Millis
+                Seconds -> Cooldown.Time::Seconds
+                Minutes -> Cooldown.Time::Minutes
+                Hours -> Cooldown.Time::Hours
+                Days -> Cooldown.Time::Days
+                Weeks -> Cooldown.Time::Weeks
+                Months -> Cooldown.Time::Months
+                Years -> Cooldown.Time::Years
             }
 
-            return Item.Cooldown.Duration(ctor(time))
+            return Cooldown.Duration(ctor(time))
         }
     }
 
     private var mode: State = when (item.cooldown) {
-        is Item.Cooldown.None -> State.None
-        is Item.Cooldown.Infinite -> State.Infinite
-        is Item.Cooldown.Duration -> State.Timed
+        is Cooldown.None -> State.None
+        is Cooldown.Infinite -> State.Infinite
+        is Cooldown.Duration -> State.Timed
     }
+
     private var duration: Long = when (item.cooldown) {
-        is Item.Cooldown.Duration -> item.cooldown.time.toExternal()
+        is Cooldown.Duration -> item.cooldown.time.time
         else -> 1
     }
-    private var unit: Time = when (item.cooldown) {
-        is Item.Cooldown.Duration -> when (item.cooldown.time) {
-            is Item.Cooldown.Time.Millis -> Time.Milliseconds
-            is Item.Cooldown.Time.Seconds -> Time.Seconds
-            is Item.Cooldown.Time.Minutes -> Time.Minutes
-            is Item.Cooldown.Time.Hours -> Time.Hours
-            is Item.Cooldown.Time.Days -> Time.Days
-            is Item.Cooldown.Time.Weeks -> Time.Weeks
-            is Item.Cooldown.Time.Months -> Time.Months
-            is Item.Cooldown.Time.Years -> Time.Years
+    private var unit = when (item.cooldown) {
+        is Cooldown.Duration -> when (item.cooldown.time) {
+            is Cooldown.Time.Millis -> Time.Milliseconds
+            is Cooldown.Time.Seconds -> Time.Seconds
+            is Cooldown.Time.Minutes -> Time.Minutes
+            is Cooldown.Time.Hours -> Time.Hours
+            is Cooldown.Time.Days -> Time.Days
+            is Cooldown.Time.Weeks -> Time.Weeks
+            is Cooldown.Time.Months -> Time.Months
+            is Cooldown.Time.Years -> Time.Years
         }
 
         else -> Time.Seconds
@@ -241,15 +242,16 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
 
             val inputUnit = time.takeLastWhile { it.isLetter() }
             if (inputUnit.isNotBlank()) {
-                when (inputUnit.lowercase()) {
-                    "ms" -> unit = Time.Milliseconds
-                    "s" -> unit = Time.Seconds
-                    "m" -> unit = Time.Minutes
-                    "h" -> unit = Time.Hours
-                    "d" -> unit = Time.Days
-                    "w" -> unit = Time.Weeks
-                    "mo" -> unit = Time.Months
-                    "y" -> unit = Time.Years
+                unit = when (inputUnit.lowercase()) {
+                    "ms" -> Time.Milliseconds
+                    "s" -> Time.Seconds
+                    "m" -> Time.Minutes
+                    "h" -> Time.Hours
+                    "d" -> Time.Days
+                    "w" -> Time.Weeks
+                    "mo" -> Time.Months
+                    "y" -> Time.Years
+                    else -> Time.Seconds
                 }
             }
         }
