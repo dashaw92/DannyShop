@@ -20,14 +20,12 @@ import org.bukkit.persistence.*
 class CostPropEditor(private val editor: ItemEditor) : MenuView {
 
     private var buy: Double = 0.0
-    private var sell: Double = 0.0
 
     init {
         val item = DannyShop.SHOP.itemByIid(editor.item)!!
         when (item.cost) {
             is Item.Cost.Value -> {
                 buy = item.cost.buy
-                sell = item.cost.sell
             }
 
             //Add a shortcut for when the worth.yml has changed since import
@@ -36,14 +34,13 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
                     val essCost = Economy.getWorth(ItemStack(item.item.material))
                     if (essCost is Item.Cost.Value) {
                         buy = essCost.buy
-                        sell = essCost.sell
                     }
                 }
             }
         }
     }
 
-    override fun onOpen(): ViewAction = ViewAction.Resize(5, "&7- &9Adjust Pricing")
+    override fun onOpen(): ViewAction = ViewAction.Resize(3, "&7- &9Adjust Pricing")
 
     override fun build(inv: Inventory) {
         val filler = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
@@ -56,8 +53,7 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
             inv.size - 9, ItemBuilder.makeItem(
                 Material.ANVIL,
                 "&5Confirm Price",
-                "&eBuy: &7\$%,.2f".format(buy),
-                "&eSell: &7\$%,.2f".format(sell),
+                "&eEach: &7\$%,.2f".format(buy),
                 "",
                 "&cShift right click to &4unset price",
                 "&c&oUnsetting the price will make this",
@@ -76,7 +72,7 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
         when (event.currentItem!!.type) {
             Material.ANVIL -> {
                 val cost: Item.Cost = if (event.isShiftClick && event.isRightClick) Item.Cost.NotSet
-                else Item.Cost.Value(buy, sell)
+                else Item.Cost.Value(buy)
 
                 DannyShop.SHOP.replaceItem(item.iid, item.copy(cost = cost))
                 return ViewAction.ChangeView(ItemEditorView(editor))
@@ -103,25 +99,6 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
                 player.closeInventory()
                 provider.getInput(player) { pl, input -> setPrice(pl, input, { buy = it }, event.inventory) }
             }
-
-            Material.BIRCH_SIGN -> {
-                val provider = if (SignInput.isAvailable()) {
-                    SignInput()
-                        .withLines(arrayOf("", "^^^^^", "DannyShop", "Set sell price"))
-                        .withMaterial(Material.BIRCH_WALL_SIGN)
-
-                } else {
-                    ChatInput()
-                        .requestLines(1)
-                        .withEscapeWords("cancel")
-                        .withPrefix("&6[DannyShop] ".color())
-                        .withPrompt("&eSet sell price:".color())
-                }
-
-                player.closeInventory()
-                provider.getInput(player) { pl, input -> setPrice(pl, input, { sell = it }, event.inventory) }
-            }
-
             else -> {}
         }
 
@@ -136,41 +113,26 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
             amount *= (event.hotbarButton + 1)
         }
 
-        val msg: String
         if (event.currentItem!!.keyValue(TARGET_KEY)!! == "buy") {
             buy = (buy + amount).coerceAtLeast(0.0)
-            msg = if (amount < 0) "&eBuy price &cdecreased by &7$%,.2f".format(amount)
+            val msg = if (amount < 0) "&eBuy price &cdecreased by &7$%,.2f".format(amount)
             else "&eBuy price &aincreased by &7$%,.2f".format(amount)
-        } else {
-            sell = (sell + amount).coerceAtLeast(0.0)
-            msg = if (amount < 0) "&eSell price &cdecreased by &7$%,.2f".format(amount)
-            else "&eSell price &aincreased by &7$%,.2f".format(amount)
+            event.whoClicked.sendMessage("&6[DannyShop] $msg".color())
         }
-
-        event.whoClicked.sendMessage("&6[DannyShop] $msg".color())
     }
 
-    private fun sellPriceButton(amount: Double): ItemStack = makeButton("Sell", amount)
-    private fun buyPriceButton(amount: Double): ItemStack = makeButton("Buy", amount)
     private fun placeButtons(amounts: List<Double>, inv: Inventory) {
+        fun buyPriceButton(amount: Double): ItemStack = makeButton(amount)
+
         amounts.map(::buyPriceButton).zip(0..8)
             .forEach { pair -> inv.setItem(pair.second, pair.first) }
         amounts.map { -it }
             .map(::buyPriceButton).zip(9..17)
             .forEach { pair -> inv.setItem(pair.second, pair.first) }
-
-
-        amounts.map(::sellPriceButton).zip(18..26)
-            .forEach { pair -> inv.setItem(pair.second, pair.first) }
-        amounts.map { -it }
-            .map(::sellPriceButton).zip(27..35)
-            .forEach { pair -> inv.setItem(pair.second, pair.first) }
-
         inv.setItem(8, ItemBuilder.makeItem(Material.SPRUCE_SIGN, "&6Set custom buy price"))
-        inv.setItem(26, ItemBuilder.makeItem(Material.BIRCH_SIGN, "&6Set custom sell price"))
     }
 
-    private fun makeButton(target: String, amount: Double): ItemStack {
+    private fun makeButton(amount: Double): ItemStack {
         val type: Material
         val prefix: String
         if (amount < 0.0) {
@@ -183,13 +145,13 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
 
         return ItemBuilder.makeItem(
             type,
-            "&2$target Price",
+            "&2Buy Price",
             "$prefix \$%,.2f".format(amount),
             "&8&m                        ",
             "&6Shift click&e for 10x",
             "&6Right click&e for 0.5x",
             "&6Number key&e for multiplier"
-        ).attachKey(AMOUNT_KEY, amount).attachKey(TARGET_KEY, target.lowercase())
+        ).attachKey(AMOUNT_KEY, amount)
     }
 
     private fun setPrice(player: Player, input: Input, setter: (Double) -> Unit, inv: Inventory) {

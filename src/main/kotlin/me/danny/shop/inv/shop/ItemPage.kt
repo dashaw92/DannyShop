@@ -78,8 +78,7 @@ class ItemPage(private val viewer: Player, coll: Collection<Item>, buttons: Pair
             is Item.Cost.NotSet -> fields.add("&c  No price set!")
             is Item.Cost.Value -> {
                 addPurchaseOption = true
-                fields.add("  &eBuy: &7\$%,.2f".format(item.cost.buy))
-                fields.add("  &eSell: &7\$%,.2f".format(item.cost.sell))
+                fields.add("  &eEach: &7\$%,.2f".format(item.cost.buy))
             }
         }
 

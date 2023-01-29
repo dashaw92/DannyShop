@@ -39,13 +39,6 @@ object Economy {
         return Result.UnknownFailure
     }
 
-    private fun sell(id: UUID, amount: Double) {
-        if (amount <= 0.0) return
-
-        val player = Bukkit.getPlayer(id)
-        econ.depositPlayer(player, amount)
-    }
-
     private fun hasSpace(player: Player, item: Item, amount: Int): Boolean {
         val similarCheck = when (item.item) {
             is Mat -> ItemStack(item.item.material, amount)
@@ -130,7 +123,7 @@ object Economy {
 
         val sell = ess.worth.getPrice(ess, item)?.toDouble() ?: return Cost.NotSet
         val buy = 1.25 * sell
-        return Cost.Value(buy, sell)
+        return Cost.Value(buy)
     }
 
     private sealed interface Result {

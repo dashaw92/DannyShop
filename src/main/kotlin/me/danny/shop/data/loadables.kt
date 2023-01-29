@@ -167,7 +167,7 @@ data class Item(
             override fun toString(): String = "NotSet"
         }
 
-        data class Value(val buy: Double, val sell: Double) : Cost
+        data class Value(val buy: Double) : Cost
     }
 
     /**
@@ -319,8 +319,7 @@ object CostSerializer : TypeSerializer<Item.Cost> {
         if (node.string == "not set") return Item.Cost.NotSet
 
         val buy = node.node("buy").double
-        val sell = node.node("sell").double
-        return Item.Cost.Value(buy, sell)
+        return Item.Cost.Value(buy)
     }
 
     override fun serialize(type: Type?, obj: Item.Cost?, node: ConfigurationNode?) {
@@ -330,7 +329,6 @@ object CostSerializer : TypeSerializer<Item.Cost> {
             is Item.Cost.NotSet -> node.set("not set")
             is Item.Cost.Value -> {
                 node.node("buy").set(obj.buy)
-                node.node("sell").set(obj.sell)
             }
         }
     }

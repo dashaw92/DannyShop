@@ -88,8 +88,7 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
             )
 
             is Item.Cost.Value -> arrayOf(
-                "&eBuy: &7\$%,.2f".format(item.cost.buy),
-                "&eSell: &7\$%,.2f".format(item.cost.sell),
+                "&eEach: &7\$%,.2f".format(item.cost.buy),
             )
         }
     }
