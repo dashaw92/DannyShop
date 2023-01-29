@@ -128,17 +128,21 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
                     return
                 }
 
-                when (item.cost) {
-                    is Item.Cost.Value -> {
-                        if (event.click == ClickType.RIGHT && (item.quantities.allowed == Any || item.quantities.predefined.size > 1)) PurchaseMenu(
-                            viewer,
-                            item.iid,
-                            returnInfo
-                        )
-                        else Economy.purchase(viewer, item.iid)
-                    }
+                fun doPurchase() {
+                    if (event.click == ClickType.RIGHT && (item.quantities.allowed == Any || item.quantities.predefined.size > 1)) PurchaseMenu(
+                        viewer,
+                        item.iid,
+                        returnInfo
+                    )
+                    else Economy.purchase(viewer, item.iid)
+                }
 
-                    else -> viewer.sendMessage("&6[DannyShop] &cCannot purchase this! No price is set.".color())
+                when (item.cost) {
+                    is Item.Cost.Value -> doPurchase()
+                    else -> {
+                        if (viewer.hasPermission("dannyshop.admin")) doPurchase()
+                        else viewer.sendMessage("&6[DannyShop] &cCannot purchase this! No price is set.".color())
+                    }
                 }
             }
             return

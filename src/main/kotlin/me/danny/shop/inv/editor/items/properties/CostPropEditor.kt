@@ -50,7 +50,7 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
         placeButtons(amounts, inv)
 
         inv.setItem(
-            inv.size - 9, ItemBuilder.makeItem(
+            inv.size - 2, ItemBuilder.makeItem(
                 Material.ANVIL,
                 "&5Confirm Price",
                 "&eEach: &7\$%,.2f".format(buy),

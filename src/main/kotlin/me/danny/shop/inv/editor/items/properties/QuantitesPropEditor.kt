@@ -47,8 +47,8 @@ class QuantitesPropEditor(private val editor: ItemEditor) : MenuView {
             )
         )
 
-        inv.setItem(inv.size - 6, ItemBuilder.makeItem(Material.HOPPER, "&eSort"))
-        inv.setItem(inv.size - 7, ItemBuilder.makeItem(Material.ANVIL, "&5Confirm Quantities"))
+        inv.setItem(inv.size - 7, ItemBuilder.makeItem(Material.HOPPER, "&eSort"))
+        inv.setItem(inv.size - 2, ItemBuilder.makeItem(Material.ANVIL, "&5Confirm Quantities"))
         inv.setItem(inv.size - 8, allowedButton)
         inv.setItem(inv.size - 9, ItemBuilder.makeItem(Material.GREEN_STAINED_GLASS_PANE, "&2Add a quantity"))
 

@@ -75,12 +75,12 @@ class ItemPage(
             "&6└───────────"
         val fields: MutableList<String> = mutableListOf()
 
-        var addPurchaseOption = false
+        var addPurchaseOption = viewer.hasPermission("dannyshop.admin")
         fields.add("&dCost:")
         when (item.cost) {
             is Item.Cost.NotSet -> fields.add("&c  No price set!")
             is Item.Cost.Value -> {
-                addPurchaseOption = !CooldownHandler.isOnCooldown(viewer, item.iid)
+                addPurchaseOption = addPurchaseOption || !CooldownHandler.isOnCooldown(viewer, item.iid)
                 fields.add("  &eEach: &7\$%,.2f".format(item.cost.buy))
             }
         }

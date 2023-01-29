@@ -56,8 +56,8 @@ object Economy {
         val empty = player.inventory.storageContents.count { it == null || it.type.isAir }
         if (empty < slotsNeeded) {
             if (amount < 64) {
-                val first = player.inventory.find { similarCheck.isSimilar(it) }
-                if (first != null && 64 - first.amount >= amount) {
+                val candidates = player.inventory.filter { similarCheck.isSimilar(it) }
+                if (candidates.isNotEmpty() && candidates.any { 64 - it.amount >= amount }) {
                     return true
                 }
             }
@@ -84,8 +84,14 @@ object Economy {
             return
         }
 
-        if (item.cost !is Cost.Value) return
-        val price = item.cost.buy * amount
+        val price = when (item.cost) {
+            is Cost.Value -> item.cost.buy * amount
+            else -> {
+                //admin bypass for no price set
+                if (player.hasPermission("dannyshop.admin")) 0.0
+                else return
+            }
+        }
 
         if (!hasSpace(player, item, amount)) return
 
