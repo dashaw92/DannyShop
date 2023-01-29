@@ -1,5 +1,6 @@
 package me.danny.shop.inv
 
+import me.danny.shop.*
 import me.danny.shop.me.danny.shop.inv.*
 import org.bukkit.*
 import org.bukkit.entity.*
@@ -24,6 +25,14 @@ abstract class Menu(private var rows: Int, title: String, val viewer: Player) : 
 
         fun openInv(id: UUID, menu: Menu) {
             openInvs += id to menu
+        }
+
+        init {
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(DannyShop.instance(), {
+                openInvs.values
+                    .filterIsInstance<RefreshPlease>()
+                    .forEach(RefreshPlease::refresh)
+            }, 5L, 5L)
         }
     }
 

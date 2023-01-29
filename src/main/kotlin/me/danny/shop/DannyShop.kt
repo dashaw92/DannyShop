@@ -9,7 +9,6 @@ import me.danny.shop.listeners.*
 import org.bukkit.*
 import org.bukkit.command.*
 import org.bukkit.entity.*
-import org.bukkit.inventory.*
 import org.bukkit.plugin.java.*
 
 /**
@@ -39,11 +38,13 @@ class DannyShop : JavaPlugin() {
         SHOP = DannyShopLoadables.loadShop(this)
         Bukkit.getPluginManager().registerEvents(MenuListener, this)
         Bukkit.getPluginManager().registerEvents(ImportListener, this)
+        Bukkit.getPluginManager().registerEvents(CooldownListener, this)
         getCommand("dannyshop")!!.setExecutor(ShopCommand)
         getCommand("dannytest")!!.setExecutor(this)
     }
 
     override fun onDisable() {
+        CooldownHandler.saveAll()
         DannyShopLoadables.saveShop(SHOP)
         Menu.closeOpenInvs()
     }
@@ -52,12 +53,7 @@ class DannyShop : JavaPlugin() {
         if (label != "dannytest") return true
 
         val pl = sender as Player
-        val loc = pl.location
-        val w = pl.world
-        Material.values().take(48)
-            .filter { it.isItem }
-            .map { ItemStack(it) }
-            .forEach { w.dropItem(loc, it) }
+        CooldownHandler.wipeCooldowns(pl)
         return true
     }
 }

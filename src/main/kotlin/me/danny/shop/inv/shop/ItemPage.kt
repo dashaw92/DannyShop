@@ -80,18 +80,19 @@ class ItemPage(
         when (item.cost) {
             is Item.Cost.NotSet -> fields.add("&c  No price set!")
             is Item.Cost.Value -> {
-                addPurchaseOption = true
+                addPurchaseOption = !CooldownHandler.isOnCooldown(viewer, item.iid)
                 fields.add("  &eEach: &7\$%,.2f".format(item.cost.buy))
             }
         }
 
         when (item.cooldown) {
             is Item.Cooldown.None -> fields.add("&dCooldown: &2None")
-            is Item.Cooldown.Infinite -> fields.add("&dCooldown: &4Purchasable only once")
+            is Item.Cooldown.Infinite -> fields.add("&dCooldown: &4Forever")
             is Item.Cooldown.Duration -> fields.add(
                 "&dCooldown: &7${item.cooldown.time.display()}"
             )
         }
+        fields.addAll(playerCooldown(item))
 
         if (addPurchaseOption) {
             fields.add("")
@@ -113,5 +114,20 @@ class ItemPage(
         display.add(footer)
 
         return ItemBuilder.addLore(tagged, *display.toTypedArray())
+    }
+
+    private fun playerCooldown(item: Item): List<String> {
+        //Show the expiration time, but strikethrough it to indicate
+        //that they are exempt due to permissions
+        val modifier = if (viewer.hasPermission("dannyshop.admin")) "&m"
+        else ""
+
+        return when (val expiration = CooldownHandler.getCooldownTime(viewer, item.iid)) {
+            is Expiration.None -> emptyList()
+            is Expiration.Never -> listOf("&4${modifier}On cooldown forever")
+            is Expiration.Future -> {
+                listOf("&7${modifier}Expires:&7 &9$modifier${expiration.format().first()}")
+            }
+        }
     }
 }

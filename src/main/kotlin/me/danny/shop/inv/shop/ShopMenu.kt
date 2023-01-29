@@ -18,7 +18,7 @@ import org.bukkit.entity.*
 import org.bukkit.event.inventory.*
 import org.bukkit.persistence.*
 
-class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer) {
+class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer), RefreshPlease {
 
     companion object {
         /**
@@ -51,7 +51,20 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
         shopReturnInfo?.categoryPage ?: CategoryPage(shop.categories(), selected, Pair(1, 46))
 
     init {
+        rebuildInv()
         build()
+    }
+
+    private fun rebuildInv() {
+        val page = itemPage.page() + 1
+        val maxPages = itemPage.numPages()
+        inv = Bukkit.createInventory(
+            this, 6 * 9,
+            "$prefix- ${ChatColor.BLUE}${categoryPage.selected().name} ${ChatColor.DARK_GRAY}(%d/%d)".format(
+                page,
+                maxPages
+            )
+        )
     }
 
     override fun build() {
@@ -61,9 +74,6 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
             showEmptyShop()
             return
         }
-
-        //Changes the title
-        rebuildInv()
 
         //<editor-fold desc="Display border">
         val catBorder = ItemBuilder.makeItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE, " ")
@@ -79,21 +89,13 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
         inv.setItem(inv.size - 5, filterButton)
 
         categoryPage.render(inv)
-        itemPage.render(inv)
+        refresh()
 
         viewer.openInventory(inv)
     }
 
-    private fun rebuildInv() {
-        val page = itemPage.page() + 1
-        val maxPages = itemPage.numPages()
-        inv = Bukkit.createInventory(
-            this, 6 * 9,
-            "$prefix- ${ChatColor.BLUE}${categoryPage.selected().name} ${ChatColor.DARK_GRAY}(%d/%d)".format(
-                page,
-                maxPages
-            )
-        )
+    override fun refresh() {
+        itemPage.render(inv)
     }
 
     private fun showEmptyShop() {
@@ -165,8 +167,13 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
             }
         }
 
-        itemPage.onClick(event, ::build)
-        categoryPage.onClick(event, ::build)
+        fun updateAndBuild() {
+            rebuildInv()
+            build()
+        }
+
+        itemPage.onClick(event, ::updateAndBuild)
+        categoryPage.onClick(event, ::updateAndBuild)
     }
 
     data class ShopReturnInfo(val itemPage: ItemPage, val categoryPage: CategoryPage)

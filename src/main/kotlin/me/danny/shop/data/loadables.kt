@@ -285,7 +285,7 @@ data class Item(
         /**
          * The supported units of time Cooldown recognizes
          */
-        sealed class Time(internal val time: Long, internal val suffix: String) {
+        sealed class Time(internal val time: Long, private val suffix: String) {
             data class Millis(val millis: Long) : Time(millis, "ms")
             data class Seconds(val seconds: Long) : Time(seconds, "s")
             data class Minutes(val minutes: Long) : Time(minutes, "m")
@@ -296,6 +296,7 @@ data class Item(
             data class Years(val years: Long) : Time(years, "y")
 
             fun display(): String = "$time$suffix"
+
         }
     }
 
@@ -414,13 +415,13 @@ object CooldownSerializer : TypeSerializer<Cooldown> {
             "infinite" -> Cooldown.Infinite
             else -> {
                 if (cooldown.trim().isBlank()) throw IllegalArgumentException("Empty cooldown")
-                val suffixIdx = cooldown.indexOfFirst(Char::isLetter)
-                if (suffixIdx == -1) throw IllegalArgumentException("No time unit in cooldown")
-                val time = cooldown.substring(0 until suffixIdx).toLongOrNull()
-                    ?: throw IllegalArgumentException("Invalid time in cooldown")
-                val suffix = cooldown.substring(suffixIdx until cooldown.length)
+                val time = cooldown.takeWhile(Char::isDigit).toLongOrNull()
+                val unit = cooldown.takeLastWhile(Char::isLetter)
 
-                val ctor: (Long) -> Cooldown.Time = when (suffix.lowercase()) {
+                if (time == null) throw IllegalArgumentException("Invalid time in cooldown")
+                if (unit.isBlank()) throw IllegalArgumentException("No time unit in cooldown")
+
+                val ctor: (Long) -> Cooldown.Time = when (unit.lowercase()) {
                     "ms" -> Cooldown.Time::Millis
                     "s" -> Cooldown.Time::Seconds
                     "m" -> Cooldown.Time::Minutes
@@ -429,7 +430,7 @@ object CooldownSerializer : TypeSerializer<Cooldown> {
                     "w" -> Cooldown.Time::Weeks
                     "mo" -> Cooldown.Time::Months
                     "y" -> Cooldown.Time::Years
-                    else -> throw IllegalArgumentException("Unknown time unit in cooldown (got \"${suffix}\")")
+                    else -> throw IllegalArgumentException("Unknown time unit in cooldown (got \"${unit}\")")
                 }
 
                 return Cooldown.Duration(ctor(time))
@@ -443,11 +444,7 @@ object CooldownSerializer : TypeSerializer<Cooldown> {
         when (obj) {
             is Cooldown.None -> node.set("none")
             is Cooldown.Infinite -> node.set("infinite")
-            is Cooldown.Duration -> {
-                val amount = obj.time.time
-                val suffix = obj.time.suffix
-                node.set("${amount}${suffix}")
-            }
+            is Cooldown.Duration -> node.set(obj.time.display())
         }
     }
 

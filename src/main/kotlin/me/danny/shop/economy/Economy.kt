@@ -27,7 +27,8 @@ object Economy {
     }
 
     private fun buy(id: UUID, amount: Double): Result {
-        val player = Bukkit.getPlayer(id)
+        val player = Bukkit.getPlayer(id)!!
+        if (player.hasPermission("dannyshop.admin")) return Result.BypassesCheck
 
         val balance = econ.getBalance(player)
         val needed = amount - balance
@@ -69,14 +70,33 @@ object Economy {
 
     fun purchase(player: Player, id: ID, amount: Int = 1) {
         val item = DannyShop.SHOP.itemByIid(id)!!
+
+        if (CooldownHandler.isOnCooldown(player, id)) {
+            when (val expiration = CooldownHandler.getCooldownTime(player, id)) {
+                is Expiration.Never -> player.sendMessage("&6[DannyShop] &cYou cannot purchase this anymore!".color())
+                is Expiration.Future -> {
+                    val fullExpiration = expiration.format().take(2).joinToString(" ")
+                    player.sendMessage("&6[DannyShop] &7You can purchase this again in &o$fullExpiration".color())
+                }
+
+                else -> {}
+            }
+            return
+        }
+
         if (item.cost !is Cost.Value) return
         val price = item.cost.buy * amount
 
         if (!hasSpace(player, item, amount)) return
 
         when (val resp = buy(player.uniqueId, price)) {
-            is Result.Success -> {
-                player.sendMessage("&6[DannyShop] &7$%,.2f&a taken from your balance.".format(price).color())
+            is Result.Success, Result.BypassesCheck -> {
+                if (resp is Result.Success) {
+                    player.sendMessage("&6[DannyShop] &7$%,.2f&a taken from your balance.".format(price).color())
+                } else {
+                    player.sendMessage("&6[DannyShop] &7Price bypassed. No money was taken. :)".color())
+                }
+
                 when (item.item) {
                     is Mat -> player.inventory.addItem(ItemStack(item.item.material, amount))
                     is ItemType.Item -> {
@@ -103,6 +123,8 @@ object Economy {
                         }
                     }
                 }
+
+                CooldownHandler.putOnCooldown(player, id, item.cooldown)
             }
 
             is Result.NotEnoughFunds -> {
@@ -127,6 +149,7 @@ object Economy {
     }
 
     private sealed interface Result {
+        object BypassesCheck : Result
         object Success : Result
         object UnknownFailure : Result
         data class NotEnoughFunds(val needed: Double) : Result
