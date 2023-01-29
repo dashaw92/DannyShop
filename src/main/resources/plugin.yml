@@ -17,7 +17,7 @@ commands:
     aliases: [ "shop", "danshop", "dshop", "dannyssupercoolshopplugin", "anexcessivelylongaliasfortheshop" ]
     description: DannyShop main command
     usage: /<command> args
-# Test command (functionality varies)
-#  dannytest:
-#    description: Lol
-#    usage: /<command>
+  # Test command (functionality varies)
+  dannytest:
+    description: Lol
+    usage: /<command>

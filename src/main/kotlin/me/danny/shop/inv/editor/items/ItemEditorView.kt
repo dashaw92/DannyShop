@@ -31,7 +31,7 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
 
         val footer = arrayOf("", "&e[Edit: Click]")
 
-        val costButton = ItemBuilder.makeItem(Material.EMERALD, "&aPrices", *cost(item), *footer)
+        val costButton = ItemBuilder.makeItem(Material.EMERALD, "&aPricing", *cost(item), *footer)
         val cooldownButton =
             ItemBuilder.makeItem(Material.CLOCK, "&aCooldown", *cooldown(item), *footer)
         val nameButton = ItemBuilder.makeItem(Material.NAME_TAG, "&aName", *name(item), *footer)

@@ -212,7 +212,7 @@ data class Item(
             override fun inner(): Any = exp
             override fun display(): ItemStack = ItemBuilder.makeItem(
                 Material.EXPERIENCE_BOTTLE,
-                "${ChatColor.GOLD}%.0f Experience".format(exp)
+                "${ChatColor.GOLD}%,d Experience".format(exp)
             )
         }
 

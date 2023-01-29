@@ -114,12 +114,10 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
             amount *= (event.hotbarButton + 1)
         }
 
-        if (event.currentItem!!.keyValue(TARGET_KEY)!! == "buy") {
-            buy = (buy + amount).coerceAtLeast(0.0)
-            val msg = if (amount < 0) "&eBuy price &cdecreased by &7$%,.2f".format(amount)
-            else "&eBuy price &aincreased by &7$%,.2f".format(amount)
-            event.whoClicked.sendMessage("&6[DannyShop] $msg".color())
-        }
+        buy = (buy + amount).coerceAtLeast(0.0)
+        val msg = if (amount < 0) "&eBuy price &cdecreased by &7$%,.2f".format(amount)
+        else "&eBuy price &aincreased by &7$%,.2f".format(amount)
+        event.whoClicked.sendMessage("&6[DannyShop] $msg".color())
     }
 
     private fun placeButtons(amounts: List<Double>, inv: Inventory) {
@@ -175,6 +173,5 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
 
     companion object {
         private val AMOUNT_KEY = Key("costprop_amount", PersistentDataType.DOUBLE)
-        private val TARGET_KEY = Key("costprop_target", PersistentDataType.STRING)
     }
 }
