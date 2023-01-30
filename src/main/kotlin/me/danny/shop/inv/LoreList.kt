@@ -54,3 +54,17 @@ object LoreList {
      */
     infix fun <A> A.toEntry(description: List<String>): ListEntry<A> = ListEntry(this, description)
 }
+
+internal inline fun <reified T : Enum<T>> T.next(): T {
+    val values = enumValues<T>()
+    var next = ordinal + 1
+    if (next >= values.size) next = 0
+    return values[next]
+}
+
+internal inline fun <reified T : Enum<T>> T.prev(): T {
+    val values = enumValues<T>()
+    var prev = ordinal - 1
+    if (prev < 0) prev = values.lastIndex
+    return values[prev]
+}

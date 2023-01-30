@@ -150,7 +150,7 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
 
         if (clicked.type == Material.HOPPER) {
             val filterType = when (event.click) {
-                ClickType.RIGHT -> itemPage.filterType.previous()
+                ClickType.RIGHT -> itemPage.filterType.prev()
                 else -> itemPage.filterType.next()
             }
             itemPage.setFilter(filterType)
@@ -221,22 +221,6 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
         /**
          * Only experience items
          */
-        Experience;
-
-        fun previous(): FilterType = when (this) {
-            All -> Experience
-            Experience -> Commands
-            Commands -> Items
-            Items -> Materials
-            Materials -> All
-        }
-
-        fun next(): FilterType = when (this) {
-            Experience -> All
-            Commands -> Experience
-            Items -> Commands
-            Materials -> Items
-            All -> Materials
-        }
+        Experience
     }
 }
