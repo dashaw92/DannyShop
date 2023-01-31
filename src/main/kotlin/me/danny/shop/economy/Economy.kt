@@ -75,7 +75,9 @@ object Economy {
             when (val expiration = CooldownHandler.getCooldownTime(player, id)) {
                 is Expiration.Never -> player.sendMessage("&6[DannyShop] &cYou cannot purchase this anymore!".color())
                 is Expiration.Future -> {
-                    val fullExpiration = expiration.format().take(2).joinToString(" ")
+                    val fullExpiration = expiration.format().take(2).joinToString(" ").trim().ifBlank {
+                        "<1s"
+                    }
                     player.sendMessage("&6[DannyShop] &7You can purchase this again in &o$fullExpiration".color())
                 }
 

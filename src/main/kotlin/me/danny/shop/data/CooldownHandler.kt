@@ -1,7 +1,6 @@
 package me.danny.shop.data
 
 import me.danny.shop.data.Item.Cooldown
-import me.danny.shop.data.Item.Cooldown.Time
 import me.danny.shop.me.danny.shop.data.*
 import org.bukkit.*
 import org.bukkit.entity.*
@@ -14,7 +13,7 @@ import java.util.*
 private val cd_key = Key("cooldowns", IDContainerType)
 private val cache: MutableMap<UUID, IDContainer> = mutableMapOf()
 
-object CooldownHandler {
+internal object CooldownHandler {
     /**
      * Called from onDisable
      */
@@ -50,7 +49,7 @@ object CooldownHandler {
     }
 }
 
-sealed interface Expiration {
+internal sealed interface Expiration {
     object Never : Expiration {
         override fun toString(): String = "Never"
     }
@@ -76,7 +75,7 @@ sealed interface Expiration {
                 "h" to 1000L * 60 * 60,
                 "m" to 1000L * 60,
                 "s" to 1000L,
-                "ms" to 1L,
+//                "ms" to 1L,
             )
 
             //Work from greatest units down to milliseconds,
@@ -132,9 +131,17 @@ private object IDContainerType : PersistentDataType<ByteArray, IDContainer> {
 
 }
 
-private data class IDContainer(val ids: MutableMap<ID, Long>) : Map<ID, Long> by ids {
+internal data class IDContainer(val ids: MutableMap<ID, Long>) : Map<ID, Long> by ids {
     companion object {
         fun new(): IDContainer = IDContainer(mutableMapOf())
+    }
+
+    fun resetCooldown(id: ID) {
+        ids[id] = 0
+    }
+
+    fun resetAll() {
+        ids.clear()
     }
 
     fun setCooldown(id: ID, cooldown: Cooldown) {
@@ -147,18 +154,8 @@ private data class IDContainer(val ids: MutableMap<ID, Long>) : Map<ID, Long> by
 
             is Cooldown.Duration -> {
                 val amount = cooldown.time.time
-                val multiplier = when (cooldown.time) {
-                    is Time.Millis -> 1L
-                    is Time.Seconds -> 1000L
-                    is Time.Minutes -> 1000L * 60
-                    is Time.Hours -> 1000L * 60 * 60
-                    is Time.Days -> 1000L * 60 * 60 * 24
-                    is Time.Weeks -> 1000L * 60 * 60 * 24 * 7
-                    is Time.Months -> 1000L * 60 * 60 * 24 * 7 * 31
-                    is Time.Years -> 1000L * 60 * 60 * 24 * 7 * 31 * 12
-                }
 
-                val output = Instant.now().toEpochMilli() + (multiplier * amount)
+                val output = Instant.now().toEpochMilli() + (cooldown.time.multiplier() * amount)
                 ids[id] = output
             }
         }
@@ -170,7 +167,7 @@ private data class IDContainer(val ids: MutableMap<ID, Long>) : Map<ID, Long> by
     }
 }
 
-private fun Player.cooldowns(): IDContainer {
+internal fun Player.cooldowns(): IDContainer {
     if (cache[uniqueId] != null) return cache[uniqueId]!!
     val container = persistentDataContainer.getOrDefault(cd_key.key, cd_key.type, IDContainer.new())
     cache[uniqueId] = container
@@ -183,7 +180,6 @@ private fun Player.updateCooldowns(container: IDContainer) {
 }
 
 object CooldownListener : Listener {
-
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
         val uuid = event.player.uniqueId

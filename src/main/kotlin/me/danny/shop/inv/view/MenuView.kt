@@ -18,6 +18,11 @@ interface MenuView {
     fun onOpen(): ViewAction = ViewAction.Pass
 
     /**
+     * Used for views of [me.danny.shop.inv.RefreshPlease]
+     */
+    fun refresh(inv: Inventory) {}
+
+    /**
      * Render the view here
      */
     fun build(inv: Inventory)

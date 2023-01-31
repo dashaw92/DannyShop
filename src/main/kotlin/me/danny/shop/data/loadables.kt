@@ -296,7 +296,16 @@ data class Item(
             data class Years(val years: Long) : Time(years, "y")
 
             fun display(): String = "$time$suffix"
-
+            internal fun multiplier(): Long = when (this) {
+                is Millis -> 1L
+                is Seconds -> 1000L
+                is Minutes -> 1000L * 60
+                is Hours -> 1000L * 60 * 60
+                is Days -> 1000L * 60 * 60 * 24
+                is Weeks -> 1000L * 60 * 60 * 24 * 7
+                is Months -> 1000L * 60 * 60 * 24 * 7 * 31
+                is Years -> 1000L * 60 * 60 * 24 * 7 * 31 * 12
+            }
         }
     }
 

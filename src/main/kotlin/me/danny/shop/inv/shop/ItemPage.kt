@@ -126,7 +126,7 @@ class ItemPage(
             is Expiration.None -> emptyList()
             is Expiration.Never -> listOf("&4${modifier}On cooldown forever")
             is Expiration.Future -> {
-                listOf("&7${modifier}Expires:&7 &9$modifier${expiration.format().first()}")
+                listOf("&9${modifier}Expires:&9 &7$modifier${expiration.format().firstOrNull() ?: "<1s"}")
             }
         }
     }
