@@ -7,8 +7,6 @@ import me.danny.shop.inv.*
 import me.danny.shop.inv.listeners.*
 import me.danny.shop.listeners.*
 import org.bukkit.*
-import org.bukkit.command.*
-import org.bukkit.entity.*
 import org.bukkit.plugin.java.*
 
 /**
@@ -40,7 +38,7 @@ class DannyShop : JavaPlugin() {
         Bukkit.getPluginManager().registerEvents(ImportListener, this)
         Bukkit.getPluginManager().registerEvents(CooldownListener, this)
         getCommand("dannyshop")!!.setExecutor(ShopCommand)
-        getCommand("dannytest")!!.setExecutor(this)
+//        getCommand("dannytest")!!.setExecutor(this)
     }
 
     override fun onDisable() {
@@ -49,11 +47,11 @@ class DannyShop : JavaPlugin() {
         Menu.closeOpenInvs()
     }
 
-    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-        if (label != "dannytest") return true
-
-        val pl = sender as Player
-        CooldownHandler.wipeCooldowns(pl)
-        return true
-    }
+//    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+//        if (label != "dannytest") return true
+//
+//        val pl = sender as Player
+//        CooldownHandler.wipeCooldowns(pl)
+//        return true
+//    }
 }
