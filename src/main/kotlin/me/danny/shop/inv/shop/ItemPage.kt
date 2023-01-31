@@ -1,4 +1,4 @@
-package me.danny.shop.me.danny.shop.inv.shop
+package me.danny.shop.me.inv.shop
 
 import me.danny.shop.*
 import me.danny.shop.data.*
@@ -7,9 +7,7 @@ import me.danny.shop.data.Item.ItemType
 import me.danny.shop.data.Item.ItemType.*
 import me.danny.shop.data.Item.Quantities.Allowed.Any
 import me.danny.shop.inv.*
-import me.danny.shop.me.danny.shop.data.*
-import me.danny.shop.me.danny.shop.inv.shop.ShopMenu.FilterType
-import me.danny.shop.me.danny.shop.inv.shop.ShopMenu.FilterType.*
+import me.danny.shop.me.inv.shop.ShopMenu.FilterType
 import org.bukkit.entity.*
 import org.bukkit.inventory.*
 
@@ -23,11 +21,11 @@ class ItemPage(
 
     private fun filteredItems(): List<Item> = items.filter {
         when (filterType) {
-            All -> true
-            Materials -> it.item is Mat
-            Items -> it.item is ItemType.Item
-            Commands -> it.item is Command
-            Experience -> it.item is Exp
+            FilterType.All -> true
+            FilterType.Materials -> it.item is Mat
+            FilterType.Items -> it.item is ItemType.Item
+            FilterType.Commands -> it.item is Command
+            FilterType.Experience -> it.item is Exp
         }
     }
 

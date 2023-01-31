@@ -1,10 +1,10 @@
 package me.danny.shop.commands
 
 import me.danny.shop.*
+import me.danny.shop.inv.*
 import me.danny.shop.inv.editor.categories.*
 import me.danny.shop.inv.editor.cooldowns.*
-import me.danny.shop.me.danny.shop.inv.*
-import me.danny.shop.me.danny.shop.inv.shop.*
+import me.danny.shop.me.inv.shop.*
 import org.bukkit.command.*
 import org.bukkit.entity.*
 

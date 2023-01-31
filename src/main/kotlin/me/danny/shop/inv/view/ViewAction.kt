@@ -1,7 +1,5 @@
 package me.danny.shop.inv.view
 
-import me.danny.shop.me.danny.shop.inv.view.*
-
 /**
  * Used to determine what a base menu should do on click
  */

@@ -1,4 +1,4 @@
-package me.danny.shop.me.danny.shop.inv.shop
+package me.danny.shop.me.inv.shop
 
 import me.danny.shop.*
 import me.danny.shop.data.*
@@ -11,8 +11,6 @@ import me.danny.shop.inv.editor.categories.CategoryEditor.Companion.CATEGORY_KEY
 import me.danny.shop.inv.editor.items.*
 import me.danny.shop.inv.shop.*
 import me.danny.shop.inv.shop.purchasing.*
-import me.danny.shop.me.danny.shop.data.*
-import me.danny.shop.me.danny.shop.inv.*
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.event.inventory.*

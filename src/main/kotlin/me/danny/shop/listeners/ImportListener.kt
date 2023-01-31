@@ -6,7 +6,7 @@ import me.danny.shop.commands.*
 import me.danny.shop.data.*
 import me.danny.shop.data.Item
 import me.danny.shop.economy.Economy.getWorth
-import me.danny.shop.me.danny.shop.inv.*
+import me.danny.shop.inv.*
 import org.bukkit.*
 import org.bukkit.block.*
 import org.bukkit.entity.*
@@ -45,7 +45,7 @@ object ImportListener : Listener {
         if (state.customName == null) return
         val name = state.customName!!
         if (Shop.findCategoryByName(name) == null) {
-            Shop.addCategory(Category(name, Material.BOOK))
+            Shop.addCategory(Category(name, Material.CHEST))
             player.sendMessage("&6[DannyShop] Created category &e$name".color())
         }
 

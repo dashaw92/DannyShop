@@ -2,8 +2,6 @@ package me.danny.shop.inv.shop.purchasing
 
 import me.danny.shop.data.*
 import me.danny.shop.inv.*
-import me.danny.shop.me.danny.shop.data.*
-import me.danny.shop.me.danny.shop.inv.*
 import org.bukkit.inventory.*
 
 class QuantityDisplay(private val item: Item) :

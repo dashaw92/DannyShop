@@ -7,9 +7,7 @@ import me.danny.shop.data.Item.Cost
 import me.danny.shop.data.Item.Quantities.Allowed.Any
 import me.danny.shop.economy.*
 import me.danny.shop.inv.*
-import me.danny.shop.me.danny.shop.data.*
-import me.danny.shop.me.danny.shop.inv.*
-import me.danny.shop.me.danny.shop.inv.shop.*
+import me.danny.shop.me.inv.shop.*
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.event.inventory.*

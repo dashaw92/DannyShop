@@ -1,7 +1,6 @@
 package me.danny.shop.inv
 
 import me.danny.shop.*
-import me.danny.shop.me.danny.shop.inv.*
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.event.inventory.*

@@ -1,7 +1,6 @@
 package me.danny.shop.data
 
 import me.danny.shop.data.Item.Cooldown
-import me.danny.shop.me.danny.shop.data.*
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.event.*

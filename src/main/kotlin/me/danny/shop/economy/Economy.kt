@@ -7,7 +7,7 @@ import me.danny.shop.data.Item
 import me.danny.shop.data.Item.Cost
 import me.danny.shop.data.Item.ItemType
 import me.danny.shop.data.Item.ItemType.Mat
-import me.danny.shop.me.danny.shop.inv.*
+import me.danny.shop.inv.*
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*

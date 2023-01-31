@@ -3,9 +3,6 @@ package me.danny.shop.inv.editor.categories
 import me.danny.shop.data.*
 import me.danny.shop.inv.*
 import me.danny.shop.inv.view.*
-import me.danny.shop.me.danny.shop.data.*
-import me.danny.shop.me.danny.shop.inv.*
-import me.danny.shop.me.danny.shop.inv.view.*
 import org.bukkit.*
 import org.bukkit.event.inventory.*
 import org.bukkit.inventory.*

@@ -1,4 +1,4 @@
-package me.danny.shop.me.danny.shop.inv
+package me.danny.shop.inv
 
 /**
  * Menus that implement this marker interface accept

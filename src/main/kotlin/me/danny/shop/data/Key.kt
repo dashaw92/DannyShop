@@ -1,4 +1,4 @@
-package me.danny.shop.me.danny.shop.data
+package me.danny.shop.data
 
 import org.bukkit.*
 import org.bukkit.inventory.*

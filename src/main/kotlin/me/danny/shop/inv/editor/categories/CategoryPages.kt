@@ -3,7 +3,6 @@ package me.danny.shop.inv.editor.categories
 import me.danny.shop.*
 import me.danny.shop.data.*
 import me.danny.shop.inv.*
-import me.danny.shop.me.danny.shop.data.*
 import org.bukkit.inventory.*
 
 class CategoryPages(buttons: Pair<Int, Int>, var selected: Category? = null) :
