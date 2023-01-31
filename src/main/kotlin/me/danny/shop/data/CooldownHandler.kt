@@ -1,6 +1,8 @@
 package me.danny.shop.data
 
 import me.danny.shop.data.Item.Cooldown
+import me.danny.shop.data.Item.Cooldown.Time
+import me.danny.shop.data.Item.Cooldown.Time.Companion.Units
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.event.*
@@ -42,10 +44,6 @@ internal object CooldownHandler {
 
     fun isOnCooldown(player: Player, id: ID): Boolean =
         player.cooldowns().isOnCooldown(id) && !player.hasPermission("dannyshop.admin")
-
-    internal fun wipeCooldowns(pl: Player) {
-        pl.updateCooldowns(IDContainer.new())
-    }
 }
 
 internal sealed interface Expiration {
@@ -67,14 +65,13 @@ internal sealed interface Expiration {
             //Descending entries of time units
             //Each Pair#second is that unit in milliseconds
             val units = listOf(
-                "y" to 1000L * 60 * 60 * 24 * 7 * 31 * 12,
-                "mo" to 1000L * 60 * 60 * 24 * 7 * 31,
-                "w" to 1000L * 60 * 60 * 24 * 7,
-                "d" to 1000L * 60 * 60 * 24,
-                "h" to 1000L * 60 * 60,
-                "m" to 1000L * 60,
-                "s" to 1000L,
-//                "ms" to 1L,
+                "y" to Time.multiplier(Units.Y),
+                "mo" to Time.multiplier(Units.Mo),
+                "w" to Time.multiplier(Units.W),
+                "d" to Time.multiplier(Units.D),
+                "h" to Time.multiplier(Units.H),
+                "m" to Time.multiplier(Units.M),
+                "s" to Time.multiplier(Units.S),
             )
 
             //Work from greatest units down to milliseconds,

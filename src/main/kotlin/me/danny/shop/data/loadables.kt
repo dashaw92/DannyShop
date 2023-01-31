@@ -316,15 +316,36 @@ data class Item(
             data class Years(val years: Long) : Time(years, "y")
 
             fun display(): String = "$time$suffix"
-            internal fun multiplier(): Long = when (this) {
-                is Millis -> 1L
-                is Seconds -> 1000L
-                is Minutes -> 1000L * 60
-                is Hours -> 1000L * 60 * 60
-                is Days -> 1000L * 60 * 60 * 24
-                is Weeks -> 1000L * 60 * 60 * 24 * 7
-                is Months -> 1000L * 60 * 60 * 24 * 7 * 31
-                is Years -> 1000L * 60 * 60 * 24 * 7 * 31 * 12
+            internal fun multiplier(): Long {
+                return when (this) {
+                    is Millis -> multipliers[Units.Ms]
+                    is Seconds -> multipliers[Units.S]
+                    is Minutes -> multipliers[Units.M]
+                    is Hours -> multipliers[Units.H]
+                    is Days -> multipliers[Units.D]
+                    is Weeks -> multipliers[Units.W]
+                    is Months -> multipliers[Units.Mo]
+                    is Years -> multipliers[Units.Y]
+                }!!
+            }
+
+            companion object {
+                enum class Units {
+                    Ms, S, M, H, D, W, Mo, Y
+                }
+
+                private val multipliers = mapOf(
+                    Units.Y to 1000L * 60 * 60 * 24 * 7 * 4 * 12,
+                    Units.Mo to 1000L * 60 * 60 * 24 * 7 * 4,
+                    Units.W to 1000L * 60 * 60 * 24 * 7,
+                    Units.D to 1000L * 60 * 60 * 24,
+                    Units.H to 1000L * 60 * 60,
+                    Units.M to 1000L * 60,
+                    Units.S to 1000L,
+                    Units.Ms to 1L
+                )
+
+                internal fun multiplier(unit: Units): Long = multipliers[unit]!!
             }
         }
     }
