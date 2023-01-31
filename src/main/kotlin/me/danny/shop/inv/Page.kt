@@ -62,10 +62,13 @@ abstract class Page<T>(
      * Can be customized by overriding [fillerItem]
      */
     private fun clearDisplay(inv: Inventory) {
-        val filler = fillerItem()
+        renderRect(inv, fillerItem())
+    }
+
+    fun renderRect(inv: Inventory, item: ItemStack) {
         for (y in start.second until start.second + dim.second) {
             for (x in start.first until start.first + dim.first) {
-                inv.setItem(y * 9 + x, filler)
+                inv.setItem(y * 9 + x, item)
             }
         }
     }

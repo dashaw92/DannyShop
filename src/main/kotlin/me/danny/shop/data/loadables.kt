@@ -98,6 +98,7 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
         val category = getCategory(cid) ?: return
         items.remove(category)
         CATEGORIES.remove(category)
+        category.deleted = true
     }
 }
 
@@ -131,6 +132,8 @@ data class ID(val id: String) {
  * Categories are entirely user-defined, there are no builtin categories.
  */
 data class Category(val cid: ID, var name: String, var permission: String?, var display: Material) {
+
+    var deleted = false
 
     /**
      * Helper for generating a CID for the category
@@ -166,6 +169,7 @@ data class Category(val cid: ID, var name: String, var permission: String?, var 
      * If no permission is set, this will return true
      */
     fun isVisible(player: Player): Boolean {
+        if (deleted) return false
         if (permission == null) return true
         return player.hasPermission(permission!!) || player.hasPermission("dannyshop.admin")
     }

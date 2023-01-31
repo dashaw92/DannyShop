@@ -106,27 +106,34 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
             return
         }
 
+        if (inv.size == 27) {
+            rebuildInv()
+            build()
+        }
+
         itemPage.render(inv)
         categoryPage.render(inv)
     }
 
     private fun showEmptyShop() {
-        inv = Bukkit.createInventory(this, 27, "$prefix- &8Uh oh!".color())
-        val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
-        var notice = ItemBuilder.makeItem(
-            Material.REDSTONE_TORCH, "&6The shop is empty!"
-        )
-
-        if (viewer.hasPermission("dannyshop.admin")) {
-            notice = ItemBuilder.addLore(
-                notice,
-                "&eBut don't worry! Creating a shop is simple!",
-                "&eCheck out the command &d/dannyshop import&e.",
+        if (inv.size != 27) {
+            inv = Bukkit.createInventory(this, 27, "$prefix- &8Uh oh!".color())
+            val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
+            var notice = ItemBuilder.makeItem(
+                Material.REDSTONE_TORCH, "&6The shop is empty!"
             )
+
+            if (viewer.hasPermission("dannyshop.admin")) {
+                notice = ItemBuilder.addLore(
+                    notice,
+                    "&eBut don't worry! Creating a shop is simple!",
+                    "&eCheck out the command &d/dannyshop import&e.",
+                )
+            }
+            inv.fill(filler)
+            inv.setItem(13, notice)
+            viewer.openInventory(inv)
         }
-        inv.fill(filler)
-        inv.setItem(13, notice)
-        viewer.openInventory(inv)
     }
 
     override fun onClick(event: InventoryClickEvent) {

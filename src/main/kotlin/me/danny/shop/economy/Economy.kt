@@ -132,7 +132,7 @@ object Economy {
                     }
                 }
 
-                CooldownHandler.putOnCooldown(player, id, item.cooldown)
+                CooldownHandler.putOnCooldown(player, id)
             }
 
             is Result.NotEnoughFunds -> {

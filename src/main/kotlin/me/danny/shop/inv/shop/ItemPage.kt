@@ -8,6 +8,7 @@ import me.danny.shop.data.Item.ItemType.*
 import me.danny.shop.data.Item.Quantities.Allowed.Any
 import me.danny.shop.inv.*
 import me.danny.shop.me.inv.shop.ShopMenu.FilterType
+import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*
 
@@ -32,6 +33,29 @@ class ItemPage(
     override fun numPages(): Int = 1 + filteredItems().size / size
 
     override fun display(inv: Inventory) {
+        if (filteredItems().isEmpty()) {
+            val filler = ItemBuilder.makeItem(Material.RED_STAINED_GLASS_PANE, " ")
+            val info = if (items.isEmpty()) {
+                ItemBuilder.makeItem(
+                    Material.BARRIER, "&cNo items",
+                    "&7This category has no items."
+                )
+            } else {
+                ItemBuilder.makeItem(
+                    Material.BARRIER, "&cNo items",
+                    "&7This category has no items that",
+                    "&7match your filtering mode."
+                )
+            }
+
+            renderRect(inv, filler)
+            val midX = start.first + dim.first / 2
+            val midY = start.second + dim.second / 2
+            val invIdx = midY * 9 + midX
+            inv.setItem(invIdx, info)
+            return
+        }
+
         var invIdx = start.second * 9 + start.first
         val displayed = filteredItems().drop(page * size).take(size)
         for (item in displayed) {
@@ -120,12 +144,18 @@ class ItemPage(
         val modifier = if (viewer.hasPermission("dannyshop.admin")) "&m"
         else ""
 
-        return when (val expiration = CooldownHandler.getCooldownTime(viewer, item.iid)) {
-            is Expiration.None -> emptyList()
-            is Expiration.Never -> listOf("&4${modifier}On cooldown forever")
+        val expiration = when (val expiration = CooldownHandler.getCooldownTime(viewer, item.iid)) {
+            is Expiration.None -> mutableListOf()
+            is Expiration.Never -> mutableListOf("&4${modifier}On cooldown forever")
             is Expiration.Future -> {
-                listOf("&9${modifier}Expires:&9 &7$modifier${expiration.format().firstOrNull() ?: "<1s"}")
+                mutableListOf("&9${modifier}Expires:&9 &7$modifier${expiration.format().firstOrNull() ?: "<1s"}")
             }
         }
+
+        if (expiration.isNotEmpty() && viewer.hasPermission("dannyshop.admin")) {
+            expiration += "&7&o(Cooldown bypassed)"
+        }
+
+        return expiration
     }
 }

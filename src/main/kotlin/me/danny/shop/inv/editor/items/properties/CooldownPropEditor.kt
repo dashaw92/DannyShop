@@ -7,6 +7,7 @@ import me.danny.shop.data.Item.Cooldown
 import me.danny.shop.inv.*
 import me.danny.shop.inv.LoreList.toEntry
 import me.danny.shop.inv.editor.items.*
+import me.danny.shop.inv.editor.items.properties.CooldownPropEditor.State.*
 import me.danny.shop.inv.view.*
 import org.bukkit.*
 import org.bukkit.entity.*
@@ -231,27 +232,34 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
             is MultipleLines -> input.lines.first()
         }
 
-        val inputDuration = time.takeWhile { it.isDigit() }
-        if (inputDuration.isNotBlank()) {
+        val inputDuration = time.takeWhile { it.isDigit() || it == '-' }.toLongOrNull()
+        if (inputDuration != null) {
             val parsedDuration = inputDuration.toLong()
             if (parsedDuration > 0) {
                 duration = parsedDuration
-            }
-
-            val inputUnit = time.takeLastWhile { it.isLetter() }
-            if (inputUnit.isNotBlank()) {
-                unit = when (inputUnit.lowercase()) {
-                    "ms" -> Time.Milliseconds
-                    "s" -> Time.Seconds
-                    "m" -> Time.Minutes
-                    "h" -> Time.Hours
-                    "d" -> Time.Days
-                    "w" -> Time.Weeks
-                    "mo" -> Time.Months
-                    "y" -> Time.Years
-                    else -> Time.Seconds
+                val inputUnit = time.takeLastWhile { it.isLetter() }
+                if (inputUnit.isNotBlank()) {
+                    unit = when (inputUnit.lowercase()) {
+                        "ms" -> Time.Milliseconds
+                        "s" -> Time.Seconds
+                        "m" -> Time.Minutes
+                        "h" -> Time.Hours
+                        "d" -> Time.Days
+                        "w" -> Time.Weeks
+                        "mo" -> Time.Months
+                        "y" -> Time.Years
+                        else -> Time.Seconds
+                    }
                 }
+                mode = Timed
+                player.sendMessage("&6[DannyShop] &7Set cooldown to &eTimed&7: &9$duration ${unit.plural(duration)}&7.".color())
+            } else {
+                player.sendMessage("&6[DannyShop] &7Set cooldown to &4Infinite&7.".color())
+                mode = Infinite
             }
+        } else {
+            player.sendMessage("&6[DannyShop] &7Removed cooldown.".color())
+            mode = None
         }
 
         build(inv)

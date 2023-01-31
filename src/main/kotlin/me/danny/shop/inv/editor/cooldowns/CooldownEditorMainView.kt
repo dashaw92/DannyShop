@@ -98,10 +98,10 @@ class CooldownEditorMainView : MenuView {
 
     enum class SortMode {
         Alphabetical {
-            override fun sort(): Comparator<Player> = Comparator { a, b -> a.name.compareTo(b.name) }
+            override fun sort(): Comparator<Player> = Comparator { a, b -> b.name.compareTo(a.name) }
         },
         Reverse {
-            override fun sort(): Comparator<Player> = Comparator { a, b -> b.name.compareTo(a.name) }
+            override fun sort(): Comparator<Player> = Comparator { a, b -> a.name.compareTo(b.name) }
         };
 
         abstract fun sort(): Comparator<Player>
