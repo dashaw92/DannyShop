@@ -1,5 +1,6 @@
 package me.danny.shop.data
 
+import me.danny.shop.*
 import me.danny.shop.data.Item.Cooldown
 import me.danny.shop.data.Item.Cooldown.Time
 import me.danny.shop.data.Item.Cooldown.Time.Companion.Units
@@ -37,9 +38,9 @@ internal object CooldownHandler {
 
         if (!container.isOnCooldown(id)) return Expiration.None
 
-        val cooldown = container[id]!!
-        if (cooldown == Long.MIN_VALUE) return Expiration.Never
-        return Expiration.Future(cooldown)
+        val timestamp = container[id]!!
+        if (timestamp == Long.MIN_VALUE) return Expiration.Never
+        return Expiration.Future(id, timestamp)
     }
 
     fun isOnCooldown(player: Player, id: ID): Boolean =
@@ -55,12 +56,17 @@ internal sealed interface Expiration {
         override fun toString(): String = "No cooldown"
     }
 
-    data class Future(private val time: Long) : Expiration {
+    data class Future(private val id: ID, private val time: Long) : Expiration {
         /**
          * Build a user-facing expiration date for the cooldown
          */
         fun format(): List<String> {
-            var rem = time - Instant.now().toEpochMilli()
+            val now = Instant.now().toEpochMilli()
+
+            val cooldown = DannyShop.SHOP.itemByIid(id)!!.cooldown as Cooldown.Duration
+            val timeSpan = cooldown.time.time * cooldown.time.multiplier()
+
+            var rem = now - (timeSpan + time)
 
             //Descending entries of time units
             //Each Pair#second is that unit in milliseconds
@@ -148,18 +154,31 @@ internal data class IDContainer(val ids: MutableMap<ID, Long>) : Map<ID, Long> b
                 return
             }
 
+            //stored timestamps are "last purchased at"
+            //The cooldowns are done this way so if an item's
+            //cooldown is lowered/increased down the line,
+            //this will gracefully update the expiration,
+            //as that's not calculated until the cooldown
+            //is checked on purchase
             is Cooldown.Duration -> {
-                val amount = cooldown.time.time
-
-                val output = Instant.now().toEpochMilli() + (cooldown.time.multiplier() * amount)
-                ids[id] = output
+                ids[id] = Instant.now().toEpochMilli()
             }
         }
     }
 
     fun isOnCooldown(id: ID): Boolean {
-        val then = ids[id] ?: return false
-        return then == Long.MIN_VALUE || Instant.now().toEpochMilli() - then < 0
+
+        val item = DannyShop.SHOP.itemByIid(id) ?: return false
+        return when (item.cooldown) {
+            is Cooldown.None -> false
+            is Cooldown.Infinite -> ids[id] == Long.MIN_VALUE
+            is Cooldown.Duration -> {
+                val then = ids[id] ?: return false
+                val amount = item.cooldown.time.time
+                val output = item.cooldown.time.multiplier() * amount
+                then + output > Instant.now().toEpochMilli()
+            }
+        }
     }
 }
 
