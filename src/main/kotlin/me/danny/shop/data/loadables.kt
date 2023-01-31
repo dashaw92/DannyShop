@@ -5,6 +5,7 @@ import me.danny.shop.data.Item.ItemType.*
 import me.danny.shop.inv.*
 import org.bukkit.*
 import org.bukkit.configuration.file.*
+import org.bukkit.entity.*
 import org.bukkit.inventory.*
 import org.bukkit.plugin.*
 import org.spongepowered.configurate.*
@@ -129,12 +130,12 @@ data class ID(val id: String) {
  *
  * Categories are entirely user-defined, there are no builtin categories.
  */
-data class Category(val cid: ID, var name: String, var display: Material) {
+data class Category(val cid: ID, var name: String, var permission: String?, var display: Material) {
 
     /**
      * Helper for generating a CID for the category
      */
-    constructor(name: String, display: Material) : this(ID.generate(), name, display)
+    constructor(name: String, display: Material) : this(ID.generate(), name, null, display)
 
     /**
      * Change the name of this category
@@ -144,10 +145,29 @@ data class Category(val cid: ID, var name: String, var display: Material) {
     }
 
     /**
+     * Apply a permission to the category.
+     * Players without this permission will not be able
+     * to see or purchase from this category.
+     */
+    internal fun setPermission(permission: String?) {
+        this.permission = permission
+    }
+
+    /**
      * Change the icon used to represent this category
      */
     internal fun changeDisplay(display: Material) {
         this.display = display
+    }
+
+    /**
+     * Check if the player has permission to view
+     * this category.
+     * If no permission is set, this will return true
+     */
+    fun isVisible(player: Player): Boolean {
+        if (permission == null) return true
+        return player.hasPermission(permission!!) || player.hasPermission("dannyshop.admin")
     }
 }
 
@@ -369,7 +389,7 @@ object ItemTypeSerializer : TypeSerializer<ItemType> {
         val obj = node.node("object")
         return when (itemType.lowercase()) {
             "material" -> Mat(obj.get(Material::class.java)!!)
-            "item" -> Item(obj.get(ItemStack::class.java)!!)
+            "item" -> ItemType.Item(obj.get(ItemStack::class.java)!!)
             "experience" -> Exp(obj.int)
             "command" -> Command(obj.string!!)
             else -> throw IllegalArgumentException("Unknown item type $itemType")
@@ -525,8 +545,9 @@ object CategorySerializer : TypeSerializer<Category> {
 
         val cid = ID(node.node("cid").string ?: ID.generate().id)
         val name = node.node("name").string!!
+        val permission = node.node("permission").string
         val icon = node.node("icon").get(Material::class.java)!!
-        return Category(cid, name, icon)
+        return Category(cid, name, permission, icon)
     }
 
     override fun serialize(type: Type?, obj: Category?, node: ConfigurationNode?) {
@@ -534,6 +555,7 @@ object CategorySerializer : TypeSerializer<Category> {
 
         node.node("cid").set(obj.cid.id)
         node.node("name").set(obj.name)
+        node.node("permission").set(obj.permission)
         node.node("icon").set(obj.display)
     }
 

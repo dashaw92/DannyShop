@@ -48,7 +48,7 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
             Pair(inv.size - 2, inv.size - 1)
         )
     private var categoryPage: CategoryPage =
-        shopReturnInfo?.categoryPage ?: CategoryPage(shop.categories(), selected, Pair(1, 46))
+        shopReturnInfo?.categoryPage ?: CategoryPage(viewer, shop.categories(), selected, Pair(1, 46))
 
     init {
         rebuildInv()
@@ -88,24 +88,44 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
 
         inv.setItem(inv.size - 5, filterButton)
 
-        categoryPage.render(inv)
         refresh()
 
         viewer.openInventory(inv)
     }
 
     override fun refresh() {
+        if (!categoryPage.selected.isVisible(viewer)) {
+            val changeTo = categories.firstOrNull { it.isVisible(viewer) }
+            if (changeTo == null) {
+                showEmptyShop()
+                return
+            }
+
+            itemPage.changeCategory(changeTo)
+            categoryPage.changeCategory(changeTo)
+            rebuildInv()
+            build()
+            return
+        }
+
         itemPage.render(inv)
+        categoryPage.render(inv)
     }
 
     private fun showEmptyShop() {
         inv = Bukkit.createInventory(this, 27, "$prefix- &8Uh oh!".color())
         val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
-        val notice = ItemBuilder.makeItem(
-            Material.REDSTONE_TORCH, "&6The shop is empty!",
-            "&eBut don't worry! Creating a shop is simple!",
-            "&eCheck out the command &d/dannyshop import&e.",
+        var notice = ItemBuilder.makeItem(
+            Material.REDSTONE_TORCH, "&6The shop is empty!"
         )
+
+        if (viewer.hasPermission("dannyshop.admin")) {
+            notice = ItemBuilder.addLore(
+                notice,
+                "&eBut don't worry! Creating a shop is simple!",
+                "&eCheck out the command &d/dannyshop import&e.",
+            )
+        }
         inv.fill(filler)
         inv.setItem(13, notice)
         viewer.openInventory(inv)
@@ -125,6 +145,11 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
             } else {
                 if (!Economy.hasEconomy()) {
                     viewer.sendMessage("&6[DannyShop] &cCannot purchase this! No economy is active!".color())
+                    return
+                }
+
+                if (!item.category.isVisible(viewer)) {
+                    viewer.sendMessage("&6[DannyShop] &cCannot purchase this! You lack permission!".color())
                     return
                 }
 
@@ -166,6 +191,7 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
                 val selected = categoryPage.displayedCategories()[row]
                 itemPage.changeCategory(selected)
                 categoryPage.changeCategory(selected)
+                rebuildInv()
                 build()
                 return
             }

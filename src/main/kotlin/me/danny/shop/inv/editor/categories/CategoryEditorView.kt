@@ -19,6 +19,7 @@ class CategoryEditorView(val category: Category) : MenuView {
     companion object {
         private val DELETE_BUTTON_KEY = Key("delete_category", PersistentDataType.BYTE)
         private val RENAME_BUTTON_KEY = Key("rename_category", PersistentDataType.BYTE)
+        private val PERMISSION_BUTTON_KEY = Key("set_permission", PersistentDataType.BYTE)
     }
 
     override fun onOpen(): ViewAction = ViewAction.Resize(3)
@@ -28,13 +29,20 @@ class CategoryEditorView(val category: Category) : MenuView {
         inv.fill(filler)
 
         inv.setItem(
-            12, ItemBuilder.makeItem(
+            13, ItemBuilder.makeItem(
                 category.display, "&9${category.name}",
                 "&eClick an item to change the icon"
             )
         )
 
-        inv.setItem(14, ItemBuilder.makeItem(Material.NAME_TAG, "&6Change name").attachMarker(RENAME_BUTTON_KEY))
+        inv.setItem(
+            11, ItemBuilder.makeItem(
+                Material.WRITABLE_BOOK, "&6Set permission",
+                "&e${category.permission ?: "&7No permission set"}"
+            ).attachMarker(PERMISSION_BUTTON_KEY)
+        )
+
+        inv.setItem(15, ItemBuilder.makeItem(Material.NAME_TAG, "&6Change name").attachMarker(RENAME_BUTTON_KEY))
 
         inv.setItem(
             inv.size - 9, ItemBuilder.makeItem(
@@ -50,6 +58,7 @@ class CategoryEditorView(val category: Category) : MenuView {
         if (event.slot == inv.size - 1) return ViewAction.ChangeView(CategoryListingView())
         if (event.clickedInventory == inv) {
             val clicked = event.currentItem!!
+            val player = event.whoClicked as Player
             if (clicked.hasMarker(DELETE_BUTTON_KEY)) {
                 DannyShop.SHOP.deleteCategory(category.cid)
                 event.whoClicked.sendMessage("&6[DannyShop] &eCategory &6${category.name}&e deleted.".color())
@@ -57,7 +66,6 @@ class CategoryEditorView(val category: Category) : MenuView {
             }
 
             if (clicked.hasMarker(RENAME_BUTTON_KEY)) {
-                val player = event.whoClicked as Player
                 val provider = if (SignInput.isAvailable()) {
                     SignInput()
                         .withLines(arrayOf(category.name, "^^^^^", "DannyShop", "Rename category"))
@@ -71,7 +79,24 @@ class CategoryEditorView(val category: Category) : MenuView {
                 }
 
                 player.closeInventory()
-                provider.getInput(player) { pl, input -> handleInput(pl, input, inv) }
+                provider.getInput(player) { pl, input -> handleRename(pl, input, inv) }
+            }
+
+            if (clicked.hasMarker(PERMISSION_BUTTON_KEY)) {
+                val provider = if (SignInput.isAvailable()) {
+                    SignInput()
+                        .withLines(arrayOf(category.permission ?: "", "^^^^^", "DannyShop", "Set permission"))
+                        .withMaterial(Material.BIRCH_WALL_SIGN)
+                } else {
+                    ChatInput()
+                        .requestLines(1)
+                        .withEscapeWords("cancel")
+                        .withPrefix("&6[DannyShop] &e".color())
+                        .withPrompt("Set category permission:")
+                }
+
+                player.closeInventory()
+                provider.getInput(player) { pl, input -> handlePermission(pl, input, inv) }
             }
 
             return ViewAction.Pass
@@ -82,7 +107,7 @@ class CategoryEditorView(val category: Category) : MenuView {
         return ViewAction.Pass
     }
 
-    private fun handleInput(player: Player, input: Input, inv: Inventory) {
+    private fun handleRename(player: Player, input: Input, inv: Inventory) {
         val newName = when (input) {
             is SingleLine -> input.line
             is MultipleLines -> input.lines.first()
@@ -90,6 +115,22 @@ class CategoryEditorView(val category: Category) : MenuView {
 
         category.changeName(newName)
         player.sendMessage("&6[DannyShop] &7Category name changed to &e$newName".color())
+        build(inv)
+        player.openInventory(inv)
+    }
+
+    private fun handlePermission(player: Player, input: Input, inv: Inventory) {
+        val newName = when (input) {
+            is SingleLine -> input.line
+            is MultipleLines -> input.lines.first()
+        }.ifBlank { null }
+
+        category.setPermission(newName)
+        if (newName == null) {
+            player.sendMessage("&6[DannyShop] &7Category permission cleared.".color())
+        } else {
+            player.sendMessage("&6[DannyShop] &7Category permission set to &e$newName".color())
+        }
         build(inv)
         player.openInventory(inv)
     }

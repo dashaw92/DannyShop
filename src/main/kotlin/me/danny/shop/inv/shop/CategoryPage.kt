@@ -4,9 +4,15 @@ import me.danny.shop.data.*
 import me.danny.shop.inv.*
 import me.danny.shop.inv.editor.categories.CategoryEditor.Companion.CATEGORY_KEY
 import me.danny.shop.me.danny.shop.data.*
+import org.bukkit.entity.*
 import org.bukkit.inventory.*
 
-class CategoryPage(coll: Collection<Category>, private var selected: Category, buttons: Pair<Int, Int>) :
+class CategoryPage(
+    private val viewer: Player,
+    coll: Collection<Category>,
+    internal var selected: Category,
+    buttons: Pair<Int, Int>
+) :
     Page<Category>(coll, Pair(0, 0), Pair(1, 6), buttons) {
     override fun numPages(): Int {
         if (items.size <= dim.second) return 0
@@ -14,9 +20,7 @@ class CategoryPage(coll: Collection<Category>, private var selected: Category, b
     }
 
     override fun display(inv: Inventory) {
-        items
-            .drop(page)
-            .take(size)
+        displayedCategories()
             .map {
                 var item =
                     ItemBuilder.addAttribute(ItemBuilder.makeItem(it.display, "&9${it.name}"), *ItemFlag.values())
@@ -28,7 +32,11 @@ class CategoryPage(coll: Collection<Category>, private var selected: Category, b
 
     fun selected(): Category = selected
 
-    fun displayedCategories(): List<Category> = items.drop(page).take(size)
+    fun displayedCategories(): List<Category> =
+        items
+            .filter { it.isVisible(viewer) }
+            .drop(page)
+            .take(size)
 
     fun changeCategory(category: Category) {
         selected = category
