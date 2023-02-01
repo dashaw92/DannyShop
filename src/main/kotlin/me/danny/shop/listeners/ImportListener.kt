@@ -46,12 +46,12 @@ object ImportListener : Listener {
         val name = state.customName!!
         if (Shop.findCategoryByName(name) == null) {
             Shop.addCategory(Category(name, Material.CHEST))
-            player.sendMessage("&6[DannyShop] Created category &e$name".color())
+            player.sendMessage("&6[DannyShop] &7Created category &e$name&7.".color())
         }
 
         val category = Shop.findCategoryByName(name)!!
 
-        player.sendMessage("&6[DannyShop] Importing items from chest into category &e${category.name}".color())
+        player.sendMessage("&6[DannyShop] &7Importing items from chest into category &e${category.name}&7.".color())
         importItems(player, category, state.inventory)
     }
 
@@ -75,7 +75,7 @@ object ImportListener : Listener {
             val cooldown = Item.Cooldown.None
 
             val shopItem = Item(iid, null, type, cost, cooldown, quantities, category)
-            player.sendMessage("&6[DannyShop] Imported &7\"${iid.id}\"".color())
+            player.sendMessage("&6[DannyShop] &7Imported &e${iid.id}&7.".color())
             DannyShop.SHOP.addItem(shopItem)
         }
 
@@ -85,7 +85,7 @@ object ImportListener : Listener {
     @EventHandler
     fun onWandDrop(event: PlayerDropItemEvent) {
         if (ImportCommand.isWand(event.itemDrop.itemStack)) {
-            event.player.sendMessage("&6[DannyShop] Removed import wand!".color())
+            event.player.sendMessage("&6[DannyShop] &7Removed import wand!".color())
             event.itemDrop.remove()
         }
     }
