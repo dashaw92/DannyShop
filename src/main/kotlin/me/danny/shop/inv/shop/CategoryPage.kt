@@ -22,7 +22,7 @@ class CategoryPage(
         displayedCategories()
             .map {
                 var item =
-                    ItemBuilder.addAttribute(ItemBuilder.makeItem(it.display, "&9${it.name}"), *ItemFlag.values())
+                    ItemBuilder.addAttribute(ItemBuilder.makeItem(it.display, "&e${it.name}"), *ItemFlag.values())
                 if (it == selected) item = ItemBuilder.addEnchantGlow(item)
                 item.attachKey(CATEGORY_KEY, it.name)
             }

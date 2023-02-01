@@ -35,8 +35,8 @@ class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: ShopMenu.Sh
         page.render(inv)
         if (item.quantities.allowed == Any) {
             val customQuantity = ItemBuilder.makeItem(
-                Material.SPRUCE_SIGN, "&6Buy custom amount",
-                "&2x$customAmount &7($%,.2f)".format((item.cost as Cost.Value).buy * customAmount),
+                Material.SPRUCE_SIGN, "&eBuy custom amount",
+                "&7x$customAmount &9($%,.2f)".format((item.cost as Cost.Value).buy * customAmount),
                 "",
                 "&e[Edit: Right click]"
             )
@@ -66,8 +66,8 @@ class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: ShopMenu.Sh
                 } else {
                     ChatInput()
                         .withEscapeWords("cancel")
-                        .withPrefix("&6[DannyShop] &e".color())
-                        .withPrompt("Buy custom amount:".color())
+                        .withPrefix("&6[DannyShop]&7 ".color())
+                        .withPrompt("&9Buy custom amount:".color())
                         .requestLines(1)
                 }
                 viewer.closeInventory()

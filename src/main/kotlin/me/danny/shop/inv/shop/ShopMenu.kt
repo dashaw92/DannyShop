@@ -82,7 +82,7 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
             .forEach { inv.setItem(it, ctrlBorder) }
         //</editor-fold>
 
-        val filterButton = ItemBuilder.makeItem(Material.HOPPER, "&6Item Filter", *filterButton())
+        val filterButton = ItemBuilder.makeItem(Material.HOPPER, "&eItem Filter", *filterButton())
 
         inv.setItem(inv.size - 5, filterButton)
 
@@ -120,14 +120,14 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
             inv = Bukkit.createInventory(this, 27, "$prefix- &8Uh oh!".color())
             val filler = ItemBuilder.makeItem(Material.GRAY_STAINED_GLASS_PANE, " ")
             var notice = ItemBuilder.makeItem(
-                Material.REDSTONE_TORCH, "&6The shop is empty!"
+                Material.REDSTONE_TORCH, "&eThe shop is empty!"
             )
 
             if (viewer.hasPermission("dannyshop.admin")) {
                 notice = ItemBuilder.addLore(
                     notice,
-                    "&eBut don't worry! Creating a shop is simple!",
-                    "&eCheck out the command &d/dannyshop import&e.",
+                    "&7But don't worry! Creating a shop is simple!",
+                    "&7Check out the command &9/dannyshop import&e.",
                 )
             }
             inv.fill(filler)

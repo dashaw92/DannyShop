@@ -51,11 +51,14 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
             inv.size - 2, ItemBuilder.makeItem(
                 Material.ANVIL,
                 "&5Confirm Price",
-                "&eEach: &7\$%,.2f".format(buy),
+                "&9Each: &7\$%,.2f".format(buy),
                 "",
-                "&cShift right click to &4unset price",
-                "&c&oUnsetting the price will make this",
-                "&c&oitem unavailable for purchasing!"
+                "&7Shift right click to &4unset price&7.",
+                "&7&oUnsetting the price will make this",
+                "&7item &c&ounavailable&7 for purchasing!",
+                "",
+                "&e[Confirm: Click]",
+                "&e[Unset: Shift right click]"
             )
         )
         inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "&9Back"))
@@ -126,7 +129,7 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
         amounts.map { -it }
             .map(::buyPriceButton).zip(9..17)
             .forEach { pair -> inv.setItem(pair.second, pair.first) }
-        inv.setItem(8, ItemBuilder.makeItem(Material.SPRUCE_SIGN, "&6Set custom buy price"))
+        inv.setItem(8, ItemBuilder.makeItem(Material.SPRUCE_SIGN, "&eSet custom buy price"))
     }
 
     private fun makeButton(amount: Double): ItemStack {
@@ -134,20 +137,20 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
         val prefix: String
         if (amount < 0.0) {
             type = Material.RED_TERRACOTTA
-            prefix = "&cDecrease by"
+            prefix = "&9Decrease by"
         } else {
             type = Material.EMERALD_BLOCK
-            prefix = "&aIncrease by"
+            prefix = "&9Increase by"
         }
 
         return ItemBuilder.makeItem(
             type,
-            "&2Buy Price",
-            "$prefix \$%,.2f".format(amount),
+            "&eBuy Price",
+            "$prefix &7\$%,.2f".format(amount),
             "&8&m                        ",
-            "&6Shift click&e for 10x",
-            "&6Right click&e for 0.5x",
-            "&6Number key&e for multiplier"
+            "&eShift click&7 for 10x",
+            "&eRight click&7 for 0.5x",
+            "&eNumber key&7 for multiplier"
         ).attachKey(AMOUNT_KEY, amount)
     }
 

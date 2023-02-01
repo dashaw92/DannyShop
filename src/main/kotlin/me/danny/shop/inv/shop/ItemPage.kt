@@ -98,20 +98,22 @@ class ItemPage(
         val fields: MutableList<String> = mutableListOf()
 
         var addPurchaseOption = viewer.hasPermission("dannyshop.admin")
-        fields.add("&dCost:")
+        fields.add("&9Cost:")
         when (item.cost) {
             is Item.Cost.NotSet -> fields.add("&c  No price set!")
             is Item.Cost.Value -> {
                 addPurchaseOption = addPurchaseOption || !CooldownHandler.isOnCooldown(viewer, item.iid)
-                fields.add("  &eEach: &7\$%,.2f".format(item.cost.buy))
+                fields.add("  &3Each: &7\$%,.2f".format(item.cost.buy))
             }
         }
 
         when (item.cooldown) {
-            is Item.Cooldown.None -> fields.add("&dCooldown: &2None")
-            is Item.Cooldown.Infinite -> fields.add("&dCooldown: &4Forever")
+            is Item.Cooldown.None -> { /*fields.add("&9Cooldown: &2None")*/
+            }
+
+            is Item.Cooldown.Infinite -> fields.add("&9Cooldown: &4Forever")
             is Item.Cooldown.Duration -> fields.add(
-                "&dCooldown: &7${item.cooldown.time.display()}"
+                "&9Cooldown: &7${item.cooldown.time.display()}"
             )
         }
         fields.addAll(playerCooldown(item))

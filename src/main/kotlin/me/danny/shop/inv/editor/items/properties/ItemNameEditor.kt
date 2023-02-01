@@ -21,8 +21,10 @@ class ItemNameEditor(private val editor: ItemEditor) : MenuView {
 
         val removeNameButton = ItemBuilder.makeItem(
             Material.BARRIER, "&cRemove name",
-            "&7&oItem names permit searching for this item by name.",
-            "&7&oIf you remove it, players will have a harder time finding it."
+            "&7Item names permit searching",
+            "&7for this item by name.",
+            "&7If you remove it, players will",
+            "&7have a harder time finding it."
         )
         val changeNameButton = ItemBuilder.makeItem(Material.SPRUCE_SIGN, "&eSet name")
 
@@ -54,8 +56,8 @@ class ItemNameEditor(private val editor: ItemEditor) : MenuView {
                     ChatInput()
                         .requestLines(1)
                         .withEscapeWords("cancel")
-                        .withPrefix("&6[DannyShop] ".color())
-                        .withPrompt("&eEnter new name:".color())
+                        .withPrefix("&6[DannyShop]&7 ".color())
+                        .withPrompt("&9Enter new name:".color())
                 }
 
                 player.closeInventory()
@@ -74,10 +76,10 @@ class ItemNameEditor(private val editor: ItemEditor) : MenuView {
         }
 
         val renamed = if (newName.isBlank()) {
-            player.sendMessage("&6[DannyShop]&e Removed item name.".color())
+            player.sendMessage("&6[DannyShop]&7 Removed item name.".color())
             item.copy(name = null)
         } else {
-            player.sendMessage("&6[DannyShop]&e Renamed item to &d$newName&e!".color())
+            player.sendMessage("&6[DannyShop]&7 Renamed item to &e$newName&e!".color())
             item.copy(name = newName)
         }
 

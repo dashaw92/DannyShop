@@ -32,7 +32,7 @@ class QuantitesPropEditor(private val editor: ItemEditor) : MenuView {
 
         val allowedButton = ItemBuilder.makeItem(
             Material.COMPARATOR,
-            "&3Allowed mode",
+            "&eAllowed mode",
             *LoreList.makeList(
                 listOf(
                     Allowed.Any toEntry listOf("Players can enter a custom quantity", "when purchasing this item"),
@@ -45,9 +45,17 @@ class QuantitesPropEditor(private val editor: ItemEditor) : MenuView {
         )
 
         inv.setItem(inv.size - 7, ItemBuilder.makeItem(Material.HOPPER, "&eSort"))
-        inv.setItem(inv.size - 2, ItemBuilder.makeItem(Material.ANVIL, "&5Confirm Quantities"))
+        inv.setItem(
+            inv.size - 2, ItemBuilder.makeItem(
+                Material.ANVIL, "&5Confirm Quantities",
+                "&9Quantities: &7${quantities.sorted().toSet()}",
+                "&9Allowed: &7$allowed",
+                "",
+                "&e[Confirm: Click]"
+            )
+        )
         inv.setItem(inv.size - 8, allowedButton)
-        inv.setItem(inv.size - 9, ItemBuilder.makeItem(Material.GREEN_STAINED_GLASS_PANE, "&2Add a quantity"))
+        inv.setItem(inv.size - 9, ItemBuilder.makeItem(Material.GREEN_STAINED_GLASS_PANE, "&eAdd a quantity"))
 
         page.render(inv)
         inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "&9Back"))
@@ -144,14 +152,14 @@ class QuantitesPropEditor(private val editor: ItemEditor) : MenuView {
 
         private fun makeButton(value: Int): ItemStack {
             return ItemBuilder.makeItem(
-                Material.POLISHED_ANDESITE, value, "&2Quantity: &a$value",
-                "",
-                "&6Left click&e to add 1",
-                "&6Right click&e to remove 1",
-                "&6Shift left click&e to add 32",
-                "&6Shift right click&e to remove 32",
-                "&6Number key&e to add",
-                "&4Drop&c to remove this quantity",
+                Material.POLISHED_ANDESITE, value, "&eQuantity: &7$value",
+                "&8&m                        ",
+                "&eLeft click&7 to add 1",
+                "&eRight click&7 to remove 1",
+                "&eShift left click&7 to add 32",
+                "&eShift right click&7 to remove 32",
+                "&eNumber key&7 to add",
+                "&eDrop&7 to remove this quantity",
             ).attachKey(QUANTITY_KEY, value)
         }
     }

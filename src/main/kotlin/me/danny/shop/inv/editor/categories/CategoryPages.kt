@@ -16,7 +16,7 @@ class CategoryPages(buttons: Pair<Int, Int>, var selected: Category? = null) :
             .drop(page * size)
             .take(size)
             .map {
-                val item = ItemBuilder.makeItem(it.display, "&9${it.name}")
+                val item = ItemBuilder.makeItem(it.display, "&e${it.name}")
                     .attachKey(CategoryEditor.CATEGORY_KEY, it.cid.id)
                 if (it.name == selected?.name) {
                     ItemBuilder.addEnchantGlow(item)

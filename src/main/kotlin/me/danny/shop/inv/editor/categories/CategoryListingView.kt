@@ -19,7 +19,7 @@ class CategoryListingView : MenuView {
 
         val border = ItemBuilder.makeItem(Material.ORANGE_STAINED_GLASS_PANE, " ")
         inv.fill(border)
-        inv.setItem(inv.size - 5, ItemBuilder.makeItem(Material.BARRIER, "&cClose"))
+        inv.setItem(inv.size - 5, ItemBuilder.makeItem(Material.BARRIER, "&eClose"))
 
         page.render(inv)
     }

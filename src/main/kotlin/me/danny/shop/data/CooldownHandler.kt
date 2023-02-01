@@ -34,13 +34,20 @@ internal object CooldownHandler {
     }
 
     fun getCooldownTime(player: Player, id: ID): Expiration {
+        val item = DannyShop.SHOP.itemByIid(id)!!
         val container = player.cooldowns()
 
         if (!container.isOnCooldown(id)) return Expiration.None
 
-        val timestamp = container[id]!!
-        if (timestamp == Long.MIN_VALUE) return Expiration.Never
-        return Expiration.Future(id, timestamp)
+        return when (item.cooldown) {
+            is Cooldown.Infinite -> Expiration.Never
+            is Cooldown.Duration -> {
+                val timestamp = container[id]!!
+                Expiration.Future(id, timestamp)
+            }
+
+            else -> Expiration.None
+        }
     }
 
     fun isOnCooldown(player: Player, id: ID): Boolean =
@@ -141,7 +148,7 @@ internal data class IDContainer(val ids: MutableMap<ID, Long>) : Map<ID, Long> b
     }
 
     fun resetCooldown(id: ID) {
-        ids[id] = 0
+        ids.remove(id)
     }
 
     fun resetAll() {

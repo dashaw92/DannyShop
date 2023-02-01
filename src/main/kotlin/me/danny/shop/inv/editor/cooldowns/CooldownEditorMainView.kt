@@ -40,7 +40,7 @@ class CooldownEditorMainView : MenuView {
                 )
             )
         )
-        inv.setItem(inv.size - 5, ItemBuilder.makeItem(Material.BARRIER, "&6Close"))
+        inv.setItem(inv.size - 5, ItemBuilder.makeItem(Material.BARRIER, "&eClose"))
     }
 
     override fun onClick(inv: Inventory, event: InventoryClickEvent): ViewAction {

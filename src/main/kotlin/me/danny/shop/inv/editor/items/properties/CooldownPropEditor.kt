@@ -7,7 +7,6 @@ import me.danny.shop.data.Item.Cooldown
 import me.danny.shop.inv.*
 import me.danny.shop.inv.LoreList.toEntry
 import me.danny.shop.inv.editor.items.*
-import me.danny.shop.inv.editor.items.properties.CooldownPropEditor.State.*
 import me.danny.shop.inv.view.*
 import org.bukkit.*
 import org.bukkit.entity.*
@@ -32,18 +31,18 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
         placeUnitButtons(inv, 1..8)
 
         val time = ItemBuilder.makeItem(
-            Material.CLOCK, "&d$duration &e${unit.plural(duration)}",
-            "&6Left click&e to add 1",
-            "&6Right click&e to remove 1",
-            "&6Shift left click&e to add 10",
-            "&6Shift right click&e to remove 10",
-            "&6Number key&e to add"
+            Material.CLOCK, "&d$duration &6${unit.plural(duration)}",
+            "&eLeft click&7 to add 1",
+            "&eRight click&7 to remove 1",
+            "&eShift left click&7 to add 10",
+            "&eShift right click&7 to remove 10",
+            "&eNumber key&7 to add"
         )
 
         inv.setItem(0, time)
 
         val modeButton = ItemBuilder.makeItem(
-            Material.COMPARATOR, "&6Select cooldown type", *LoreList.makeList(
+            Material.COMPARATOR, "&eSelect cooldown type", *LoreList.makeList(
                 listOf(
                     State.None toEntry listOf("Players do not have to wait", "to purchase this item again"),
                     State.Infinite toEntry listOf("Players can only purchase this", "item one time."),
@@ -53,14 +52,16 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
         )
 
         val confirmButton = ItemBuilder.makeItem(
-            Material.ANVIL, "&5Confirm Cooldown", "&eType: &7$mode", *when (mode) {
-                State.None -> arrayOf("", "&eThere will be no cooldown upon purchase.")
-                State.Infinite -> arrayOf("", "&eThis is a one-time purchasable item.")
-                State.Timed -> arrayOf("", "&ePurchasable every &d$duration ${unit.plural(duration)}")
-            }
+            Material.ANVIL, "&5Confirm Cooldown", "&9Type: &7$mode", *when (mode) {
+                State.None -> arrayOf("", "&7There will be no cooldown upon purchase.")
+                State.Infinite -> arrayOf("", "&7Purchasable one time.")
+                State.Timed -> arrayOf("", "&7Purchasable every &e$duration ${unit.plural(duration)}")
+            },
+            "",
+            "&e[Confirm: Click]"
         )
 
-        val inputButton = ItemBuilder.makeItem(Material.SPRUCE_SIGN, "&6Set custom cooldown")
+        val inputButton = ItemBuilder.makeItem(Material.SPRUCE_SIGN, "&eSet custom cooldown")
 
         inv.setItem(inv.size - 9, inputButton)
         inv.setItem(inv.size - 8, modeButton)
@@ -77,13 +78,13 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
                 val player = event.whoClicked as Player
                 val provider = if (SignInput.isAvailable()) {
                     SignInput()
-                        .withLines(arrayOf("", "^^^^^", "DannyShop", "Set cooldown time"))
+                        .withLines(arrayOf("$duration${unit.suffix()}", "^^^^^", "DannyShop", "Set cooldown time"))
                         .withMaterial(Material.SPRUCE_WALL_SIGN)
                 } else {
                     ChatInput()
                         .withEscapeWords("cancel")
-                        .withPrefix("&6[DannyShop] ".color())
-                        .withPrompt("&eSet cooldown time:".color())
+                        .withPrefix("&6[DannyShop]&7 ".color())
+                        .withPrompt("&9Set cooldown time:".color())
                         .requestLines(1)
                 }
 
@@ -150,13 +151,11 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
                 }
                 var item = ItemBuilder.makeItem(
                     material,
-                    "&6${it.name}"
+                    "&e${it.name}"
                 ).attachKey(UNIT_KEY, it.name)
 
-                item = if (mode != State.Timed) {
-                    ItemBuilder.addLore(item, "&4Does nothing with current cooldown type.")
-                } else {
-                    ItemBuilder.addLore(item, "&eSwitch cooldown time to this unit")
+                if (mode != State.Timed) {
+                    item = ItemBuilder.addLore(item, "&7Does nothing with current cooldown type.")
                 }
 
                 item
@@ -179,6 +178,19 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
         Weeks,
         Months,
         Years;
+
+        fun suffix(): String {
+            return when (this) {
+                Milliseconds -> "ms"
+                Seconds -> "s"
+                Minutes -> "m"
+                Hours -> "h"
+                Days -> "d"
+                Weeks -> "w"
+                Months -> "mo"
+                Years -> "y"
+            }
+        }
 
         fun plural(time: Long): String {
             return if (time > 1) name
@@ -251,15 +263,15 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
                         else -> Time.Seconds
                     }
                 }
-                mode = Timed
-                player.sendMessage("&6[DannyShop] &7Set cooldown to &eTimed&7: &9$duration ${unit.plural(duration)}&7.".color())
+                mode = State.Timed
+                player.sendMessage("&6[DannyShop] &7Set cooldown to &9Timed&7: $duration ${unit.plural(duration)}.".color())
             } else {
                 player.sendMessage("&6[DannyShop] &7Set cooldown to &4Infinite&7.".color())
-                mode = Infinite
+                mode = State.Infinite
             }
         } else {
             player.sendMessage("&6[DannyShop] &7Removed cooldown.".color())
-            mode = None
+            mode = State.None
         }
 
         build(inv)

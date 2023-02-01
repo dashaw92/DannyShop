@@ -22,24 +22,27 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
         inv.setItem(inv.size - 1, ItemBuilder.makeItem(Material.ARROW, "&9Back"))
 
         val id = ItemBuilder.makeItem(
-            Material.PAPER, "&aIID: &7${item.iid.id}",
-            "&3Type: &7${itemType(item)}",
+            Material.PAPER, "&e${item.iid.id}",
+            "&9Type: &7${itemType(item)}",
+            "&9Category:",
+            "  &3Name: &7${item.category.name}",
+            "  &3CID: &7${item.category.cid.id}",
         )
 
         val footer = arrayOf("", "&e[Edit: Click]")
 
-        val costButton = ItemBuilder.makeItem(Material.EMERALD, "&aPricing", *cost(item), *footer)
+        val costButton = ItemBuilder.makeItem(Material.EMERALD, "&ePricing", *cost(item), *footer)
         val cooldownButton =
-            ItemBuilder.makeItem(Material.CLOCK, "&aCooldown", *cooldown(item), *footer)
-        val nameButton = ItemBuilder.makeItem(Material.NAME_TAG, "&aName", *name(item), *footer)
+            ItemBuilder.makeItem(Material.CLOCK, "&eCooldown", *cooldown(item), *footer)
+        val nameButton = ItemBuilder.makeItem(Material.NAME_TAG, "&eName", *name(item), *footer)
         val categoryButton = ItemBuilder.makeItem(
             Material.CHEST,
-            "&aCategory",
+            "&eCategory",
             "&7${item.category.name}",
             *footer
         )
         val quantitiesButton =
-            ItemBuilder.makeItem(Material.WRITABLE_BOOK, "&aQuantities", *quantities(item), *footer)
+            ItemBuilder.makeItem(Material.WRITABLE_BOOK, "&eQuantities", *quantities(item), *footer)
 
         inv.setItem(11, costButton)
         inv.setItem(12, cooldownButton)
@@ -80,12 +83,12 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
             is Item.Cost.NotSet -> arrayOf(
                 "&cNot set!",
                 "",
-                "&c&oPlayers cannot purchase this!",
-                "&c&oSet a price to fix!"
+                "&7&oPlayers cannot purchase this!",
+                "&7&oSet a price to fix!"
             )
 
             is Item.Cost.Value -> arrayOf(
-                "&eEach: &7\$%,.2f".format(item.cost.buy),
+                "&9Each: &7\$%,.2f".format(item.cost.buy),
             )
         }
     }
@@ -93,19 +96,19 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
     private fun cooldown(item: Item): Array<String> {
         return when (item.cooldown) {
             is Item.Cooldown.None -> arrayOf(
-                "&7None",
+                "&2None",
                 "",
                 "&7&oPlayers may purchase this with no limit"
             )
 
             is Item.Cooldown.Infinite -> arrayOf(
-                "&7Infinite",
+                "&4Infinite",
                 "",
                 "&7&oPlayers may purchase this once"
             )
 
             is Item.Cooldown.Duration -> arrayOf(
-                "&eTimed: &7${item.cooldown.time.display()}",
+                "&9Timed: &7${item.cooldown.time.display()}",
                 "",
                 "&7&oPlayers must wait before purchasing again"
             )
@@ -121,7 +124,7 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
             )
 
             else -> arrayOf(
-                "&e${item.name}",
+                "&7${item.name}",
                 "",
                 "&7&oPlayers can search for this item by that name."
             )
@@ -130,8 +133,8 @@ class ItemEditorView(private val editor: ItemEditor) : MenuView {
 
     private fun quantities(item: Item): Array<String> {
         return arrayOf(
-            "&ePredefined: &7${item.quantities.predefined}",
-            "&eMode: &7${item.quantities.allowed}",
+            "&9Predefined: &7${item.quantities.predefined}",
+            "&9Mode: &7${item.quantities.allowed}",
             "",
             "&7&o%s".format(
                 when (item.quantities.allowed) {

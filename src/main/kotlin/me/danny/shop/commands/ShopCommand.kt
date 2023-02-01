@@ -15,7 +15,7 @@ object ShopCommand : CommandExecutor, TabCompleter {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (sender !is Player) {
-            sender.sendMessage("&cNope!".color())
+            sender.sendMessage("&6[DannyShop]&7 Sorry, but only players may use the shop.".color())
             return true
         }
 

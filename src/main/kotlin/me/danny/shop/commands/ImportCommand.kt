@@ -14,10 +14,10 @@ object ImportCommand {
         ItemBuilder.addAttribute(
             ItemBuilder.makeItem(
                 Material.WOODEN_HOE, "&3DannyShop Import Wand",
-                "&6Left click&7 a &dnamed chest&7 to import the items",
+                "&eLeft click&7 a &6named chest&7 to import the items",
                 "&7in the chest with default options.",
-                "&7Worth will be determined by Essentials' &dworth.yml",
-                "&6If Essentials is not on the server&7, you will",
+                "&7Worth will be determined by Essentials' &6worth.yml",
+                "&7If Essentials is not on the server, you will",
                 "&7have to manually do this!",
                 "",
                 "&3[Permission: &8&odannyshop.import&3]",
@@ -36,6 +36,6 @@ object ImportCommand {
         }
 
         player.inventory.addItem(IMPORT_WAND)
-        player.sendMessage("&6[DannyShop] Import wand given! Info on the wand's tooltip!".color())
+        player.sendMessage("&6[DannyShop]&7 Import wand given! Info on the wand's tooltip!".color())
     }
 }

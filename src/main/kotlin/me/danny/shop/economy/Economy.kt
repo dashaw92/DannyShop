@@ -137,7 +137,7 @@ object Economy {
 
             is Result.NotEnoughFunds -> {
                 player.sendMessage(
-                    "&6[DannyShop] &eYou need &7$%,.2f &emore to purchase this.".format(resp.needed).color()
+                    "&6[DannyShop] &7You need &c$%,.2f &7more to purchase this.".format(resp.needed).color()
                 )
             }
 

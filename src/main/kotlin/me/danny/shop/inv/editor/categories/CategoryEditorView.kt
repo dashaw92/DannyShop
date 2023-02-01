@@ -27,19 +27,19 @@ class CategoryEditorView(val category: Category) : MenuView {
 
         inv.setItem(
             13, ItemBuilder.makeItem(
-                category.display, "&9${category.name}",
-                "&eClick an item to change the icon"
+                category.display, "&e${category.name}",
+                "&7Click an item to change the icon"
             )
         )
 
         inv.setItem(
             11, ItemBuilder.makeItem(
-                Material.WRITABLE_BOOK, "&6Set permission",
-                "&e${category.permission ?: "&7No permission set"}"
+                Material.WRITABLE_BOOK, "&eSet permission",
+                "&7${category.permission ?: "&7No permission set"}"
             ).attachMarker(PERMISSION_BUTTON_KEY)
         )
 
-        inv.setItem(15, ItemBuilder.makeItem(Material.NAME_TAG, "&6Change name").attachMarker(RENAME_BUTTON_KEY))
+        inv.setItem(15, ItemBuilder.makeItem(Material.NAME_TAG, "&eChange name").attachMarker(RENAME_BUTTON_KEY))
 
         inv.setItem(
             inv.size - 9, ItemBuilder.makeItem(
@@ -58,7 +58,7 @@ class CategoryEditorView(val category: Category) : MenuView {
             val player = event.whoClicked as Player
             if (clicked.hasMarker(DELETE_BUTTON_KEY)) {
                 DannyShop.SHOP.deleteCategory(category.cid)
-                event.whoClicked.sendMessage("&6[DannyShop] &eCategory &6${category.name}&e deleted.".color())
+                event.whoClicked.sendMessage("&6[DannyShop] &7Category &e${category.name}&7 deleted.".color())
                 return ViewAction.ChangeView(CategoryListingView())
             }
 
@@ -71,8 +71,8 @@ class CategoryEditorView(val category: Category) : MenuView {
                     ChatInput()
                         .requestLines(1)
                         .withEscapeWords("cancel")
-                        .withPrefix("&6[DannyShop] &e".color())
-                        .withPrompt("Rename category:")
+                        .withPrefix("&6[DannyShop]&7 ".color())
+                        .withPrompt("&9Rename category:")
                 }
 
                 player.closeInventory()
@@ -88,8 +88,8 @@ class CategoryEditorView(val category: Category) : MenuView {
                     ChatInput()
                         .requestLines(1)
                         .withEscapeWords("cancel")
-                        .withPrefix("&6[DannyShop] &e".color())
-                        .withPrompt("Set category permission:")
+                        .withPrefix("&6[DannyShop]&7 ".color())
+                        .withPrompt("&9Set category permission:")
                 }
 
                 player.closeInventory()
@@ -111,7 +111,7 @@ class CategoryEditorView(val category: Category) : MenuView {
         }
 
         category.changeName(newName)
-        player.sendMessage("&6[DannyShop] &7Category name changed to &e$newName".color())
+        player.sendMessage("&6[DannyShop] &7Category name changed to &e$newName&7.".color())
         build(inv)
         player.openInventory(inv)
     }
@@ -126,7 +126,7 @@ class CategoryEditorView(val category: Category) : MenuView {
         if (newName == null) {
             player.sendMessage("&6[DannyShop] &7Category permission cleared.".color())
         } else {
-            player.sendMessage("&6[DannyShop] &7Category permission set to &e$newName".color())
+            player.sendMessage("&6[DannyShop] &7Category permission set to &e$newName&7.".color())
         }
         build(inv)
         player.openInventory(inv)

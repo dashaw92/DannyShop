@@ -36,10 +36,10 @@ object LoreList {
             if (selected == option) {
                 description = desc
                 "&2• &n$option"
-            } else "&7• $option"
+            } else "&8• $option"
         }.forEach(lore::add)
         lore += ""
-        description.map { "&e$it" }.forEach(lore::add)
+        description.map { "&7$it" }.forEach(lore::add)
         return lore.toTypedArray()
     }
 

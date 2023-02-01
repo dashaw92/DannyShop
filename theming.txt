@@ -1,0 +1,13 @@
+Prefix:                         Gold
+Messages:                       Light gray
+Properties:                     Pocket lint blue
+Values:                         Light gray
+Nested properties:              Dark aqua
+Actions:                        Yellow
+Names:                          Yellow
+Admin actions:                  Dark aqua
+Targets:                        Pink
+High priority messages:         Red
+List active:                    Green
+List inactive:                  Dark gray
+List description                Light gray
