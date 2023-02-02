@@ -2,8 +2,6 @@ package me.danny.shop.me.inv.shop
 
 import me.danny.shop.*
 import me.danny.shop.data.*
-import me.danny.shop.data.Item
-import me.danny.shop.data.Item.Quantities.Allowed.Any
 import me.danny.shop.economy.*
 import me.danny.shop.inv.*
 import me.danny.shop.inv.LoreList.toEntry
@@ -11,6 +9,9 @@ import me.danny.shop.inv.editor.categories.CategoryEditor.Companion.CATEGORY_KEY
 import me.danny.shop.inv.editor.items.*
 import me.danny.shop.inv.shop.*
 import me.danny.shop.inv.shop.purchasing.*
+import me.danny.shop.model.*
+import me.danny.shop.model.Item
+import me.danny.shop.model.Item.Quantities.Allowed.Any
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.event.inventory.*

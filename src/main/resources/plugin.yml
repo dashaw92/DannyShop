@@ -12,11 +12,16 @@ website: https://github.com/dashaw92/DannyShop
 libraries:
   - org.jetbrains.kotlin:kotlin-stdlib:1.8.0
   - org.spongepowered:configurate-yaml:4.1.2
+  - org.mongodb:mongodb-driver-sync:4.8.2
 commands:
   dannyshop:
     aliases: [ "shop", "danshop", "dshop", "dannyssupercoolshopplugin", "anexcessivelylongaliasfortheshop" ]
     description: DannyShop main command
     usage: /<command> args
+  migrate:
+    aliases: [ "shopmigrate", "saveshopelsewhere" ]
+    description: Migrate the shop to another backend type
+    usage: /<command> <yaml|mongo>
   # Test command (functionality varies)
 #  dannytest:
 #    description: Lol

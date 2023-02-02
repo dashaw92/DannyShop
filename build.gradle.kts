@@ -29,6 +29,7 @@ dependencies {
     compileOnly("org.spongepowered:configurate-yaml:4.1.2")
     compileOnly("net.essentialsx:EssentialsX:2.19.0")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    implementation("org.mongodb:mongodb-driver-sync:4.8.2")
     implementation(files("libs/InputAPI-e0422fa-dev.jar"))
     implementation(kotlin("stdlib"))
 }

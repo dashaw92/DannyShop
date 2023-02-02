@@ -1,18 +1,11 @@
-package me.danny.shop.data
+package me.danny.shop.model
 
-import me.danny.shop.data.Item.*
-import me.danny.shop.data.Item.ItemType.*
 import me.danny.shop.inv.*
+import me.danny.shop.model.Item.ItemType
+import me.danny.shop.model.Item.ItemType.Mat
 import org.bukkit.*
-import org.bukkit.configuration.file.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*
-import org.bukkit.plugin.*
-import org.spongepowered.configurate.*
-import org.spongepowered.configurate.serialize.*
-import org.spongepowered.configurate.yaml.*
-import java.io.*
-import java.lang.reflect.*
 
 /**
  * Represents the DannyShop, holding all items
@@ -285,6 +278,34 @@ data class Item(
      * How often an item may be purchased
      */
     sealed interface Cooldown {
+        companion object {
+            fun parse(serialized: String): Cooldown = when (val cooldown = serialized.lowercase()) {
+                "none" -> Cooldown.None
+                "infinite" -> Cooldown.Infinite
+                else -> {
+                    if (cooldown.trim().isBlank()) throw IllegalArgumentException("Empty cooldown")
+                    val time = cooldown.takeWhile(Char::isDigit).toLongOrNull()
+                    val unit = cooldown.takeLastWhile(Char::isLetter)
+
+                    if (time == null) throw IllegalArgumentException("Invalid time in cooldown")
+                    if (unit.isBlank()) throw IllegalArgumentException("No time unit in cooldown")
+
+                    val ctor: (Long) -> Cooldown.Time = when (unit.lowercase()) {
+                        "ms" -> Cooldown.Time::Millis
+                        "s" -> Cooldown.Time::Seconds
+                        "m" -> Cooldown.Time::Minutes
+                        "h" -> Cooldown.Time::Hours
+                        "d" -> Cooldown.Time::Days
+                        "w" -> Cooldown.Time::Weeks
+                        "mo" -> Cooldown.Time::Months
+                        "y" -> Cooldown.Time::Years
+                        else -> throw IllegalArgumentException("Unknown time unit in cooldown (got \"${unit}\")")
+                    }
+
+                    Cooldown.Duration(ctor(time))
+                }
+            }
+        }
 
         /**
          * The item has no cooldown and can be purchased as often as wanted
@@ -385,275 +406,3 @@ data class Item(
         }
     }
 }
-
-//<editor-fold desc="Type serializers">
-object ItemStackSerializer : TypeSerializer<ItemStack> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): ItemStack {
-        if (node == null) throw IllegalArgumentException("what")
-
-        val map = node.string!!
-        return YamlConfiguration.loadConfiguration(StringReader(map)).getItemStack("itemstack")!!
-    }
-
-    override fun serialize(type: Type?, obj: ItemStack?, node: ConfigurationNode?) {
-        if (obj == null || node == null) return
-
-        val yml = YamlConfiguration()
-        yml.set("itemstack", obj)
-        node.set(yml.saveToString())
-    }
-
-
-}
-
-object ItemTypeSerializer : TypeSerializer<ItemType> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): ItemType {
-        if (node == null) throw IllegalArgumentException("what")
-
-        val itemType = node.node("type").string!!
-        val obj = node.node("object")
-        return when (itemType.lowercase()) {
-            "material" -> Mat(obj.get(Material::class.java)!!)
-            "item" -> ItemType.Item(obj.get(ItemStack::class.java)!!)
-            "experience" -> Exp(obj.int)
-            "command" -> Command(obj.string!!)
-            else -> throw IllegalArgumentException("Unknown item type $itemType")
-        }
-    }
-
-    override fun serialize(type: Type?, obj: ItemType?, node: ConfigurationNode?) {
-        if (node == null || obj == null) return
-
-        val typeNode = node.node("type")
-        when (obj) {
-            is Mat -> typeNode.set("material")
-            is ItemType.Item -> typeNode.set("item")
-            is Exp -> typeNode.set("experience")
-            is Command -> typeNode.set("command")
-        }
-
-        node.node("object").set(obj.inner())
-    }
-
-}
-
-object CostSerializer : TypeSerializer<Cost> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Cost {
-        if (node == null) throw IllegalArgumentException("what")
-
-        if (node.string == "not set") return Cost.NotSet
-
-        val buy = node.node("buy").double
-        return Cost.Value(buy)
-    }
-
-    override fun serialize(type: Type?, obj: Cost?, node: ConfigurationNode?) {
-        if (obj == null || node == null) return
-
-        when (obj) {
-            is Cost.NotSet -> node.set("not set")
-            is Cost.Value -> {
-                node.node("buy").set(obj.buy)
-            }
-        }
-    }
-
-}
-
-object CooldownSerializer : TypeSerializer<Cooldown> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Cooldown {
-        if (node == null) throw IllegalArgumentException("what")
-
-        return when (val cooldown = node.string!!.lowercase()) {
-            "none" -> Cooldown.None
-            "infinite" -> Cooldown.Infinite
-            else -> {
-                if (cooldown.trim().isBlank()) throw IllegalArgumentException("Empty cooldown")
-                val time = cooldown.takeWhile(Char::isDigit).toLongOrNull()
-                val unit = cooldown.takeLastWhile(Char::isLetter)
-
-                if (time == null) throw IllegalArgumentException("Invalid time in cooldown")
-                if (unit.isBlank()) throw IllegalArgumentException("No time unit in cooldown")
-
-                val ctor: (Long) -> Cooldown.Time = when (unit.lowercase()) {
-                    "ms" -> Cooldown.Time::Millis
-                    "s" -> Cooldown.Time::Seconds
-                    "m" -> Cooldown.Time::Minutes
-                    "h" -> Cooldown.Time::Hours
-                    "d" -> Cooldown.Time::Days
-                    "w" -> Cooldown.Time::Weeks
-                    "mo" -> Cooldown.Time::Months
-                    "y" -> Cooldown.Time::Years
-                    else -> throw IllegalArgumentException("Unknown time unit in cooldown (got \"${unit}\")")
-                }
-
-                return Cooldown.Duration(ctor(time))
-            }
-        }
-    }
-
-    override fun serialize(type: Type?, obj: Cooldown?, node: ConfigurationNode?) {
-        if (obj == null || node == null) return
-
-        when (obj) {
-            is Cooldown.None -> node.set("none")
-            is Cooldown.Infinite -> node.set("infinite")
-            is Cooldown.Duration -> node.set(obj.time.display())
-        }
-    }
-
-}
-
-object QuantitiesSerializer : TypeSerializer<Quantities> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Quantities {
-        if (node == null) throw IllegalArgumentException("what")
-
-        val predefined = node.node("predefined").getList(java.lang.Integer::class.java)!!
-            .map { it.toInt() }
-            .toList()
-        val allowed = node.node("allowed").get(Quantities.Allowed::class.java)!!
-        return Quantities(predefined, allowed)
-    }
-
-    override fun serialize(type: Type?, obj: Quantities?, node: ConfigurationNode?) {
-        if (obj == null || node == null) return
-        node.node("predefined").set(obj.predefined)
-        node.node("allowed").set(obj.allowed)
-    }
-
-}
-
-object ItemSerializer : TypeSerializer<Item> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Item {
-        if (node == null) throw IllegalArgumentException("what")
-
-
-        with(node) {
-            val iid = ID(node("iid").string!!)
-            val name = node("name").string
-            val item = node("item").get(ItemType::class.java)!!
-            val cost = node("cost").get(Cost::class.java)!!
-            val cooldown = node("cooldown").get(Cooldown::class.java)!!
-            val quantities = node("quantities").get(Quantities::class.java)!!
-            val category = Shop.getCategory(ID(node("category").string!!))!!
-            return Item(iid, name, item, cost, cooldown, quantities, category)
-        }
-
-    }
-
-    override fun serialize(type: Type?, obj: Item?, node: ConfigurationNode?) {
-        if (obj == null || node == null) return
-
-        when (obj.item) {
-            is Mat -> if (obj.item.material.isAir) return
-            is ItemType.Item -> if (obj.item.item.type.isAir) return
-            else -> {}
-        }
-
-        obj.run {
-            with(node) {
-                node("iid").set(iid.id)
-                node("name").set(name)
-                node("item").set(item)
-                node("cost").set(cost)
-                node("cooldown").set(cooldown)
-                node("quantities").set(quantities)
-                node("category").set(category.cid.id)
-            }
-        }
-    }
-}
-
-object CategorySerializer : TypeSerializer<Category> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Category {
-        if (node == null) throw IllegalArgumentException("what")
-
-        val cid = ID(node.node("cid").string ?: ID.generate().id)
-        val name = node.node("name").string!!
-        val permission = node.node("permission").string
-        val icon = node.node("icon").get(Material::class.java)!!
-        return Category(cid, name, permission, icon)
-    }
-
-    override fun serialize(type: Type?, obj: Category?, node: ConfigurationNode?) {
-        if (obj == null || node == null) return
-
-        node.node("cid").set(obj.cid.id)
-        node.node("name").set(obj.name)
-        node.node("permission").set(obj.permission)
-        node.node("icon").set(obj.display)
-    }
-
-}
-
-object ShopSerializer : TypeSerializer<Shop> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Shop {
-        if (node == null) throw IllegalArgumentException("what")
-
-        val map = mutableMapOf<Category, MutableList<Item>>()
-        node.node("categories").getList(Category::class.java)?.forEach(Shop::addCategory)
-        node.node("items").getList(Item::class.java)!!
-            .filter { item ->
-                when (item.item) {
-                    is Mat -> !item.item.material.isAir
-                    is ItemType.Item -> !item.item.item.type.isAir
-                    else -> true
-                }
-            }
-            .map { it!! }
-            .groupByTo(map) { it.category }
-        return Shop(map)
-    }
-
-    override fun serialize(type: Type?, obj: Shop?, node: ConfigurationNode?) {
-        if (obj == null || node == null) return
-
-        node.node("categories").setList(Category::class.java, obj.categories().toList())
-        node.node("items").setList(Item::class.java, obj.items.values.flatten())
-    }
-}
-
-object DannyShopLoadables {
-
-    private lateinit var loader: YamlConfigurationLoader
-
-    /**
-     * Exposes all custom type serializes required to successfully load
-     * and save a DannyShop Item to a config file.
-     */
-    private fun collection(): TypeSerializerCollection = TypeSerializerCollection.builder()
-        .register(ItemStack::class.java, ItemStackSerializer)
-        .register(Category::class.java, CategorySerializer)
-        .register(ItemType::class.java, ItemTypeSerializer)
-        .register(Cost::class.java, CostSerializer)
-        .register(Cooldown::class.java, CooldownSerializer)
-        .register(Quantities::class.java, QuantitiesSerializer)
-        .register(Item::class.java, ItemSerializer)
-        .register(Shop::class.java, ShopSerializer)
-        .build()
-
-
-    /**
-     * Loads the shop from shop.yml
-     */
-    fun loadShop(plugin: Plugin): Shop {
-        loader = YamlConfigurationLoader.builder()
-            .defaultOptions { opts ->
-                opts.serializers { build -> build.registerAll(collection()) }
-            }
-            .nodeStyle(NodeStyle.BLOCK)
-            .path(File(plugin.dataFolder, "shop.yml").toPath())
-            .build()
-        val root = loader.load()
-        return root.node("shop").get(Shop::class.java) ?: Shop(mutableMapOf())
-    }
-
-    fun saveShop(shop: Shop) {
-        if (!::loader.isInitialized) return
-        val root = loader.load()
-        root.set(null)
-        root.node("shop").set(shop)
-        loader.save(root)
-    }
-}
-//</editor-fold>
