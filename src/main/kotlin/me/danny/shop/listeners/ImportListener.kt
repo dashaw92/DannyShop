@@ -3,10 +3,10 @@ package me.danny.shop.listeners
 import com.earth2me.essentials.*
 import me.danny.shop.*
 import me.danny.shop.commands.*
-import me.danny.shop.data.*
-import me.danny.shop.data.Item
 import me.danny.shop.economy.Economy.getWorth
 import me.danny.shop.inv.*
+import me.danny.shop.model.*
+import me.danny.shop.model.Item
 import org.bukkit.*
 import org.bukkit.block.*
 import org.bukkit.entity.*

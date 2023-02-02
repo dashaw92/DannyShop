@@ -2,6 +2,7 @@ package me.danny.shop.commands
 
 import me.danny.shop.data.*
 import me.danny.shop.inv.*
+import me.danny.shop.model.*
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*

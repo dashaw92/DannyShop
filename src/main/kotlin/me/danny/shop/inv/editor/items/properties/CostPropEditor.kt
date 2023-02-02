@@ -3,12 +3,12 @@ package me.danny.shop.inv.editor.items.properties
 import me.danny.libinput.providers.*
 import me.danny.shop.*
 import me.danny.shop.data.*
-import me.danny.shop.data.Item
-import me.danny.shop.data.Item.ItemType
 import me.danny.shop.economy.*
 import me.danny.shop.inv.*
 import me.danny.shop.inv.editor.items.*
 import me.danny.shop.inv.view.*
+import me.danny.shop.model.Item
+import me.danny.shop.model.Item.ItemType
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.event.inventory.*

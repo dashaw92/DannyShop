@@ -1,9 +1,11 @@
 package me.danny.shop.data
 
 import me.danny.shop.*
-import me.danny.shop.data.Item.Cooldown
-import me.danny.shop.data.Item.Cooldown.Time
-import me.danny.shop.data.Item.Cooldown.Time.Companion.Units
+import me.danny.shop.data.Expiration.*
+import me.danny.shop.model.*
+import me.danny.shop.model.Item.Cooldown
+import me.danny.shop.model.Item.Cooldown.Time
+import me.danny.shop.model.Item.Cooldown.Time.Companion.Units
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.event.*
@@ -12,7 +14,7 @@ import org.bukkit.persistence.*
 import java.time.*
 import java.util.*
 
-private val cd_key = Key("cooldowns", IDContainerType)
+private val cdKey = Key("cooldowns", IDContainerType)
 private val cache: MutableMap<UUID, IDContainer> = mutableMapOf()
 
 internal object CooldownHandler {
@@ -37,16 +39,16 @@ internal object CooldownHandler {
         val item = DannyShop.SHOP.itemByIid(id)!!
         val container = player.cooldowns()
 
-        if (!container.isOnCooldown(id)) return Expiration.None
+        if (!container.isOnCooldown(id)) return None
 
         return when (item.cooldown) {
-            is Cooldown.Infinite -> Expiration.Never
+            is Cooldown.Infinite -> Never
             is Cooldown.Duration -> {
                 val timestamp = container[id]!!
-                Expiration.Future(id, timestamp)
+                Future(id, timestamp)
             }
 
-            else -> Expiration.None
+            else -> None
         }
     }
 
@@ -176,13 +178,13 @@ internal data class IDContainer(val ids: MutableMap<ID, Long>) : Map<ID, Long> b
 
 internal fun Player.cooldowns(): IDContainer {
     if (cache[uniqueId] != null) return cache[uniqueId]!!
-    val container = persistentDataContainer.getOrDefault(cd_key.key, cd_key.type, IDContainer.new())
+    val container = persistentDataContainer.getOrDefault(cdKey.key, cdKey.type, IDContainer.new())
     cache[uniqueId] = container
     return container
 }
 
 private fun Player.updateCooldowns(container: IDContainer) {
-    persistentDataContainer.set(cd_key.key, cd_key.type, container)
+    persistentDataContainer.set(cdKey.key, cdKey.type, container)
     cache[uniqueId] = container
 }
 

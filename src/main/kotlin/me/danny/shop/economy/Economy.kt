@@ -3,11 +3,12 @@ package me.danny.shop.economy
 import com.earth2me.essentials.*
 import me.danny.shop.*
 import me.danny.shop.data.*
-import me.danny.shop.data.Item
-import me.danny.shop.data.Item.Cost
-import me.danny.shop.data.Item.ItemType
-import me.danny.shop.data.Item.ItemType.Mat
 import me.danny.shop.inv.*
+import me.danny.shop.model.*
+import me.danny.shop.model.Item
+import me.danny.shop.model.Item.Cost
+import me.danny.shop.model.Item.ItemType
+import me.danny.shop.model.Item.ItemType.Mat
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*
