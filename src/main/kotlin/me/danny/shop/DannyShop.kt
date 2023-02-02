@@ -1,5 +1,6 @@
 package me.danny.shop
 
+import me.danny.libinput.providers.*
 import me.danny.shop.backend.*
 import me.danny.shop.commands.*
 import me.danny.shop.data.*
@@ -27,6 +28,22 @@ class DannyShop : JavaPlugin() {
          * Retrieve the active instance of the plugin
          */
         fun instance(): DannyShop = Bukkit.getPluginManager().getPlugin("DannyShop") as DannyShop
+
+        internal fun askInput(prompt: String, signMaterial: Material, originalValue: String? = null): InputProvider {
+            val provider = if (SignInput.isAvailable()) {
+                SignInput()
+                    .withLines(arrayOf(originalValue ?: "", "^^^^^", "DannyShop", prompt))
+                    .withMaterial(signMaterial)
+
+            } else {
+                ChatInput()
+                    .requestLines(1)
+                    .withEscapeWords("cancel")
+                    .withPrefix("&6[DannyShop] ".color())
+                    .withPrompt("$prompt:".color())
+            }
+            return provider
+        }
     }
 
     private val backend = BackendManager.loadDefaultProvider(this)

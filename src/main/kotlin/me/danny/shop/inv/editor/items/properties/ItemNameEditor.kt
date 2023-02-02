@@ -47,21 +47,9 @@ class ItemNameEditor(private val editor: ItemEditor) : MenuView {
 
             Material.SPRUCE_SIGN -> {
                 val player = event.whoClicked as Player
-                val provider = if (SignInput.isAvailable()) {
-                    SignInput()
-                        .withLines(arrayOf(item.name ?: "", "^^^^^", "DannyShop", "New name"))
-                        .withMaterial(Material.SPRUCE_WALL_SIGN)
-
-                } else {
-                    ChatInput()
-                        .requestLines(1)
-                        .withEscapeWords("cancel")
-                        .withPrefix("&6[DannyShop]&7 ".color())
-                        .withPrompt("&9Enter new name:".color())
-                }
-
                 player.closeInventory()
-                provider.getInput(player, ::handleInput)
+                DannyShop.askInput("&9New name", Material.SPRUCE_WALL_SIGN, item.name)
+                    .getInput(player, ::handleInput)
             }
 
             else -> {}

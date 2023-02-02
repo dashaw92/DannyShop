@@ -84,21 +84,9 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
             }
 
             Material.SPRUCE_SIGN -> {
-                val provider = if (SignInput.isAvailable()) {
-                    SignInput()
-                        .withLines(arrayOf("", "^^^^^", "DannyShop", "Set buy price"))
-                        .withMaterial(Material.SPRUCE_WALL_SIGN)
-
-                } else {
-                    ChatInput()
-                        .requestLines(1)
-                        .withEscapeWords("cancel")
-                        .withPrefix("&6[DannyShop] ".color())
-                        .withPrompt("&eSet buy price:".color())
-                }
-
                 player.closeInventory()
-                provider.getInput(player) { pl, input -> setPrice(pl, input, { buy = it }, event.inventory) }
+                DannyShop.askInput("&eSet buy price", Material.SPRUCE_WALL_SIGN)
+                    .getInput(player) { pl, input -> setPrice(pl, input, { buy = it }, event.inventory) }
             }
 
             else -> {}
@@ -116,8 +104,8 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
         }
 
         buy = (buy + amount).coerceAtLeast(0.0)
-        val msg = if (amount < 0) "&eBuy price &cdecreased by &7$%,.2f".format(amount)
-        else "&eBuy price &aincreased by &7$%,.2f".format(amount)
+        val msg = if (amount < 0) "&7Buy price &cdecreased by &e$%,.2f".format(amount)
+        else "&7Buy price &aincreased by &e$%,.2f".format(amount)
         event.whoClicked.sendMessage("&6[DannyShop] $msg".color())
     }
 
@@ -163,7 +151,7 @@ class CostPropEditor(private val editor: ItemEditor) : MenuView {
         val price = line.toDoubleOrNull()
         if (price != null && price.isFinite() && price >= 0.0) {
             setter(price)
-            player.sendMessage("&6[DannyShop] &7Price set to &2$%,.2f".format(price).color())
+            player.sendMessage("&6[DannyShop] &7Price set to &2$%,.2f&7.".format(price).color())
         } else {
             player.sendMessage("&6[DannyShop] &cUnable to read price from \"&d$line&c\"...".color())
         }

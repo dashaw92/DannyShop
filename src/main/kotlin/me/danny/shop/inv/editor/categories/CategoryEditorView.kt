@@ -81,20 +81,9 @@ class CategoryEditorView(val category: Category) : MenuView {
             }
 
             if (clicked.hasMarker(PERMISSION_BUTTON_KEY)) {
-                val provider = if (SignInput.isAvailable()) {
-                    SignInput()
-                        .withLines(arrayOf(category.permission ?: "", "^^^^^", "DannyShop", "Set permission"))
-                        .withMaterial(Material.BIRCH_WALL_SIGN)
-                } else {
-                    ChatInput()
-                        .requestLines(1)
-                        .withEscapeWords("cancel")
-                        .withPrefix("&6[DannyShop]&7 ".color())
-                        .withPrompt("&9Set category permission:")
-                }
-
                 player.closeInventory()
-                provider.getInput(player) { pl, input -> handlePermission(pl, input, inv) }
+                DannyShop.askInput("&9Set permission", Material.BIRCH_WALL_SIGN, category.permission)
+                    .getInput(player) { pl, input -> handlePermission(pl, input, inv) }
             }
 
             return ViewAction.Pass

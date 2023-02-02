@@ -76,20 +76,9 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
         when (clicked.type) {
             Material.SPRUCE_SIGN -> {
                 val player = event.whoClicked as Player
-                val provider = if (SignInput.isAvailable()) {
-                    SignInput()
-                        .withLines(arrayOf("$duration${unit.suffix()}", "^^^^^", "DannyShop", "Set cooldown time"))
-                        .withMaterial(Material.SPRUCE_WALL_SIGN)
-                } else {
-                    ChatInput()
-                        .withEscapeWords("cancel")
-                        .withPrefix("&6[DannyShop]&7 ".color())
-                        .withPrompt("&9Set cooldown time:".color())
-                        .requestLines(1)
-                }
-
                 player.closeInventory()
-                provider.getInput(player) { pl, input -> setCooldown(pl, input, inv) }
+                DannyShop.askInput("&9Set cooldown time", Material.SPRUCE_WALL_SIGN)
+                    .getInput(player) { pl, input -> setCooldown(pl, input, inv) }
             }
 
             Material.CLOCK -> {
