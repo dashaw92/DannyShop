@@ -14,7 +14,7 @@ import org.bukkit.event.inventory.*
 import org.bukkit.inventory.*
 import org.bukkit.persistence.*
 
-class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
+internal class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
 
     private val item = DannyShop.SHOP.itemByIid(editor.item)!!
 

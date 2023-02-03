@@ -13,7 +13,7 @@ import java.io.*
 import java.lang.reflect.*
 
 //<editor-fold desc="Type serializers">
-object ItemStackSerializer : TypeSerializer<ItemStack> {
+internal object ItemStackSerializer : TypeSerializer<ItemStack> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): ItemStack {
         if (node == null) throw IllegalArgumentException("what")
 
@@ -32,7 +32,7 @@ object ItemStackSerializer : TypeSerializer<ItemStack> {
 
 }
 
-object ItemTypeSerializer : TypeSerializer<ItemType> {
+internal object ItemTypeSerializer : TypeSerializer<ItemType> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): ItemType {
         if (node == null) throw IllegalArgumentException("what")
 
@@ -63,7 +63,7 @@ object ItemTypeSerializer : TypeSerializer<ItemType> {
 
 }
 
-object CostSerializer : TypeSerializer<Cost> {
+internal object CostSerializer : TypeSerializer<Cost> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Cost {
         if (node == null) throw IllegalArgumentException("what")
 
@@ -86,7 +86,7 @@ object CostSerializer : TypeSerializer<Cost> {
 
 }
 
-object CooldownSerializer : TypeSerializer<Cooldown> {
+internal object CooldownSerializer : TypeSerializer<Cooldown> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Cooldown {
         if (node == null) throw IllegalArgumentException("what")
 
@@ -106,7 +106,7 @@ object CooldownSerializer : TypeSerializer<Cooldown> {
 
 }
 
-object QuantitiesSerializer : TypeSerializer<Quantities> {
+internal object QuantitiesSerializer : TypeSerializer<Quantities> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Quantities {
         if (node == null) throw IllegalArgumentException("what")
 
@@ -125,7 +125,7 @@ object QuantitiesSerializer : TypeSerializer<Quantities> {
 
 }
 
-object ItemSerializer : TypeSerializer<Item> {
+internal object ItemSerializer : TypeSerializer<Item> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Item {
         if (node == null) throw IllegalArgumentException("what")
 
@@ -166,7 +166,7 @@ object ItemSerializer : TypeSerializer<Item> {
     }
 }
 
-object CategorySerializer : TypeSerializer<Category> {
+internal object CategorySerializer : TypeSerializer<Category> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Category {
         if (node == null) throw IllegalArgumentException("what")
 
@@ -188,7 +188,7 @@ object CategorySerializer : TypeSerializer<Category> {
 
 }
 
-object ShopSerializer : TypeSerializer<Shop> {
+internal object ShopSerializer : TypeSerializer<Shop> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): Shop {
         if (node == null) throw IllegalArgumentException("what")
 

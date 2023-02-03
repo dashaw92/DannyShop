@@ -13,7 +13,7 @@ import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*
 
-class ItemPage(
+internal class ItemPage(
     private val viewer: Player,
     coll: Collection<Item>,
     var filterType: FilterType,

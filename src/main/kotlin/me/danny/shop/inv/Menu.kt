@@ -10,7 +10,7 @@ import java.util.*
 /**
  * Base type for all GUIs in the plugin
  */
-abstract class Menu(private var rows: Int, title: String, val viewer: Player) : InventoryHolder {
+internal abstract class Menu(private var rows: Int, title: String, val viewer: Player) : InventoryHolder {
     companion object {
         @JvmStatic
         protected val prefix = "&4Shop &7".color()

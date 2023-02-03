@@ -1,6 +1,6 @@
 package me.danny.shop.inv
 
-object LoreList {
+internal object LoreList {
     /**
      * Function for generating lists that represent
      * options.

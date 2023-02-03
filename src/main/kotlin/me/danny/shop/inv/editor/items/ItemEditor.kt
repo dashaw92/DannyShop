@@ -5,7 +5,7 @@ import me.danny.shop.me.inv.shop.*
 import me.danny.shop.model.*
 import org.bukkit.entity.*
 
-class ItemEditor(viewer: Player, val item: ID, val returnInfo: ShopMenu.ShopReturnInfo) :
+internal class ItemEditor(viewer: Player, val item: ID, val returnInfo: ShopMenu.ShopReturnInfo) :
     StateMenu(3, "- &9Item Editor", viewer) {
 
     init {

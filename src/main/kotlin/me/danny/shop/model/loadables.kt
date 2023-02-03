@@ -15,7 +15,7 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
     companion object {
         internal val CATEGORIES = mutableListOf<Category>()
 
-        fun addCategory(category: Category): Boolean = CATEGORIES.add(category)
+        internal fun addCategory(category: Category): Boolean = CATEGORIES.add(category)
         fun getCategory(id: ID): Category? = CATEGORIES.find { it.cid == id }
         fun findCategoryByName(name: String): Category? = CATEGORIES.find { it.name == name }
     }
@@ -27,7 +27,7 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
      * Will create the category the item points to if it does not
      * exist
      */
-    fun addItem(item: Item) {
+    internal fun addItem(item: Item) {
         when (item.item) {
             is ItemType.Mat -> if (item.item.material.isAir) return
             is ItemType.Item -> if (item.item.item.type.isAir) return
@@ -45,7 +45,7 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
      * the same slot as the old item, so ordering should
      * not be impacted by this method.
      */
-    fun replaceItem(id: ID, replacement: Item) {
+    internal fun replaceItem(id: ID, replacement: Item) {
         val old = itemByIid(id.id) ?: return
         val items = items.entries.find { (key, _) -> key.cid == old.category.cid }?.value ?: return
         if (old.category.cid != replacement.category.cid) {
@@ -87,7 +87,7 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
      * Remove the category with ID [cid]
      * This will also delete all items belonging to that category
      */
-    fun deleteCategory(cid: ID) {
+    internal fun deleteCategory(cid: ID) {
         val category = getCategory(cid) ?: return
         items.remove(category)
         CATEGORIES.remove(category)
@@ -101,7 +101,7 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
  * they are unique. Duplicate IDs will cause
  * undefined behavior.
  */
-data class ID(val id: String) {
+data class ID(internal val id: String) {
     companion object {
         /**
          * Systematically generate a new IID based off the current
@@ -126,7 +126,7 @@ data class ID(val id: String) {
  */
 data class Category(val cid: ID, var name: String, var permission: String?, var display: Material) {
 
-    var deleted = false
+    internal var deleted = false
 
     /**
      * Helper for generating a CID for the category
@@ -279,7 +279,7 @@ data class Item(
      */
     sealed interface Cooldown {
         companion object {
-            fun parse(serialized: String): Cooldown {
+            internal fun parse(serialized: String): Cooldown {
                 return when (val cooldown = serialized.lowercase()) {
                     "none" -> None
                     "infinite" -> Infinite
@@ -359,7 +359,7 @@ data class Item(
             }
 
             companion object {
-                enum class Units {
+                internal enum class Units {
                     Ms, S, M, H, D, W, Mo, Y
                 }
 

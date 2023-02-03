@@ -17,7 +17,7 @@ import org.bukkit.entity.*
 import org.bukkit.event.inventory.*
 import org.bukkit.persistence.*
 
-class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer), RefreshPlease {
+internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer), RefreshPlease {
 
     companion object {
         /**

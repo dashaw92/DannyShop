@@ -14,7 +14,7 @@ import org.bukkit.entity.*
 import org.bukkit.event.inventory.*
 import org.bukkit.persistence.*
 
-class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: ShopMenu.ShopReturnInfo) :
+internal class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: ShopMenu.ShopReturnInfo) :
     Menu(5, "- &2Purchase", viewer) {
 
     companion object {

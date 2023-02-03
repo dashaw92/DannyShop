@@ -10,7 +10,7 @@ import org.bukkit.entity.*
 import org.bukkit.event.inventory.*
 import org.bukkit.inventory.*
 
-class ItemNameEditor(private val editor: ItemEditor) : MenuView {
+internal class ItemNameEditor(private val editor: ItemEditor) : MenuView {
     private val item = DannyShop.SHOP.itemByIid(editor.item)!!
 
     override fun onOpen(): ViewAction = ViewAction.Resize(3, "&7- &9Edit Name")

@@ -8,7 +8,7 @@ import me.danny.shop.me.inv.shop.*
 import org.bukkit.command.*
 import org.bukkit.entity.*
 
-object ShopCommand : CommandExecutor, TabCompleter {
+internal object ShopCommand : CommandExecutor, TabCompleter {
     init {
         DannyShop.instance().getCommand("dannyshop")!!.tabCompleter = this
     }

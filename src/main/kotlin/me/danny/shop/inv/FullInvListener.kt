@@ -5,4 +5,4 @@ package me.danny.shop.inv
  * click events from the entire inventory, not just
  * the custom menu's inventory.
  */
-interface FullInvListener
+internal interface FullInvListener

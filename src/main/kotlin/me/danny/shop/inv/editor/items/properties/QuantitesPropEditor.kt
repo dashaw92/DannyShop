@@ -13,7 +13,7 @@ import org.bukkit.event.inventory.*
 import org.bukkit.inventory.*
 import org.bukkit.persistence.*
 
-class QuantitesPropEditor(private val editor: ItemEditor) : MenuView {
+internal class QuantitesPropEditor(private val editor: ItemEditor) : MenuView {
 
     companion object {
         private val QUANTITY_KEY = Key("quantityprop_amount", PersistentDataType.INTEGER)

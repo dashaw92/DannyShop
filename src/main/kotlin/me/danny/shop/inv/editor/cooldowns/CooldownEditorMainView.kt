@@ -14,7 +14,7 @@ import java.util.*
 
 private val uuidKey = Key("skull_uuid", PersistentDataType.STRING)
 
-class CooldownEditorMainView : MenuView {
+internal class CooldownEditorMainView : MenuView {
     private val playerPages = PlayerListing()
 
     override fun onOpen(): ViewAction = ViewAction.Resize(6, "- &5Cooldown Editor")

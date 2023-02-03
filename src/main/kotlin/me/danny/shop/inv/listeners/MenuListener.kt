@@ -5,7 +5,7 @@ import org.bukkit.*
 import org.bukkit.event.*
 import org.bukkit.event.inventory.*
 
-object MenuListener : Listener {
+internal object MenuListener : Listener {
 
     @EventHandler
     fun onClick(event: InventoryClickEvent) {

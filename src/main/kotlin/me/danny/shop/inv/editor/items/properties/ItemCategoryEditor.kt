@@ -11,7 +11,7 @@ import org.bukkit.*
 import org.bukkit.event.inventory.*
 import org.bukkit.inventory.*
 
-class ItemCategoryEditor(private val editor: ItemEditor) : MenuView {
+internal class ItemCategoryEditor(private val editor: ItemEditor) : MenuView {
 
     private val item = DannyShop.SHOP.itemByIid(editor.item)!!
     private val page = CategoryPages(Pair(36 - 5, 36 - 4), item.category)

@@ -5,7 +5,7 @@ import java.util.function.*
 
 //Built with ChordBuilder for convenience
 //Represents a "chorded" action in a menu that keeps state between clicks
-class Chord<T>(
+internal class Chord<T>(
     //The actions to take at each step
     //Actions increment by one when the previous action
     //returns StateResult.Accepted
@@ -72,7 +72,7 @@ class Chord<T>(
 }
 
 //Public API for building Chords
-class ChordBuilder<T>(private val stateBuilder: Supplier<T>) {
+internal class ChordBuilder<T>(private val stateBuilder: Supplier<T>) {
     private val recipe: MutableMap<Int, ChordAction<T>> = mutableMapOf()
     private var terminal: ((T) -> Unit)? = null
 
@@ -110,11 +110,11 @@ class ChordBuilder<T>(private val stateBuilder: Supplier<T>) {
 // * Accepted: The action was successful, and we should go to the next step
 // * Rejected: The action was NOT successful, keep trying this step
 // * ResetSteps: Action was NOT successful, and we should start over from step 1
-fun interface ChordAction<T> {
+internal fun interface ChordAction<T> {
     fun test(event: InventoryClickEvent, state: T): StateResult
 }
 
-enum class StateResult {
+internal enum class StateResult {
     Accepted,
     Rejected,
     ResetSteps

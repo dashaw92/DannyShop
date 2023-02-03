@@ -10,7 +10,7 @@ import org.bukkit.potion.*
  * with support for paging via the sizes provided,
  * along with buttons to navigate the pages
  */
-abstract class Page<T>(
+internal abstract class Page<T>(
     var items: Collection<T>,
     val start: Pair<Int, Int>,
     val dim: Pair<Int, Int>,

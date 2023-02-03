@@ -15,7 +15,7 @@ import java.util.*
 import kotlin.math.*
 import net.milkbowl.vault.economy.Economy as VaultEco
 
-object Economy {
+internal object Economy {
     private val econ by lazy(::getEconomy)
 
     fun hasEconomy(): Boolean = Bukkit.getPluginManager().getPlugin("Vault") != null

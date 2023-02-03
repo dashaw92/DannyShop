@@ -5,7 +5,7 @@ import me.danny.shop.inv.*
 import me.danny.shop.model.*
 import org.bukkit.inventory.*
 
-class QuantityDisplay(private val item: Item) :
+internal class QuantityDisplay(private val item: Item) :
     Page<Int>(item.quantities.predefined, Pair(1, 1), Pair(7, 3), Pair(45 - 3, 45 - 2)) {
     override fun display(inv: Inventory) {
         if (item.cost !is Item.Cost.Value) {

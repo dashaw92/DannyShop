@@ -67,7 +67,6 @@ class MongoLoader(options: MongoOptions) : ShopBackend {
             val items = db.getCollection("items")
                 .find()
                 .map {
-                    plugin.logger.info(" ")
                     val iid = ID(it.getString("iid"))
                     val name = it.getString("name")
                     val itemType = it.getString("itemType")

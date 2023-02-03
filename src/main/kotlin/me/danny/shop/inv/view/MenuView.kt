@@ -8,7 +8,7 @@ import org.bukkit.inventory.*
  * any menu. Can request the parent menu do specific actions view the
  * ViewAction class hierarchy
  */
-interface MenuView {
+internal interface MenuView {
 
     /**
      * Use this method to customize the inventory

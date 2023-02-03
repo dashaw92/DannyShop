@@ -12,7 +12,7 @@ import org.bukkit.event.inventory.*
 import org.bukkit.inventory.*
 import org.bukkit.persistence.*
 
-class CategoryEditorView(val category: Category) : MenuView {
+internal class CategoryEditorView(val category: Category) : MenuView {
 
     companion object {
         private val DELETE_BUTTON_KEY = Key("delete_category", PersistentDataType.BYTE)

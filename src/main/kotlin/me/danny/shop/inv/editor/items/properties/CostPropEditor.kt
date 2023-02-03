@@ -15,7 +15,7 @@ import org.bukkit.event.inventory.*
 import org.bukkit.inventory.*
 import org.bukkit.persistence.*
 
-class CostPropEditor(private val editor: ItemEditor) : MenuView {
+internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
 
     private var buy: Double = 0.0
 

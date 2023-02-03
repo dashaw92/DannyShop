@@ -8,7 +8,7 @@ import org.bukkit.*
 import org.bukkit.event.inventory.*
 import org.bukkit.inventory.*
 
-class CategoryListingView : MenuView {
+internal class CategoryListingView : MenuView {
     private lateinit var page: CategoryPages
 
     override fun onOpen(): ViewAction = ViewAction.Resize(5)

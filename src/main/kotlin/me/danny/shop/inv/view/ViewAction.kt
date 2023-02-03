@@ -3,7 +3,7 @@ package me.danny.shop.inv.view
 /**
  * Used to determine what a base menu should do on click
  */
-sealed interface ViewAction {
+internal sealed interface ViewAction {
     /**
      * Do nothing, this was a normal button click with no meta-action
      */

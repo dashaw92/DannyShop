@@ -8,7 +8,7 @@ import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.persistence.*
 
-class CategoryEditor(player: Player) :
+internal class CategoryEditor(player: Player) :
     StateMenu(5, "- &9Category Editor", player),
     FullInvListener {
 

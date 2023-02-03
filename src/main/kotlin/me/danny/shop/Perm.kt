@@ -1,5 +1,5 @@
 package me.danny.shop
 
-object Perm {
-    internal const val ADMIN = "dannyshop.admin"
+internal object Perm {
+    const val ADMIN = "dannyshop.admin"
 }

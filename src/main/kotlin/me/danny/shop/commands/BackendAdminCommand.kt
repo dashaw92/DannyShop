@@ -4,7 +4,7 @@ import me.danny.shop.*
 import me.danny.shop.backend.*
 import org.bukkit.command.*
 
-object BackendAdminCommand {
+internal object BackendAdminCommand {
     fun onCommand(sender: CommandSender, args: Array<out String>): Boolean {
         if (args.isEmpty()) {
             sender.pluginMsg("Backend in use: &e${DannyShop.instance().backend.name()} &8(${DannyShop.instance().backend.type()})&7.")

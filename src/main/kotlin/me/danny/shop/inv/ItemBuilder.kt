@@ -11,7 +11,7 @@ import java.util.*
 /**
  * Convenience functions for building custom items
  */
-object ItemBuilder {
+internal object ItemBuilder {
     fun makeItem(mat: Material, name: String, vararg lore: String?): ItemStack {
         return makeItem(mat, 1, name, *lore)
     }

@@ -25,7 +25,7 @@ private fun collection(): TypeSerializerCollection = TypeSerializerCollection.bu
     .register(Shop::class.java, ShopSerializer)
     .build()
 
-class YamlLoader(private val options: YamlOptions) : ShopBackend {
+internal class YamlLoader(private val options: YamlOptions) : ShopBackend {
 
     private fun loader(plugin: Plugin): YamlConfigurationLoader = YamlConfigurationLoader.builder()
         .defaultOptions { opts ->

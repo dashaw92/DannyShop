@@ -14,7 +14,7 @@ import java.util.*
 
 private val idKey = Key("id_key", PersistentDataType.STRING)
 
-class PlayerCooldownEditor(uuid: UUID) : MenuView {
+internal class PlayerCooldownEditor(uuid: UUID) : MenuView {
 
     private val player = Bukkit.getPlayer(uuid)!!
     private val listing = CooldownList(player)

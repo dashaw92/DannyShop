@@ -10,7 +10,7 @@ import org.bukkit.*
 import org.bukkit.event.inventory.*
 import org.bukkit.inventory.*
 
-class ItemEditorView(private val editor: ItemEditor) : MenuView {
+internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
 
     override fun onOpen(): ViewAction = ViewAction.Resize(3)
 

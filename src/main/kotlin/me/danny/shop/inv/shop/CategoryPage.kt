@@ -7,7 +7,7 @@ import me.danny.shop.model.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*
 
-class CategoryPage(
+internal class CategoryPage(
     private val viewer: Player,
     coll: Collection<Category>,
     internal var selected: Category,

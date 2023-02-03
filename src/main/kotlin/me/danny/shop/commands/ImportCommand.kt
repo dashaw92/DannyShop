@@ -11,7 +11,7 @@ import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*
 
-object ImportCommand {
+internal object ImportCommand {
 
     @Suppress("DEPRECATION")
     private val WAND_KEY = NamespacedKey("dannyshop", "wand_item")

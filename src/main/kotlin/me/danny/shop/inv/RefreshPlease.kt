@@ -1,5 +1,5 @@
 package me.danny.shop.inv
 
-interface RefreshPlease {
+internal interface RefreshPlease {
     fun refresh()
 }

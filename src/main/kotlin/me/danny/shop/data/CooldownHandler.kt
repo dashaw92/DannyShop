@@ -188,7 +188,7 @@ private fun Player.updateCooldowns(container: IDContainer) {
     cache[uniqueId] = container
 }
 
-object CooldownListener : Listener {
+internal object CooldownListener : Listener {
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
         val uuid = event.player.uniqueId

@@ -9,7 +9,7 @@ import org.bukkit.event.inventory.*
  * Represents a menu that utilizes the view system to render
  * Does all of the plumbing to set it up
  */
-abstract class StateMenu(size: Int, private val title: String, viewer: Player) : Menu(size, title, viewer) {
+internal abstract class StateMenu(size: Int, private val title: String, viewer: Player) : Menu(size, title, viewer) {
 
     var view: MenuView = this.loadView()
 

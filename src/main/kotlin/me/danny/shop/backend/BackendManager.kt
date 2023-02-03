@@ -9,7 +9,7 @@ import org.spongepowered.configurate.yaml.*
 import java.io.*
 import java.lang.reflect.*
 
-object BackendManager {
+internal object BackendManager {
 
     private val pathBackend = arrayOf("backend", "provider")
     private val pathOpts = arrayOf("backend", "options")
@@ -22,7 +22,7 @@ object BackendManager {
         .path(File(plugin.dataFolder, "config.yml").toPath())
         .build()
 
-    fun loadDefaultProvider(plugin: Plugin): ShopBackend {
+    internal fun loadDefaultProvider(plugin: Plugin): ShopBackend {
         val loader = loader(plugin)
         val root = loader.load()
         var backendOption = root.node(*pathBackend).get(BackendType::class.java)
@@ -78,15 +78,15 @@ object BackendManager {
     }
 }
 
-enum class BackendType {
+internal enum class BackendType {
     Yaml,
     MongoDB
 }
 
-sealed interface BackendOptions
+internal sealed interface BackendOptions
 
-data class YamlOptions(val path: String) : BackendOptions
-data class MongoOptions(
+internal data class YamlOptions(val path: String) : BackendOptions
+internal data class MongoOptions(
     val schema: Schema,
     val user: String,
     val password: String,
@@ -104,7 +104,7 @@ private fun collection(): TypeSerializerCollection = TypeSerializerCollection.bu
     .register(MongoOptions::class.java, MongoTypeSerializer)
     .build()
 
-object YamlTypeSerializer : TypeSerializer<YamlOptions> {
+internal object YamlTypeSerializer : TypeSerializer<YamlOptions> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): YamlOptions {
         if (node == null) throw IllegalArgumentException("what")
 
@@ -119,7 +119,7 @@ object YamlTypeSerializer : TypeSerializer<YamlOptions> {
     }
 }
 
-object MongoTypeSerializer : TypeSerializer<MongoOptions> {
+internal object MongoTypeSerializer : TypeSerializer<MongoOptions> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): MongoOptions {
         if (node == null) throw IllegalArgumentException("what")
 

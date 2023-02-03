@@ -22,7 +22,7 @@ import java.util.*
  * When this occurs, attempt to import the items in the chest
  * into the shop
  */
-object ImportListener : Listener {
+internal object ImportListener : Listener {
 
     private val chests = object : Tag<Material> {
         val materials = mutableSetOf(Material.CHEST, Material.TRAPPED_CHEST)
