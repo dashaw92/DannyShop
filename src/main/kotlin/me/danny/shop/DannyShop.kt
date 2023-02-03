@@ -29,10 +29,15 @@ class DannyShop : JavaPlugin() {
          */
         fun instance(): DannyShop = Bukkit.getPluginManager().getPlugin("DannyShop") as DannyShop
 
-        internal fun askInput(prompt: String, signMaterial: Material, originalValue: String? = null): InputProvider {
-            val provider = if (SignInput.isAvailable()) {
+        internal fun askInput(
+            prompt: String,
+            signMaterial: Material,
+            originalValue: String? = null,
+            needsExtraLength: Boolean = false
+        ): InputProvider {
+            val provider = if (SignInput.isAvailable() && !needsExtraLength) {
                 SignInput()
-                    .withLines(arrayOf(originalValue ?: "", "^^^^^", "DannyShop", prompt))
+                    .withLines(arrayOf(originalValue ?: "", "^^^^^", "DannyShop", prompt.color()))
                     .withMaterial(signMaterial)
 
             } else {

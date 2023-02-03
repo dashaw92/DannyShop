@@ -25,7 +25,7 @@ object ShopCommand : CommandExecutor, TabCompleter {
         }
 
         when (args.first().lowercase()) {
-            "import" -> ImportCommand.onCommand(sender, args.sliceArray(2 until args.size))
+            "import" -> ImportCommand.onCommand(sender, args.sliceArray(1 until args.size))
             "catedit" -> {
                 if (!sender.hasPermission("dannyshop.admin")) {
                     sender.sendMessage("&cYou lack permission.".color())

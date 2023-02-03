@@ -1,7 +1,11 @@
 package me.danny.shop.commands
 
+import me.danny.libinput.providers.*
+import me.danny.shop.*
 import me.danny.shop.data.*
+import me.danny.shop.importing.*
 import me.danny.shop.inv.*
+import me.danny.shop.listeners.*
 import me.danny.shop.model.*
 import org.bukkit.*
 import org.bukkit.entity.*
@@ -29,14 +33,48 @@ object ImportCommand {
 
     fun isWand(item: ItemStack) = item.hasMarker(WAND_KEY)
 
-    @Suppress("UNUSED_PARAMETER")
     fun onCommand(player: Player, args: Array<out String>) {
         if (!player.hasPermission("dannyshop.import")) {
             player.sendMessage("&cYou lack permission.".color())
             return
         }
 
-        player.inventory.addItem(IMPORT_WAND)
-        player.sendMessage("&6[DannyShop]&7 Import wand given! Info on the wand's tooltip!".color())
+        if (args.isEmpty()) {
+            player.inventory.addItem(IMPORT_WAND)
+            player.sendMessage("&6[DannyShop]&7 Import wand given! Info on the wand's tooltip!".color())
+            return
+        }
+
+        if (!ImportSession.isInSession(player.uniqueId)) return
+        when (args[0].lowercase()) {
+            "set" -> {
+                if (args.size != 3) return
+                val id = args[1]
+                val prop = args[2]
+
+                val needsExtraLength = prop == "name"
+
+                player.closeInventory()
+                DannyShop.askInput("&9Set $prop", Material.SPRUCE_WALL_SIGN, needsExtraLength = needsExtraLength)
+                    .getInput(player) { pl, input -> handlePropValue(pl, input, id, prop) }
+            }
+
+            "finish" -> {
+                player.closeInventory()
+                val session = ImportSession.getSession(player.uniqueId)!!
+                session.importAll()
+                ImportSession.delete(player.uniqueId)
+            }
+        }
+    }
+
+    private fun handlePropValue(player: Player, input: Input, id: String, prop: String) {
+        val line = when (input) {
+            is SingleLine -> input.line
+            is MultipleLines -> input.lines.first()
+        }
+
+        val session = ImportSession.getSession(player.uniqueId)!!
+        session.updateItem(id, prop, line)
     }
 }

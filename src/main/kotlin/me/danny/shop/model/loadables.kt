@@ -2,7 +2,6 @@ package me.danny.shop.model
 
 import me.danny.shop.inv.*
 import me.danny.shop.model.Item.ItemType
-import me.danny.shop.model.Item.ItemType.Mat
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*
@@ -29,7 +28,7 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
      */
     fun addItem(item: Item) {
         when (item.item) {
-            is Mat -> if (item.item.material.isAir) return
+            is ItemType.Mat -> if (item.item.material.isAir) return
             is ItemType.Item -> if (item.item.item.type.isAir) return
             else -> {}
         }
@@ -279,30 +278,34 @@ data class Item(
      */
     sealed interface Cooldown {
         companion object {
-            fun parse(serialized: String): Cooldown = when (val cooldown = serialized.lowercase()) {
-                "none" -> Cooldown.None
-                "infinite" -> Cooldown.Infinite
-                else -> {
-                    if (cooldown.trim().isBlank()) throw IllegalArgumentException("Empty cooldown")
-                    val time = cooldown.takeWhile(Char::isDigit).toLongOrNull()
-                    val unit = cooldown.takeLastWhile(Char::isLetter)
+            fun parse(serialized: String): Cooldown {
+                return when (val cooldown = serialized.lowercase()) {
+                    "none" -> None
+                    "infinite" -> Infinite
+                    else -> {
+                        if (cooldown.trim().isBlank()) return None
+                        else {
+                            val time = cooldown.takeWhile(Char::isDigit).toLongOrNull()
+                            val unit = cooldown.takeLastWhile(Char::isLetter)
 
-                    if (time == null) throw IllegalArgumentException("Invalid time in cooldown")
-                    if (unit.isBlank()) throw IllegalArgumentException("No time unit in cooldown")
+                            if (time == null) return None
+                            if (unit.isBlank()) return None
 
-                    val ctor: (Long) -> Cooldown.Time = when (unit.lowercase()) {
-                        "ms" -> Cooldown.Time::Millis
-                        "s" -> Cooldown.Time::Seconds
-                        "m" -> Cooldown.Time::Minutes
-                        "h" -> Cooldown.Time::Hours
-                        "d" -> Cooldown.Time::Days
-                        "w" -> Cooldown.Time::Weeks
-                        "mo" -> Cooldown.Time::Months
-                        "y" -> Cooldown.Time::Years
-                        else -> throw IllegalArgumentException("Unknown time unit in cooldown (got \"${unit}\")")
+                            val ctor: (Long) -> Time = when (unit.lowercase()) {
+                                "ms" -> Cooldown.Time::Millis
+                                "s" -> Cooldown.Time::Seconds
+                                "m" -> Cooldown.Time::Minutes
+                                "h" -> Cooldown.Time::Hours
+                                "d" -> Cooldown.Time::Days
+                                "w" -> Cooldown.Time::Weeks
+                                "mo" -> Cooldown.Time::Months
+                                "y" -> Cooldown.Time::Years
+                                else -> return None
+                            }
+
+                            Duration(ctor(time))
+                        }
                     }
-
-                    Cooldown.Duration(ctor(time))
                 }
             }
         }

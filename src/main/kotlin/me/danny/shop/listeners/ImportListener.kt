@@ -4,6 +4,7 @@ import com.earth2me.essentials.*
 import me.danny.shop.*
 import me.danny.shop.commands.*
 import me.danny.shop.economy.Economy.getWorth
+import me.danny.shop.importing.*
 import me.danny.shop.inv.*
 import me.danny.shop.model.*
 import me.danny.shop.model.Item
@@ -14,6 +15,7 @@ import org.bukkit.event.*
 import org.bukkit.event.block.*
 import org.bukkit.event.player.*
 import org.bukkit.inventory.*
+import java.util.*
 
 /**
  * Listens for players punching chests with the import wand
@@ -42,7 +44,7 @@ object ImportListener : Listener {
         if (!chests.isTagged(event.clickedBlock!!.type)) return
 
         val state = event.clickedBlock!!.state as Chest
-        if (state.customName == null) return
+        if (state.customName == null || state.inventory.isEmpty) return
         val name = state.customName!!
         if (Shop.findCategoryByName(name) == null) {
             Shop.addCategory(Category(name, Material.CHEST))
@@ -52,34 +54,41 @@ object ImportListener : Listener {
         val category = Shop.findCategoryByName(name)!!
 
         player.sendMessage("&6[DannyShop] &7Importing items from chest into category &e${category.name}&7.".color())
+
+        if (ImportSession.isInSession(player.uniqueId)) {
+            val session = ImportSession.getSession(player.uniqueId)!!
+            session.importAll()
+            ImportSession.delete(player.uniqueId)
+        }
         importItems(player, category, state.inventory)
     }
 
     private fun importItems(player: Player, category: Category, inv: Inventory) {
-        for (item in inv.filterNotNull()) {
-            if (item.type.isAir) continue
+        val importItems = inv.asSequence()
+            .filterNotNull()
+            .filterNot { it.type.isAir }
+            .map { item ->
+                val iid = ID.generate()
+                val type = itemType(item)
 
-            val iid = ID.generate()
-            val type = itemType(item)
+                val cost = when (type) {
+                    is Item.ItemType.Mat, is Item.ItemType.Item -> getWorth(item)
+                    else -> Item.Cost.NotSet
+                }
 
-            val cost = when (type) {
-                is Item.ItemType.Mat, is Item.ItemType.Item -> getWorth(item)
-                else -> Item.Cost.NotSet
-            }
+                val quantities = when (type) {
+                    is Item.ItemType.Mat -> Item.Quantities(listOf(1, 32, 64), Item.Quantities.Allowed.Any)
+                    else -> Item.Quantities(listOf(1), Item.Quantities.Allowed.Predefined)
+                }
 
-            val quantities = when (type) {
-                is Item.ItemType.Mat -> Item.Quantities(listOf(1, 32, 64), Item.Quantities.Allowed.Any)
-                else -> Item.Quantities(listOf(1), Item.Quantities.Allowed.Predefined)
-            }
+                val cooldown = Item.Cooldown.None
 
-            val cooldown = Item.Cooldown.None
-
-            val shopItem = Item(iid, null, type, cost, cooldown, quantities, category)
-            player.sendMessage("&6[DannyShop] &7Imported &e${iid.id}&7.".color())
-            DannyShop.SHOP.addItem(shopItem)
-        }
-
+                ImportedItem(iid, type, null, cooldown, cost, quantities)
+            }.toMutableList()
         inv.clear()
+
+        val session = ImportSession(player, category, importItems)
+        session.openEditor()
     }
 
     @EventHandler
