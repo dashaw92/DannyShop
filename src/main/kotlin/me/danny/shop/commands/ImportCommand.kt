@@ -34,14 +34,14 @@ object ImportCommand {
     fun isWand(item: ItemStack) = item.hasMarker(WAND_KEY)
 
     fun onCommand(player: Player, args: Array<out String>) {
-        if (!player.hasPermission("dannyshop.import")) {
+        if (!player.hasPermission(Perm.ADMIN)) {
             player.sendMessage("&cYou lack permission.".color())
             return
         }
 
         if (args.isEmpty()) {
             player.inventory.addItem(IMPORT_WAND)
-            player.sendMessage("&6[DannyShop]&7 Import wand given! Info on the wand's tooltip!".color())
+            player.pluginMsg("&7 Import wand given! Info on the wand's tooltip!".color())
             return
         }
 

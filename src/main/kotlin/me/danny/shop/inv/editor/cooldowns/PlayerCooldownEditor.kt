@@ -66,14 +66,14 @@ class PlayerCooldownEditor(uuid: UUID) : MenuView {
             if (clicked.hasKey(idKey)) {
                 val iid = clicked.keyValue(idKey)!!
                 player.cooldowns().resetCooldown(ID(iid))
-                viewer.sendMessage("&6[DannyShop] &7Reset cooldown on item &e$iid&7 for &e${player.name}&7.".color())
+                viewer.pluginMsg("Reset cooldown on item &e$iid&7 for &e${player.name}&7.")
                 build(inv)
                 return ViewAction.Pass
             }
 
             if (clicked.type == Material.FLINT_AND_STEEL) {
                 player.cooldowns().resetAll()
-                viewer.sendMessage("&6[DannyShop] &7Reset all cooldowns on items for &e${player.name}&7.".color())
+                viewer.pluginMsg("Reset all cooldowns on items for &e${player.name}&7.")
                 build(inv)
                 return ViewAction.Pass
             }

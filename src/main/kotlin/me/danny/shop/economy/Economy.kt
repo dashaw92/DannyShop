@@ -3,7 +3,6 @@ package me.danny.shop.economy
 import com.earth2me.essentials.*
 import me.danny.shop.*
 import me.danny.shop.data.*
-import me.danny.shop.inv.*
 import me.danny.shop.model.*
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.Cost
@@ -29,7 +28,7 @@ object Economy {
 
     private fun buy(id: UUID, amount: Double): Result {
         val player = Bukkit.getPlayer(id)!!
-        if (player.hasPermission("dannyshop.admin")) return Result.BypassesCheck
+        if (player.hasPermission(Perm.ADMIN)) return Result.BypassesCheck
 
         val balance = econ.getBalance(player)
         val needed = amount - balance
@@ -63,7 +62,7 @@ object Economy {
                 }
             }
 
-            player.sendMessage("&6[DannyShop] &7You need $slotsNeeded empty slot(s) to buy this.".color())
+            player.pluginMsg("You need $slotsNeeded empty slot(s) to buy this.")
             return false
         }
         return true
@@ -74,12 +73,12 @@ object Economy {
 
         if (CooldownHandler.isOnCooldown(player, id)) {
             when (val expiration = CooldownHandler.getCooldownTime(player, id)) {
-                is Expiration.Never -> player.sendMessage("&6[DannyShop] &cYou cannot purchase this anymore!".color())
+                is Expiration.Never -> player.pluginMsg("&cYou cannot purchase this anymore!")
                 is Expiration.Future -> {
                     val fullExpiration = expiration.format().take(2).joinToString(" ").trim().ifBlank {
                         "<1s"
                     }
-                    player.sendMessage("&6[DannyShop] &7You can purchase this again in &o$fullExpiration".color())
+                    player.pluginMsg("You can purchase this again in &o$fullExpiration")
                 }
 
                 else -> {}
@@ -91,7 +90,7 @@ object Economy {
             is Cost.Value -> item.cost.buy * amount
             else -> {
                 //admin bypass for no price set
-                if (player.hasPermission("dannyshop.admin")) 0.0
+                if (player.hasPermission(Perm.ADMIN)) 0.0
                 else return
             }
         }
@@ -101,9 +100,9 @@ object Economy {
         when (val resp = buy(player.uniqueId, price)) {
             is Result.Success, Result.BypassesCheck -> {
                 if (resp is Result.Success) {
-                    player.sendMessage("&6[DannyShop] &7$%,.2f&a taken from your balance.".format(price).color())
+                    player.pluginMsg("$%,.2f&a taken from your balance.".format(price))
                 } else {
-                    player.sendMessage("&6[DannyShop] &7Price bypassed. No money was taken. :)".color())
+                    player.pluginMsg("Price bypassed. No money was taken. &2:)")
                 }
 
                 when (item.item) {
@@ -117,7 +116,7 @@ object Economy {
                     is ItemType.Exp -> {
                         val exp = item.item.exp * amount
                         player.giveExp(exp)
-                        player.sendMessage("&6[DannyShop] &7%,d&e experience given to you.".format(exp).color())
+                        player.pluginMsg("%,d&e experience given to you.".format(exp))
                     }
 
                     is ItemType.Command -> {
@@ -137,13 +136,11 @@ object Economy {
             }
 
             is Result.NotEnoughFunds -> {
-                player.sendMessage(
-                    "&6[DannyShop] &7You need &c$%,.2f &7more to purchase this.".format(resp.needed).color()
-                )
+                player.pluginMsg("You need &c$%,.2f &7more to purchase this.".format(resp.needed))
             }
 
             is Result.UnknownFailure -> {
-                player.sendMessage("&6[DannyShop] &cAn error occurred checking your balance. No money was taken from your account.".color())
+                player.pluginMsg("&cAn error occurred checking your balance. No money was taken from your account.")
             }
         }
     }

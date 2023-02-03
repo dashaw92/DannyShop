@@ -59,7 +59,7 @@ class CategoryEditorView(val category: Category) : MenuView {
             val player = event.whoClicked as Player
             if (clicked.hasMarker(DELETE_BUTTON_KEY)) {
                 DannyShop.SHOP.deleteCategory(category.cid)
-                event.whoClicked.sendMessage("&6[DannyShop] &7Category &e${category.name}&7 deleted.".color())
+                event.whoClicked.pluginMsg("Category &e${category.name}&7 deleted.".color())
                 return ViewAction.ChangeView(CategoryListingView())
             }
 
@@ -101,7 +101,7 @@ class CategoryEditorView(val category: Category) : MenuView {
         }
 
         category.changeName(newName)
-        player.sendMessage("&6[DannyShop] &7Category name changed to &e$newName&7.".color())
+        player.pluginMsg("Category name changed to &e$newName&7.")
         build(inv)
         player.openInventory(inv)
     }
@@ -114,9 +114,9 @@ class CategoryEditorView(val category: Category) : MenuView {
 
         category.setPermission(newName)
         if (newName == null) {
-            player.sendMessage("&6[DannyShop] &7Category permission cleared.".color())
+            player.pluginMsg("Category permission cleared.")
         } else {
-            player.sendMessage("&6[DannyShop] &7Category permission set to &e$newName&7.".color())
+            player.pluginMsg("Category permission set to &e$newName&7.")
         }
         build(inv)
         player.openInventory(inv)

@@ -124,7 +124,7 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
                 Material.REDSTONE_TORCH, "&eThe shop is empty!"
             )
 
-            if (viewer.hasPermission("dannyshop.admin")) {
+            if (viewer.hasPermission(Perm.ADMIN)) {
                 notice = ItemBuilder.addLore(
                     notice,
                     "&7But don't worry! Creating a shop is simple!",
@@ -146,16 +146,16 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
             val item = shop.itemByIid(iid) ?: return
 
             val returnInfo = ShopReturnInfo(itemPage, categoryPage)
-            if (event.click == ClickType.SHIFT_LEFT && viewer.hasPermission("dannyshop.admin")) {
+            if (event.click == ClickType.SHIFT_LEFT && viewer.hasPermission(Perm.ADMIN)) {
                 ItemEditor(viewer, item.iid, returnInfo)
             } else {
                 if (!Economy.hasEconomy()) {
-                    viewer.sendMessage("&6[DannyShop] &cCannot purchase this! No economy is active!".color())
+                    viewer.pluginMsg("&cCannot purchase this! No economy is active!")
                     return
                 }
 
                 if (!item.category.isVisible(viewer)) {
-                    viewer.sendMessage("&6[DannyShop] &cCannot purchase this! You lack permission!".color())
+                    viewer.pluginMsg("&cCannot purchase this! You lack permission!")
                     return
                 }
 
@@ -171,8 +171,8 @@ class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6,
                 when (item.cost) {
                     is Item.Cost.Value -> doPurchase()
                     else -> {
-                        if (viewer.hasPermission("dannyshop.admin")) doPurchase()
-                        else viewer.sendMessage("&6[DannyShop] &cCannot purchase this! No price is set.".color())
+                        if (viewer.hasPermission(Perm.ADMIN)) doPurchase()
+                        else viewer.pluginMsg("&cCannot purchase this! No price is set.")
                     }
                 }
             }

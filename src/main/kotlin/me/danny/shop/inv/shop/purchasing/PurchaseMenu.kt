@@ -60,19 +60,9 @@ class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: ShopMenu.Sh
 
         if (clicked.type == Material.SPRUCE_SIGN) {
             if (event.click == ClickType.RIGHT) {
-                val provider = if (SignInput.isAvailable()) {
-                    SignInput()
-                        .withMaterial(Material.SPRUCE_WALL_SIGN)
-                        .withLines(arrayOf("", "^^^^^", "DannyShop", "Buy custom amount"))
-                } else {
-                    ChatInput()
-                        .withEscapeWords("cancel")
-                        .withPrefix("&6[DannyShop]&7 ".color())
-                        .withPrompt("&9Buy custom amount:".color())
-                        .requestLines(1)
-                }
                 viewer.closeInventory()
-                provider.getInput(viewer, ::handleCustomQuantity)
+                DannyShop.askInput("&9Buy custom amount", Material.SPRUCE_WALL_SIGN)
+                    .getInput(viewer, ::handleCustomQuantity)
             } else {
                 Economy.purchase(viewer, item.iid, customAmount)
             }
@@ -90,9 +80,9 @@ class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: ShopMenu.Sh
 
         if (quantity != null && quantity > 0) {
             customAmount = quantity
-            player.sendMessage("&6[DannyShop] &7Custom amount set to &e$customAmount".color())
+            player.pluginMsg("Custom amount set to &e$customAmount")
         } else {
-            player.sendMessage("&6[DannyShop] &cUnable to read quantity from \"&d$quantityStr&c\"...".color())
+            player.pluginMsg("&cUnable to read quantity from \"&d$quantityStr&c\"...")
         }
 
         build()

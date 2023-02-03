@@ -64,10 +64,10 @@ class ItemNameEditor(private val editor: ItemEditor) : MenuView {
         }
 
         val renamed = if (newName.isBlank()) {
-            player.sendMessage("&6[DannyShop]&7 Removed item name.".color())
+            player.pluginMsg("Removed item name.")
             item.copy(name = null)
         } else {
-            player.sendMessage("&6[DannyShop]&7 Renamed item to &e$newName&e!".color())
+            player.pluginMsg("Renamed item to &e$newName&e!")
             item.copy(name = newName)
         }
 

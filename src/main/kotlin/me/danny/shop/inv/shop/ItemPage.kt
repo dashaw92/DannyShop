@@ -98,7 +98,7 @@ class ItemPage(
             "&6└───────────"
         val fields: MutableList<String> = mutableListOf()
 
-        var addPurchaseOption = viewer.hasPermission("dannyshop.admin")
+        var addPurchaseOption = viewer.hasPermission(Perm.ADMIN)
         fields.add("&9Cost:")
         when (item.cost) {
             is Item.Cost.NotSet -> fields.add("&c  No price set!")
@@ -126,7 +126,7 @@ class ItemPage(
                 fields.add("&e[Bulk: Right click]")
             }
         }
-        if (viewer.hasPermission("dannyshop.admin")) {
+        if (viewer.hasPermission("Perm.ADMIN")) {
             //Without this, there will be an ugly
             //empty line for viewers without perms
             //on items with no prices set
@@ -144,7 +144,7 @@ class ItemPage(
     private fun playerCooldown(item: Item): List<String> {
         //Show the expiration time, but strikethrough it to indicate
         //that they are exempt due to permissions
-        val modifier = if (viewer.hasPermission("dannyshop.admin")) "&m"
+        val modifier = if (viewer.hasPermission("Perm.ADMIN")) "&m"
         else ""
 
         val expiration = when (val expiration = CooldownHandler.getCooldownTime(viewer, item.iid)) {
@@ -155,7 +155,7 @@ class ItemPage(
             }
         }
 
-        if (expiration.isNotEmpty() && viewer.hasPermission("dannyshop.admin")) {
+        if (expiration.isNotEmpty() && viewer.hasPermission("Perm.ADMIN")) {
             expiration += "&7&o(Cooldown bypassed)"
         }
 

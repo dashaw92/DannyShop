@@ -53,7 +53,7 @@ internal object CooldownHandler {
     }
 
     fun isOnCooldown(player: Player, id: ID): Boolean =
-        player.cooldowns().isOnCooldown(id) && !player.hasPermission("dannyshop.admin")
+        player.cooldowns().isOnCooldown(id) && !player.hasPermission(Perm.ADMIN)
 }
 
 internal sealed interface Expiration {

@@ -1,5 +1,6 @@
 package me.danny.shop.model
 
+import me.danny.shop.*
 import me.danny.shop.inv.*
 import me.danny.shop.model.Item.ItemType
 import org.bukkit.*
@@ -163,7 +164,7 @@ data class Category(val cid: ID, var name: String, var permission: String?, var 
     fun isVisible(player: Player): Boolean {
         if (deleted) return false
         if (permission == null) return true
-        return player.hasPermission(permission!!) || player.hasPermission("dannyshop.admin")
+        return player.hasPermission(permission!!) || player.hasPermission(Perm.ADMIN)
     }
 }
 

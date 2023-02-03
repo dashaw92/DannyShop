@@ -48,12 +48,12 @@ object ImportListener : Listener {
         val name = state.customName!!
         if (Shop.findCategoryByName(name) == null) {
             Shop.addCategory(Category(name, Material.CHEST))
-            player.sendMessage("&6[DannyShop] &7Created category &e$name&7.".color())
+            player.pluginMsg("Created category &e$name&7.")
         }
 
         val category = Shop.findCategoryByName(name)!!
 
-        player.sendMessage("&6[DannyShop] &7Importing items from chest into category &e${category.name}&7.".color())
+        player.pluginMsg("Importing items from chest into category &e${category.name}&7.")
 
         if (ImportSession.isInSession(player.uniqueId)) {
             val session = ImportSession.getSession(player.uniqueId)!!
@@ -94,7 +94,7 @@ object ImportListener : Listener {
     @EventHandler
     fun onWandDrop(event: PlayerDropItemEvent) {
         if (ImportCommand.isWand(event.itemDrop.itemStack)) {
-            event.player.sendMessage("&6[DannyShop] &7Removed import wand!".color())
+            event.player.pluginMsg("Removed import wand!")
             event.itemDrop.remove()
         }
     }

@@ -14,34 +14,24 @@ object ShopCommand : CommandExecutor, TabCompleter {
     }
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-        if (sender !is Player) {
-            sender.sendMessage("&6[DannyShop]&7 Sorry, but only players may use the shop.".color())
-            return true
-        }
-
         if (args.isEmpty()) {
-            ShopMenu(sender)
+            requirePlayer(sender) {
+                ShopMenu(it)
+            }
             return true
         }
 
+        val cmdArgs = args.sliceArray(1 until args.size)
         when (args.first().lowercase()) {
-            "import" -> ImportCommand.onCommand(sender, args.sliceArray(1 until args.size))
-            "catedit" -> {
-                if (!sender.hasPermission("dannyshop.admin")) {
-                    sender.sendMessage("&cYou lack permission.".color())
-                    return true
-                }
-
-                CategoryEditor(sender)
+            "import" -> requireAdminPlayer(sender) {
+                ImportCommand.onCommand(it, cmdArgs)
             }
 
-            "cooldowns" -> {
-                if (!sender.hasPermission("dannyshop.admin")) {
-                    sender.sendMessage("&cYou lack permission.".color())
-                    return true
-                }
+            "catedit" -> requireAdminPlayer(sender, ::CategoryEditor)
+            "cooldowns" -> requireAdminPlayer(sender, ::CooldownEditor)
 
-                CooldownEditor(sender)
+            "backend" -> requireAdmin(sender) {
+                BackendAdminCommand.onCommand(it, cmdArgs)
             }
         }
         return true
@@ -53,7 +43,30 @@ object ShopCommand : CommandExecutor, TabCompleter {
         label: String,
         args: Array<out String>
     ): MutableList<String>? {
-        if (args.size < 2) return mutableListOf("import", "catedit", "cooldowns")
+        if (args.size != 1) return null
+        if (sender.hasPermission(Perm.ADMIN)) return mutableListOf("import", "catedit", "cooldowns", "backend")
         return null
+    }
+
+    private fun requireAdminPlayer(sender: CommandSender, func: (Player) -> Unit) {
+        requireAdmin(sender) {
+            requirePlayer(it, func)
+        }
+    }
+
+    private fun requireAdmin(sender: CommandSender, func: (CommandSender) -> Unit) {
+        if (!sender.hasPermission(Perm.ADMIN)) {
+            sender.pluginMsg("&cYou lack permission.")
+            return
+        }
+        func(sender)
+    }
+
+    private fun requirePlayer(sender: CommandSender, func: (Player) -> Unit) {
+        if (sender !is Player) {
+            sender.pluginMsg("Sorry, but only players may use this command.".color())
+            return
+        }
+        func(sender)
     }
 }

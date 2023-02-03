@@ -88,7 +88,7 @@ internal class ImportSession(
         items.asSequence()
             .map { it.build(category) }
             .forEach { item ->
-                who.sendMessage("&6[DannyShop] &7Imported &e${item.iid.id}&7.".color())
+                who.pluginMsg("Imported &e${item.iid.id}&7.")
                 DannyShop.SHOP.addItem(item)
             }
     }

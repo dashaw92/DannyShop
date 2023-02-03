@@ -10,6 +10,7 @@ import me.danny.shop.inv.listeners.*
 import me.danny.shop.listeners.*
 import me.danny.shop.model.*
 import org.bukkit.*
+import org.bukkit.command.*
 import org.bukkit.plugin.java.*
 
 /**
@@ -51,7 +52,7 @@ class DannyShop : JavaPlugin() {
         }
     }
 
-    private val backend = BackendManager.loadDefaultProvider(this)
+    internal var backend = BackendManager.loadDefaultProvider(this)
 
     override fun onEnable() {
         if (!Economy.hasEconomy()) {
@@ -76,8 +77,6 @@ class DannyShop : JavaPlugin() {
         Bukkit.getPluginManager().registerEvents(ImportListener, this)
         Bukkit.getPluginManager().registerEvents(CooldownListener, this)
         getCommand("dannyshop")!!.setExecutor(ShopCommand)
-        getCommand("migrate")!!.setExecutor(MigrateCommand)
-//        getCommand("dannytest")!!.setExecutor(this)
     }
 
     override fun onDisable() {
@@ -85,12 +84,8 @@ class DannyShop : JavaPlugin() {
         backend.saveShop(this, SHOP)
         Menu.closeOpenInvs()
     }
+}
 
-//    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-//        if (label != "dannytest") return true
-//
-//        val pl = sender as Player
-//        CooldownHandler.wipeCooldowns(pl)
-//        return true
-//    }
+internal fun CommandSender.pluginMsg(msg: String) {
+    sendMessage("&6[DannyShop]&7 $msg".color())
 }

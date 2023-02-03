@@ -253,13 +253,13 @@ class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
                     }
                 }
                 mode = State.Timed
-                player.sendMessage("&6[DannyShop] &7Set cooldown to &9Timed&7: $duration ${unit.plural(duration)}.".color())
+                player.pluginMsg("Set cooldown to &9Timed&7: $duration ${unit.plural(duration)}.")
             } else {
-                player.sendMessage("&6[DannyShop] &7Set cooldown to &4Infinite&7.".color())
+                player.pluginMsg("Set cooldown to &4Infinite&7.")
                 mode = State.Infinite
             }
         } else {
-            player.sendMessage("&6[DannyShop] &7Removed cooldown.".color())
+            player.pluginMsg("Removed cooldown.")
             mode = State.None
         }
 

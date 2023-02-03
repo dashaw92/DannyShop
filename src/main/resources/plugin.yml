@@ -18,11 +18,3 @@ commands:
     aliases: [ "shop", "danshop", "dshop", "dannyssupercoolshopplugin", "anexcessivelylongaliasfortheshop" ]
     description: DannyShop main command
     usage: /<command> args
-  migrate:
-    aliases: [ "shopmigrate", "saveshopelsewhere" ]
-    description: Migrate the shop to another backend type
-    usage: /<command> <yaml|mongo>
-  # Test command (functionality varies)
-#  dannytest:
-#    description: Lol
-#    usage: /<command>
