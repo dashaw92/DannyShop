@@ -1,5 +1,7 @@
 package me.danny.shop.backend
 
+import me.danny.shop.backend.MongoOptions.Schema
+import me.danny.shop.backend.MongoOptions.Schema.MongoDBSRV
 import org.bukkit.plugin.*
 import org.spongepowered.configurate.*
 import org.spongepowered.configurate.serialize.*
@@ -48,7 +50,7 @@ object BackendManager {
 
         val defaults = mapOf(
             "yaml" to YamlOptions("shop.yml"),
-            "mongo" to MongoOptions("bukkit", "walrus", "localhost", 27017)
+            "mongo" to MongoOptions(MongoDBSRV, "bukkit", "walrus", "localhost", 27017)
         )
         defaults.forEach { (type, default) ->
             val node = root.node(*pathOpts, type)
@@ -85,11 +87,17 @@ sealed interface BackendOptions
 
 data class YamlOptions(val path: String) : BackendOptions
 data class MongoOptions(
+    val schema: Schema,
     val user: String,
     val password: String,
     val host: String,
     val port: Int,
-) : BackendOptions
+) : BackendOptions {
+    enum class Schema {
+        MongoDB,
+        MongoDBSRV
+    }
+}
 
 private fun collection(): TypeSerializerCollection = TypeSerializerCollection.builder()
     .register(YamlOptions::class.java, YamlTypeSerializer)
@@ -115,16 +123,18 @@ object MongoTypeSerializer : TypeSerializer<MongoOptions> {
     override fun deserialize(type: Type?, node: ConfigurationNode?): MongoOptions {
         if (node == null) throw IllegalArgumentException("what")
 
+        val schema = node.node("schema").get(Schema::class.java) ?: MongoDBSRV
         val user = node.node("username").getString("bukkit")
         val password = node.node("password").getString("walrus")
         val host = node.node("hostname").getString("localhost")
         val port = node.node("port").getInt(27017)
-        return MongoOptions(user, password, host, port)
+        return MongoOptions(schema, user, password, host, port)
     }
 
     override fun serialize(type: Type?, obj: MongoOptions?, node: ConfigurationNode?) {
         if (node == null || obj == null) return
 
+        node.node("schema").set(obj.schema)
         node.node("username").set(obj.user)
         node.node("password").set(obj.password)
         node.node("hostname").set(obj.host)
