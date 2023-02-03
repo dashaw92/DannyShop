@@ -28,12 +28,6 @@ internal object BackendManager {
         var backendOption = root.node(*pathBackend).get(BackendType::class.java)
         if (backendOption == null) {
             backendOption = BackendType.Yaml
-            root.node(*pathBackend).commentIfAbsent(
-                """
-                                                    The backend provider to use when loading the shop.
-                                                    Can be either "Yaml" or "MongoDB" (case-sensitive)
-            """.trimIndent()
-            )
             root.node(*pathBackend).set(BackendType.Yaml)
             loader.save(root)
         }
@@ -94,7 +88,14 @@ internal data class MongoOptions(
     val port: Int,
 ) : BackendOptions {
     enum class Schema {
+        /**
+         * mongodb://...
+         */
         MongoDB,
+
+        /**
+         * mongodb+srv://...
+         */
         MongoDBSRV
     }
 }
