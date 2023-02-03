@@ -218,4 +218,8 @@ internal class ImportSession(
         })
         return base
     }
+
+    internal fun categoryID(): ID {
+        return category.cid
+    }
 }

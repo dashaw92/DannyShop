@@ -1,4 +1,4 @@
-package me.danny.shop.listeners
+package me.danny.shop.importing
 
 import com.earth2me.essentials.*
 import me.danny.shop.*
@@ -57,7 +57,14 @@ internal object ImportListener : Listener {
 
         if (ImportSession.isInSession(player.uniqueId)) {
             val session = ImportSession.getSession(player.uniqueId)!!
-            session.importAll()
+            if (session.categoryID() == category.cid) {
+                player.pluginMsg("You are already importing into this category. Re-opening editor.")
+                session.openEditor()
+                return
+            }
+
+            player.pluginMsg("Cleaning up previous session. Items from previous session will not be imported.")
+//            session.importAll()
             ImportSession.delete(player.uniqueId)
         }
         importItems(player, category, state.inventory)
@@ -85,7 +92,7 @@ internal object ImportListener : Listener {
 
                 ImportedItem(iid, type, null, cooldown, cost, quantities)
             }.toMutableList()
-        inv.clear()
+        //inv.clear()
 
         val session = ImportSession(player, category, importItems)
         session.openEditor()
