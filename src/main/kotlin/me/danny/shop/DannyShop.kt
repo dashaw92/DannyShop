@@ -5,9 +5,9 @@ import me.danny.shop.backend.*
 import me.danny.shop.commands.*
 import me.danny.shop.data.*
 import me.danny.shop.economy.*
+import me.danny.shop.importing.*
 import me.danny.shop.inv.*
 import me.danny.shop.inv.listeners.*
-import me.danny.shop.listeners.*
 import me.danny.shop.model.*
 import org.bukkit.*
 import org.bukkit.command.*
@@ -73,6 +73,8 @@ class DannyShop : JavaPlugin() {
             is LoadResult.Success -> result.shop
         }
 
+        Menu.scheduleRefreshTask()
+
         Bukkit.getPluginManager().registerEvents(MenuListener, this)
         Bukkit.getPluginManager().registerEvents(ImportListener, this)
         Bukkit.getPluginManager().registerEvents(CooldownListener, this)
@@ -80,9 +82,12 @@ class DannyShop : JavaPlugin() {
     }
 
     override fun onDisable() {
-        CooldownHandler.saveAll()
-        backend.saveShop(this, SHOP)
-        Menu.closeOpenInvs()
+        try {
+            CooldownHandler.saveAll()
+            backend.saveShop(this, SHOP)
+            Menu.closeOpenInvs()
+        } catch (ignored: NoClassDefFoundError) {
+        }
     }
 }
 

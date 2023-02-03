@@ -26,7 +26,7 @@ internal abstract class Menu(private var rows: Int, title: String, val viewer: P
             openInvs += id to menu
         }
 
-        init {
+        fun scheduleRefreshTask() {
             Bukkit.getScheduler().scheduleSyncRepeatingTask(DannyShop.instance(), {
                 openInvs.values
                     .filterIsInstance<RefreshPlease>()
