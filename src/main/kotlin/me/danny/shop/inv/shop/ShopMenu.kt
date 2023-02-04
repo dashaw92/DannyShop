@@ -1,5 +1,6 @@
 package me.danny.shop.me.inv.shop
 
+import me.danny.libinput.providers.*
 import me.danny.shop.*
 import me.danny.shop.data.*
 import me.danny.shop.economy.*
@@ -83,9 +84,29 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
             .forEach { inv.setItem(it, ctrlBorder) }
         //</editor-fold>
 
-        val filterButton = ItemBuilder.makeItem(Material.HOPPER, "&eItem Filter", *filterButton())
-
-        inv.setItem(inv.size - 5, filterButton)
+        val searchButton = ItemBuilder.makeItem(
+            Material.SPYGLASS, "&eSearch",
+            *when (itemPage.query) {
+                null -> arrayOf("&9No query")
+                else -> arrayOf("&9Current: &7${itemPage.query}")
+            },
+            "",
+            "&e[Search: Click]",
+            "&e[Reset: Right click]"
+        )
+        val typeFilter = ItemBuilder.makeItem(
+            Material.HOPPER, "&eItem Filter", *LoreList.makeList(
+                listOf(
+                    FilterType.All toEntry listOf("Displaying everything"),
+                    FilterType.Materials toEntry listOf("Displaying only raw materials"),
+                    FilterType.Items toEntry listOf("Displaying only custom items"),
+                    FilterType.Commands toEntry listOf("Displaying only commands"),
+                    FilterType.Experience toEntry listOf("Displaying only experience packs"),
+                ), itemPage.filterType
+            )
+        )
+        inv.setItem(inv.size - 7, searchButton)
+        inv.setItem(inv.size - 6, typeFilter)
 
         refresh()
 
@@ -93,25 +114,37 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
     }
 
     override fun refresh() {
+        //Hide categories when the player cannot see them anymore
         if (!categoryPage.selected.isVisible(viewer)) {
             val changeTo = categories.firstOrNull { it.isVisible(viewer) }
+            //If no categories are visisible to this player,
+            //or there are no categories in the shop,
+            //display the empty shop (changes inventory size to 27)
             if (changeTo == null) {
                 showEmptyShop()
                 return
             }
 
+            //Otherwise, change the display to reflect
+            //the new category
             itemPage.changeCategory(changeTo)
             categoryPage.changeCategory(changeTo)
+
+            //And ensure the inventory is the correct size with the new title
             rebuildInv()
             build()
             return
         }
 
+        //If the player gains access to a previously
+        //inaccessible category, or a new one was added,
+        //reset the inventory size from the empty shop
         if (inv.size == 27) {
             rebuildInv()
             build()
         }
 
+        //Render the items and categories
         itemPage.render(inv)
         categoryPage.render(inv)
     }
@@ -139,6 +172,8 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
 
     override fun onClick(event: InventoryClickEvent) {
         val clicked = event.currentItem!!
+
+        //<editor-fold desc="Purchasing: Clicked a shop item">
         if (clicked.hasKey(ITEM_KEY)) {
             val iid = event.currentItem?.keyValue(ITEM_KEY) ?: ""
             if (iid.trim().isBlank()) return
@@ -178,17 +213,8 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
             }
             return
         }
-
-        if (clicked.type == Material.HOPPER) {
-            val filterType = when (event.click) {
-                ClickType.RIGHT -> itemPage.filterType.prev()
-                else -> itemPage.filterType.next()
-            }
-            itemPage.setFilter(filterType)
-            build()
-            return
-        }
-
+        //</editor-fold>
+        //<editor-fold desc="Switching categories: Clicked a category display icon">
         when {
             event.slot % 9 == 0 -> {
                 if (!clicked.hasKey(CATEGORY_KEY)) return
@@ -202,7 +228,37 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
                 return
             }
         }
+        //</editor-fold>
+        //<editor-fold desc="Shop menu controls (filter, search, etc)">
+        when (clicked.type) {
+            Material.HOPPER -> {
+                val filterType = when (event.click) {
+                    ClickType.RIGHT -> itemPage.filterType.prev()
+                    else -> itemPage.filterType.next()
+                }
+                itemPage.setFilter(filterType)
+                build()
+                return
+            }
 
+            Material.SPYGLASS -> {
+                if (event.click.isRightClick) {
+                    itemPage.searchFor(null)
+                    rebuildInv()
+                    build()
+                    return
+                }
+
+                viewer.closeInventory()
+                askInput("Search", Material.SPRUCE_WALL_SIGN)
+                    .getInput(viewer) { _, input -> changeSearchQuery(input) }
+                return
+            }
+
+            else -> {}
+        }
+        //</editor-fold>
+        //<editor-fold desc="Handle switching item and category pages">
         fun updateAndBuild() {
             rebuildInv()
             build()
@@ -210,21 +266,19 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
 
         itemPage.onClick(event, ::updateAndBuild)
         categoryPage.onClick(event, ::updateAndBuild)
+        //</editor-fold>
+    }
+
+    private fun changeSearchQuery(query: Input) {
+        val newQuery = query.collapse()
+
+        itemPage.searchFor(newQuery.ifBlank { null })
+        viewer.openInventory(inv)
+        rebuildInv()
+        build()
     }
 
     data class ShopReturnInfo(val itemPage: ItemPage, val categoryPage: CategoryPage)
-
-    private fun filterButton(): Array<out String> {
-        return LoreList.makeList(
-            listOf(
-                FilterType.All toEntry listOf("Displaying everything"),
-                FilterType.Materials toEntry listOf("Displaying only raw materials"),
-                FilterType.Items toEntry listOf("Displaying only custom items"),
-                FilterType.Commands toEntry listOf("Displaying only commands"),
-                FilterType.Experience toEntry listOf("Displaying only experience packs"),
-            ), itemPage.filterType
-        )
-    }
 
     /**
      * Controls what type of items are included in the item page

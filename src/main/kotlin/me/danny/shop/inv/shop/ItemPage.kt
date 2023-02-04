@@ -9,6 +9,7 @@ import me.danny.shop.model.Item
 import me.danny.shop.model.Item.ItemType
 import me.danny.shop.model.Item.ItemType.*
 import me.danny.shop.model.Item.Quantities.Allowed.Any
+import org.apache.commons.lang.*
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*
@@ -21,14 +22,24 @@ internal class ItemPage(
 ) :
     Page<Item>(coll, Pair(2, 0), Pair(7, 5), buttons) {
 
-    private fun filteredItems(): List<Item> = items.filter {
-        when (filterType) {
-            FilterType.All -> true
-            FilterType.Materials -> it.item is Mat
-            FilterType.Items -> it.item is ItemType.Item
-            FilterType.Commands -> it.item is Command
-            FilterType.Experience -> it.item is Exp
+    var query: String? = null
+
+    private fun filteredItems(): List<Item> {
+        val filtered = items.filter {
+            when (filterType) {
+                FilterType.All -> true
+                FilterType.Materials -> it.item is Mat
+                FilterType.Items -> it.item is ItemType.Item
+                FilterType.Commands -> it.item is Command
+                FilterType.Experience -> it.item is Exp
+            }
         }
+
+        val searched = if (query != null) {
+            filterAndSearch(filtered)
+        } else filtered
+
+        return searched
     }
 
     override fun numPages(): Int = 1 + filteredItems().size / size
@@ -36,13 +47,18 @@ internal class ItemPage(
     override fun display(inv: Inventory) {
         if (filteredItems().isEmpty()) {
             val filler = ItemBuilder.makeItem(Material.RED_STAINED_GLASS_PANE, " ")
-            val info = if (items.isEmpty()) {
-                ItemBuilder.makeItem(
+            val info = when {
+                items.isEmpty() -> ItemBuilder.makeItem(
                     Material.BARRIER, "&cNo items",
                     "&7This category has no items."
                 )
-            } else {
-                ItemBuilder.makeItem(
+
+                query != null && filteredItems().isEmpty() -> ItemBuilder.makeItem(
+                    Material.BARRIER, "&cNo items",
+                    "&7No items match your search criteria."
+                )
+
+                else -> ItemBuilder.makeItem(
                     Material.BARRIER, "&cNo items",
                     "&7This category has no items that",
                     "&7match your filtering mode."
@@ -80,6 +96,68 @@ internal class ItemPage(
     fun changeCategory(category: Category) {
         page = 0
         items = DannyShop.SHOP.items(category.cid)
+    }
+
+    fun searchFor(query: String?) {
+        this.query = query
+    }
+
+    /*
+    * Operation:
+    * 1) Filter down to close matches
+    * 2) Sort by match distance descending
+    *
+    * Filtering:
+    *   Both the query and <comparing string> are lowercased.
+    *   Uses Levenshtein distance on the item's name (if present),
+    *   against the search query. If the distance is less than half
+    *   than the length of the query, or the name contains the query,
+    *   it's considered a match.
+    *   If the item has no name, then the Material name of the item's
+    *   display is used. Repeat above steps with material.
+    *
+    * Sorting:
+    *   Both the query and <comparing string> are lowercased.
+    *   Uses levenshtein distance against the name or material type,
+    *   sorting the items by closest to farthest distance.
+    */
+    private fun filterAndSearch(items: List<Item>): List<Item> {
+        fun String.dist(other: String?): Int {
+            return if (other == null) this.length
+            else StringUtils.getLevenshteinDistance(other.lowercase(), this.lowercase())
+        }
+
+        //this function is only called when query is not null
+        val qNotNull = query!!.lowercase()
+
+        fun matches(item: Item): Boolean {
+            if (item.name == null) {
+                val type = item.item.display().type.name.lowercase()
+                return type.contains(qNotNull) || type.dist(qNotNull) <= qNotNull.length / 2
+            }
+
+            val name = item.name.lowercase()
+            return name.contains(qNotNull) || name.dist(qNotNull) <= qNotNull.length / 2
+        }
+
+        val nameSearch = Comparator<Item> { o1, o2 ->
+            val dist1 = qNotNull.dist(o1.name?.lowercase())
+            val dist2 = qNotNull.dist(o2.name?.lowercase())
+
+            dist1.compareTo(dist2)
+        }
+        val typeSearch = Comparator<Item> { o1, o2 ->
+            val type1 = o1.item.display().type.name.lowercase()
+            val type2 = o2.item.display().type.name.lowercase()
+
+            val dist1 = qNotNull.dist(type1)
+            val dist2 = qNotNull.dist(type2)
+
+            dist1.compareTo(dist2)
+        }
+
+        return items.filter(::matches)
+            .sortedWith(nameSearch.thenComparing(typeSearch))
     }
 
     private fun makeMenuItem(item: Item): ItemStack {
