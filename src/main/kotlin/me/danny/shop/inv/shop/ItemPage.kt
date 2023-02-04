@@ -131,13 +131,21 @@ internal class ItemPage(
         val qNotNull = query!!.lowercase()
 
         fun matches(item: Item): Boolean {
+            val maxDist = qNotNull.length / 2
+            val type = item.item.display().type.name.replace('_', ' ').lowercase()
+            //If the material name contains the query, or the distance is within maxDist
+            var filter: Boolean = type.contains(qNotNull) || type.dist(qNotNull) <= maxDist
             if (item.name == null) {
-                val type = item.item.display().type.name.lowercase()
-                return type.contains(qNotNull) || type.dist(qNotNull) <= qNotNull.length / 2
+                //can't filter on non-null names
+                return filter
             }
 
             val name = item.name.lowercase()
-            return name.contains(qNotNull) || name.dist(qNotNull) <= qNotNull.length / 2
+            //Or if the item's name contains the query
+            filter = filter || name.contains(qNotNull)
+            //Or if the distance of the item's name is within maxDist
+            filter = filter || name.dist(qNotNull) <= maxDist
+            return filter
         }
 
         val nameSearch = Comparator<Item> { o1, o2 ->
@@ -147,8 +155,8 @@ internal class ItemPage(
             dist1.compareTo(dist2)
         }
         val typeSearch = Comparator<Item> { o1, o2 ->
-            val type1 = o1.item.display().type.name.lowercase()
-            val type2 = o2.item.display().type.name.lowercase()
+            val type1 = o1.item.display().type.name.replace('_', ' ').lowercase()
+            val type2 = o2.item.display().type.name.replace('_', ' ').lowercase()
 
             val dist1 = qNotNull.dist(type1)
             val dist2 = qNotNull.dist(type2)
