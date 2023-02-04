@@ -85,7 +85,7 @@ internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
 
             Material.SPRUCE_SIGN -> {
                 player.closeInventory()
-                DannyShop.askInput("&eSet buy price", Material.SPRUCE_WALL_SIGN)
+                askInput("&eSet buy price", Material.SPRUCE_WALL_SIGN)
                     .getInput(player) { pl, input -> setPrice(pl, input, { buy = it }, event.inventory) }
             }
 
@@ -143,10 +143,7 @@ internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
     }
 
     private fun setPrice(player: Player, input: Input, setter: (Double) -> Unit, inv: Inventory) {
-        val line = when (input) {
-            is SingleLine -> input.line
-            is MultipleLines -> input.lines.first()
-        }
+        val line = input.collapse()
 
         val price = line.toDoubleOrNull()
         if (price != null && price.isFinite() && price >= 0.0) {

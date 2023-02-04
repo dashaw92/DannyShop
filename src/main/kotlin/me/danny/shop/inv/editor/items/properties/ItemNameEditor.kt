@@ -48,7 +48,7 @@ internal class ItemNameEditor(private val editor: ItemEditor) : MenuView {
             Material.SPRUCE_SIGN -> {
                 val player = event.whoClicked as Player
                 player.closeInventory()
-                DannyShop.askInput("&9New name", Material.SPRUCE_WALL_SIGN, item.name)
+                askInput("&9New name", Material.SPRUCE_WALL_SIGN, item.name)
                     .getInput(player, ::handleInput)
             }
 
@@ -58,10 +58,7 @@ internal class ItemNameEditor(private val editor: ItemEditor) : MenuView {
     }
 
     private fun handleInput(player: Player, input: Input) {
-        val newName = when (input) {
-            is SingleLine -> input.line
-            is MultipleLines -> input.lines.first()
-        }
+        val newName = input.collapse()
 
         val renamed = if (newName.isBlank()) {
             player.pluginMsg("Removed item name.")

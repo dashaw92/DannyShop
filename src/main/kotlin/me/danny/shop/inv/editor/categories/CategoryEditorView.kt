@@ -82,7 +82,7 @@ internal class CategoryEditorView(val category: Category) : MenuView {
 
             if (clicked.hasMarker(PERMISSION_BUTTON_KEY)) {
                 player.closeInventory()
-                DannyShop.askInput("&9Set permission", Material.BIRCH_WALL_SIGN, category.permission)
+                askInput("&9Set permission", Material.BIRCH_WALL_SIGN, category.permission)
                     .getInput(player) { pl, input -> handlePermission(pl, input, inv) }
             }
 
@@ -95,10 +95,7 @@ internal class CategoryEditorView(val category: Category) : MenuView {
     }
 
     private fun handleRename(player: Player, input: Input, inv: Inventory) {
-        val newName = when (input) {
-            is SingleLine -> input.line
-            is MultipleLines -> input.lines.first()
-        }
+        val newName = input.collapse()
 
         category.changeName(newName)
         player.pluginMsg("Category name changed to &e$newName&7.")

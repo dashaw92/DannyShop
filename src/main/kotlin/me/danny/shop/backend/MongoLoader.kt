@@ -13,7 +13,7 @@ import org.bukkit.configuration.file.*
 import org.bukkit.plugin.*
 import java.io.*
 
-class MongoLoader(options: MongoOptions) : ShopBackend {
+internal class MongoLoader(options: MongoOptions) : ShopBackend {
 
     private var exception: Exception? = null
     private var database: MongoDatabase?

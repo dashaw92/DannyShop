@@ -61,7 +61,7 @@ internal class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: Sh
         if (clicked.type == Material.SPRUCE_SIGN) {
             if (event.click == ClickType.RIGHT) {
                 viewer.closeInventory()
-                DannyShop.askInput("&9Buy custom amount", Material.SPRUCE_WALL_SIGN)
+                askInput("&9Buy custom amount", Material.SPRUCE_WALL_SIGN)
                     .getInput(viewer, ::handleCustomQuantity)
             } else {
                 Economy.purchase(viewer, item.iid, customAmount)
@@ -71,10 +71,7 @@ internal class PurchaseMenu(viewer: Player, item: ID, private val returnInfo: Sh
     }
 
     private fun handleCustomQuantity(player: Player, input: Input) {
-        val quantityStr = when (input) {
-            is SingleLine -> input.line
-            is MultipleLines -> input.lines.first()
-        }
+        val quantityStr = input.collapse()
 
         val quantity = quantityStr.toIntOrNull()
 

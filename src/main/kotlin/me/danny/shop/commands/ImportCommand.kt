@@ -5,7 +5,6 @@ import me.danny.shop.*
 import me.danny.shop.data.*
 import me.danny.shop.importing.*
 import me.danny.shop.inv.*
-import me.danny.shop.listeners.*
 import me.danny.shop.model.*
 import org.bukkit.*
 import org.bukkit.entity.*
@@ -25,7 +24,7 @@ internal object ImportCommand {
                 "&7If Essentials is not on the server, you will",
                 "&7have to manually do this!",
                 "",
-                "&3[Permission: &8&odannyshop.import&3]",
+                "&3[Permission: &8&o${Perm.ADMIN}&3]",
                 "&4Warning: The chest will be cleared after importing!"
             ), *ItemFlag.values()
         )
@@ -55,7 +54,7 @@ internal object ImportCommand {
                 val needsExtraLength = prop == "name"
 
                 player.closeInventory()
-                DannyShop.askInput("&9Set $prop", Material.SPRUCE_WALL_SIGN, needsExtraLength = needsExtraLength)
+                askInput("&9Set $prop", Material.SPRUCE_WALL_SIGN, needsExtraLength = needsExtraLength)
                     .getInput(player) { pl, input -> handlePropValue(pl, input, id, prop) }
             }
 
@@ -69,10 +68,7 @@ internal object ImportCommand {
     }
 
     private fun handlePropValue(player: Player, input: Input, id: String, prop: String) {
-        val line = when (input) {
-            is SingleLine -> input.line
-            is MultipleLines -> input.lines.first()
-        }
+        val line = input.collapse()
 
         val session = ImportSession.getSession(player.uniqueId)!!
         session.updateItem(id, prop, line)

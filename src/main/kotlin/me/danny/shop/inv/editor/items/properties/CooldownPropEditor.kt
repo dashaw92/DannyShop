@@ -77,7 +77,7 @@ internal class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
             Material.SPRUCE_SIGN -> {
                 val player = event.whoClicked as Player
                 player.closeInventory()
-                DannyShop.askInput("&9Set cooldown time", Material.SPRUCE_WALL_SIGN)
+                askInput("&9Set cooldown time", Material.SPRUCE_WALL_SIGN)
                     .getInput(player) { pl, input -> setCooldown(pl, input, inv) }
             }
 
@@ -168,19 +168,6 @@ internal class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
         Months,
         Years;
 
-        fun suffix(): String {
-            return when (this) {
-                Milliseconds -> "ms"
-                Seconds -> "s"
-                Minutes -> "m"
-                Hours -> "h"
-                Days -> "d"
-                Weeks -> "w"
-                Months -> "mo"
-                Years -> "y"
-            }
-        }
-
         fun plural(time: Long): String {
             return if (time > 1) name
             else name.substring(0, name.length - 1)
@@ -228,10 +215,7 @@ internal class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
     }
 
     private fun setCooldown(player: Player, input: Input, inv: Inventory) {
-        val time = when (input) {
-            is SingleLine -> input.line
-            is MultipleLines -> input.lines.first()
-        }
+        val time = input.collapse()
 
         val inputDuration = time.takeWhile { it.isDigit() || it == '-' }.toLongOrNull()
         if (inputDuration != null) {

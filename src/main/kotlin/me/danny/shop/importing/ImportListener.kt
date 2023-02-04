@@ -37,7 +37,7 @@ internal object ImportListener : Listener {
     fun onPlayerPunch(event: PlayerInteractEvent) {
         val player = event.player
 
-        if (!event.hasItem() || !ImportCommand.isWand(event.item!!) || !player.hasPermission("dannyshop.import")) return
+        if (!event.hasItem() || !ImportCommand.isWand(event.item!!) || !player.hasPermission(Perm.ADMIN)) return
         if (event.action == Action.RIGHT_CLICK_BLOCK && chests.isTagged(event.clickedBlock!!.type)) return
         event.isCancelled = true
         if (event.action != Action.LEFT_CLICK_BLOCK) return
