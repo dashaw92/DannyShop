@@ -3,6 +3,7 @@ package me.danny.shop.inv.shop.purchasing
 import me.danny.shop.data.*
 import me.danny.shop.inv.*
 import me.danny.shop.model.*
+import me.danny.shop.utils.*
 import org.bukkit.inventory.*
 
 internal class QuantityDisplay(private val item: Item) :

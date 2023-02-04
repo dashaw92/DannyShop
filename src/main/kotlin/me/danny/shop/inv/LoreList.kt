@@ -33,10 +33,13 @@ internal object LoreList {
         val lore = mutableListOf<String>()
         var description: List<String> = listOf()
         options.map { (option, desc) ->
+            val displayedOption = if (option is ListDisplayable) option.listName()
+            else option.toString()
+
             if (selected == option) {
                 description = desc
-                "&2• &n$option"
-            } else "&8• $option"
+                "&2• &n$displayedOption"
+            } else "&8• $displayedOption"
         }.forEach(lore::add)
         lore += ""
         description.map { "&7$it" }.forEach(lore::add)
@@ -53,6 +56,10 @@ internal object LoreList {
      * Convenience for constructing [ListEntry] objects
      */
     infix fun <A> A.toEntry(description: List<String>): ListEntry<A> = ListEntry(this, description)
+}
+
+internal interface ListDisplayable {
+    fun listName(): String
 }
 
 internal inline fun <reified T : Enum<T>> T.next(): T {

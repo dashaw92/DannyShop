@@ -1,15 +1,14 @@
-package me.danny.shop.me.inv.shop
+package me.danny.shop.inv.shop.items
 
 import me.danny.shop.*
 import me.danny.shop.data.*
 import me.danny.shop.inv.*
-import me.danny.shop.me.inv.shop.ShopMenu.FilterType
+import me.danny.shop.me.inv.shop.*
 import me.danny.shop.model.*
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.ItemType
-import me.danny.shop.model.Item.ItemType.*
 import me.danny.shop.model.Item.Quantities.Allowed.Any
-import org.apache.commons.lang.*
+import me.danny.shop.utils.*
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*
@@ -28,10 +27,10 @@ internal class ItemPage(
         val filtered = items.filter {
             when (filterType) {
                 FilterType.All -> true
-                FilterType.Materials -> it.item is Mat
+                FilterType.Materials -> it.item is ItemType.Mat
                 FilterType.Items -> it.item is ItemType.Item
-                FilterType.Commands -> it.item is Command
-                FilterType.Experience -> it.item is Exp
+                FilterType.Commands -> it.item is ItemType.Command
+                FilterType.Experience -> it.item is ItemType.Exp
             }
         }
 
@@ -89,7 +88,7 @@ internal class ItemPage(
 
     fun scrollToItem(item: Item) {
         items = DannyShop.SHOP.items(item.category.cid)
-        val newPage = filteredItems().indexOfFirst { it.iid.id == item.iid.id } / size
+        val newPage = filteredItems().indexOfFirst { it.iid == item.iid } / size
         page = newPage
     }
 
@@ -122,50 +121,15 @@ internal class ItemPage(
     *   sorting the items by closest to farthest distance.
     */
     private fun filterAndSearch(items: List<Item>): List<Item> {
-        fun String.dist(other: String?): Int {
-            return if (other == null) this.length
-            else StringUtils.getLevenshteinDistance(other.lowercase(), this.lowercase())
-        }
 
         //this function is only called when query is not null
-        val qNotNull = query!!.lowercase()
+        val qNotNull = query?.lowercase() ?: return items
 
-        fun matches(item: Item): Boolean {
-            val maxDist = qNotNull.length / 2
-            val type = item.item.display().type.name.replace('_', ' ').lowercase()
-            //If the material name contains the query, or the distance is within maxDist
-            var filter: Boolean = type.contains(qNotNull) || type.dist(qNotNull) <= maxDist
-            if (item.name == null) {
-                //can't filter on non-null names
-                return filter
-            }
-
-            val name = item.name.lowercase()
-            //Or if the item's name contains the query
-            filter = filter || name.contains(qNotNull)
-            //Or if the distance of the item's name is within maxDist
-            filter = filter || name.dist(qNotNull) <= maxDist
-            return filter
-        }
-
-        val nameSearch = Comparator<Item> { o1, o2 ->
-            val dist1 = qNotNull.dist(o1.name?.lowercase())
-            val dist2 = qNotNull.dist(o2.name?.lowercase())
-
-            dist1.compareTo(dist2)
-        }
-        val typeSearch = Comparator<Item> { o1, o2 ->
-            val type1 = o1.item.display().type.name.replace('_', ' ').lowercase()
-            val type2 = o2.item.display().type.name.replace('_', ' ').lowercase()
-
-            val dist1 = qNotNull.dist(type1)
-            val dist2 = qNotNull.dist(type2)
-
-            dist1.compareTo(dist2)
-        }
-
-        return items.filter(::matches)
-            .sortedWith(nameSearch.thenComparing(typeSearch))
+        return items.filter { matches(qNotNull, it) }
+            .sortedWith(
+                nameSearch(qNotNull)
+                    .thenComparing(typeSearch(qNotNull))
+            )
     }
 
     private fun makeMenuItem(item: Item): ItemStack {
@@ -178,11 +142,7 @@ internal class ItemPage(
             tagged = ItemBuilder.setName(tagged, item.name)
         }
 
-        val header =
-            "&6┌┤&4 DannyShop &6├──"
-        val footer =
-            "&6└───────────"
-        val fields: MutableList<String> = mutableListOf()
+        val fields = LoreField()
 
         var addPurchaseOption = viewer.hasPermission(Perm.ADMIN)
         fields.add("&9Cost:")
@@ -220,17 +180,13 @@ internal class ItemPage(
             fields.add("&3[Edit: Shift click]")
         }
 
-        val display: MutableList<String> = fields.map { field -> "&6│ $field" }.toMutableList()
-        display.add(0, header)
-        display.add(footer)
-
-        return ItemBuilder.addLore(tagged, *display.toTypedArray())
+        return ItemBuilder.addLore(tagged, *fields.build())
     }
 
     private fun playerCooldown(item: Item): List<String> {
         //Show the expiration time, but strikethrough it to indicate
         //that they are exempt due to permissions
-        val modifier = if (viewer.hasPermission("Perm.ADMIN")) "&m"
+        val modifier = if (viewer.hasPermission(Perm.ADMIN)) "&m"
         else ""
 
         val expiration = when (val expiration = CooldownHandler.getCooldownTime(viewer, item.iid)) {
@@ -241,7 +197,7 @@ internal class ItemPage(
             }
         }
 
-        if (expiration.isNotEmpty() && viewer.hasPermission("Perm.ADMIN")) {
+        if (expiration.isNotEmpty() && viewer.hasPermission(Perm.ADMIN)) {
             expiration += "&7&o(Cooldown bypassed)"
         }
 

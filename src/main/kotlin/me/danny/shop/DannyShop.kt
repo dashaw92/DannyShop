@@ -8,6 +8,7 @@ import me.danny.shop.importing.*
 import me.danny.shop.inv.*
 import me.danny.shop.inv.listeners.*
 import me.danny.shop.model.*
+import me.danny.shop.utils.*
 import org.bukkit.*
 import org.bukkit.command.*
 import org.bukkit.plugin.java.*

@@ -1,4 +1,4 @@
-package me.danny.shop.inv
+package me.danny.shop.utils
 
 import org.bukkit.*
 import org.bukkit.enchantments.*

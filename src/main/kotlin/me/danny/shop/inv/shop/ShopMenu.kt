@@ -9,10 +9,12 @@ import me.danny.shop.inv.LoreList.toEntry
 import me.danny.shop.inv.editor.categories.CategoryEditor.Companion.CATEGORY_KEY
 import me.danny.shop.inv.editor.items.*
 import me.danny.shop.inv.shop.*
+import me.danny.shop.inv.shop.items.*
 import me.danny.shop.inv.shop.purchasing.*
 import me.danny.shop.model.*
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.Quantities.Allowed.Any
+import me.danny.shop.utils.*
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.event.inventory.*
@@ -279,34 +281,4 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
     }
 
     data class ShopReturnInfo(val itemPage: ItemPage, val categoryPage: CategoryPage)
-
-    /**
-     * Controls what type of items are included in the item page
-     */
-    enum class FilterType {
-        /**
-         * Everything is displayed
-         */
-        All,
-
-        /**
-         * Only raw materials
-         */
-        Materials,
-
-        /**
-         * Only custom items
-         */
-        Items,
-
-        /**
-         * Only commands
-         */
-        Commands,
-
-        /**
-         * Only experience items
-         */
-        Experience
-    }
 }

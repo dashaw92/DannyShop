@@ -1,7 +1,7 @@
 package me.danny.shop
 
 import me.danny.libinput.providers.*
-import me.danny.shop.inv.*
+import me.danny.shop.utils.*
 import org.bukkit.*
 
 internal fun askInput(

@@ -4,6 +4,7 @@ import me.danny.shop.data.*
 import me.danny.shop.inv.*
 import me.danny.shop.inv.editor.categories.CategoryEditor.Companion.CATEGORY_KEY
 import me.danny.shop.model.*
+import me.danny.shop.utils.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*
 

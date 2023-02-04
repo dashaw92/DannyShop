@@ -3,9 +3,9 @@ package me.danny.shop.inv.editor.categories
 import me.danny.libinput.providers.*
 import me.danny.shop.*
 import me.danny.shop.data.*
-import me.danny.shop.inv.*
 import me.danny.shop.inv.view.*
 import me.danny.shop.model.*
+import me.danny.shop.utils.*
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.event.inventory.*

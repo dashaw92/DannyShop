@@ -1,11 +1,11 @@
 package me.danny.shop.importing
 
 import me.danny.shop.*
-import me.danny.shop.inv.*
 import me.danny.shop.model.*
 import me.danny.shop.model.Item.*
 import me.danny.shop.model.Item.Quantities.Allowed.Any
 import me.danny.shop.model.Item.Quantities.Allowed.Predefined
+import me.danny.shop.utils.*
 import net.md_5.bungee.api.chat.*
 import net.md_5.bungee.api.chat.ClickEvent.Action.CHANGE_PAGE
 import net.md_5.bungee.api.chat.ClickEvent.Action.RUN_COMMAND

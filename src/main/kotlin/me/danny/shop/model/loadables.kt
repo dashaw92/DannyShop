@@ -1,8 +1,8 @@
 package me.danny.shop.model
 
 import me.danny.shop.*
-import me.danny.shop.inv.*
 import me.danny.shop.model.Item.ItemType
+import me.danny.shop.utils.*
 import org.bukkit.*
 import org.bukkit.entity.*
 import org.bukkit.inventory.*

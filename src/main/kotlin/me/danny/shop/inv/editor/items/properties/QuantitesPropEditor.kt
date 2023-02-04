@@ -8,6 +8,7 @@ import me.danny.shop.inv.editor.items.*
 import me.danny.shop.inv.view.*
 import me.danny.shop.model.*
 import me.danny.shop.model.Item.Quantities.Allowed
+import me.danny.shop.utils.*
 import org.bukkit.*
 import org.bukkit.event.inventory.*
 import org.bukkit.inventory.*

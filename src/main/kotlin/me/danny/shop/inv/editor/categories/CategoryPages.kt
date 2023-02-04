@@ -4,6 +4,7 @@ import me.danny.shop.*
 import me.danny.shop.data.*
 import me.danny.shop.inv.*
 import me.danny.shop.model.*
+import me.danny.shop.utils.*
 import org.bukkit.inventory.*
 
 internal class CategoryPages(buttons: Pair<Int, Int>, var selected: Category? = null) :
