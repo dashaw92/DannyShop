@@ -43,8 +43,8 @@ internal object BackendManager {
         val root = loader.load()
 
         val defaults = mapOf(
-            "yaml" to YamlOptions("shop.yml"),
-            "mongo" to MongoOptions(MongoDBSRV, "bukkit", "walrus", "localhost", 27017)
+            BackendType.Yaml to YamlOptions("shop.yml"),
+            BackendType.MongoDB to MongoOptions(MongoDBSRV, "bukkit", "walrus", "localhost", 27017)
         )
         defaults.forEach { (type, default) ->
             val node = root.node(*pathOpts, type)
@@ -57,13 +57,15 @@ internal object BackendManager {
         val provider = when (backendType) {
             BackendType.Yaml -> {
                 val options: YamlOptions =
-                    root.node(*pathOpts, "yaml").get(YamlOptions::class.java, defaults["yaml"]!! as YamlOptions)
+                    root.node(*pathOpts, "yaml")
+                        .get(YamlOptions::class.java, defaults[BackendType.Yaml]!! as YamlOptions)
                 YamlLoader(options)
             }
 
             BackendType.MongoDB -> {
                 val options =
-                    root.node(*pathOpts, "mongo").get(MongoOptions::class.java, defaults["mongo"]!! as MongoOptions)
+                    root.node(*pathOpts, "mongo")
+                        .get(MongoOptions::class.java, defaults[BackendType.MongoDB]!! as MongoOptions)
                 MongoLoader(options)
             }
         }

@@ -267,9 +267,7 @@ data class Item(
          * The price for this item is not set.
          * Items with this Cost are not purchasable.
          */
-        object NotSet : Cost {
-            override fun toString(): String = "NotSet"
-        }
+        data object NotSet : Cost
 
         data class Value(val buy: Double) : Cost
     }
@@ -314,16 +312,12 @@ data class Item(
         /**
          * The item has no cooldown and can be purchased as often as wanted
          */
-        object None : Cooldown {
-            override fun toString(): String = "None"
-        }
+        data object None : Cooldown
 
         /**
          * This item can only be purchased one time
          */
-        object Infinite : Cooldown {
-            override fun toString(): String = "Infinite"
-        }
+        data object Infinite : Cooldown
 
         /**
          * Once the item is purchased, the player must wait this amount of time

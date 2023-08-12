@@ -57,13 +57,8 @@ internal object CooldownHandler {
 }
 
 internal sealed interface Expiration {
-    object Never : Expiration {
-        override fun toString(): String = "Never"
-    }
-
-    object None : Expiration {
-        override fun toString(): String = "No cooldown"
-    }
+    data object Never : Expiration
+    data object None : Expiration
 
     data class Future(private val id: ID, private val time: Long) : Expiration {
         /**

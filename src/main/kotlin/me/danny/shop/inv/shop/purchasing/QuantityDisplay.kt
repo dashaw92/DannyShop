@@ -23,20 +23,11 @@ internal class QuantityDisplay(private val item: Item) :
                 display.amount = it
                 display.setName("&7x$it")
 
-                val header =
-                    "&6┌┤&4 DannyShop &6├──"
-                val footer =
-                    "&6└───────────"
-                val fields: MutableList<String> = mutableListOf()
+                val lore = LoreField()
+                lore.add("&9Cost:")
+                lore.add("  &3Each: &7\$%,.2f".format(costPerUnit * it))
 
-                fields.add("&9Cost:")
-                fields.add("  &3Each: &7\$%,.2f".format(costPerUnit * it))
-
-                val lore = fields.map { field -> "&6│ $field" }.toMutableList()
-                lore.add(0, header)
-                lore.add(footer)
-
-                ItemBuilder.addLore(display, *lore.toTypedArray())
+                ItemBuilder.addLore(display, *lore.build())
             }
             .map { it.attachMarker(PurchaseMenu.PRICE_KEY) }.toList()
 

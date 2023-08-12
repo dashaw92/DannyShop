@@ -78,7 +78,7 @@ internal class ChordBuilder<T>(private val stateBuilder: Supplier<T>) {
 
     //Add an action that should be repeated `amount` times
     fun loopStep(amount: Int, action: ChordAction<T>): ChordBuilder<T> {
-        for (i in 0 until amount) {
+        for (i in 0..<amount) {
             val next = recipe.size
             recipe[next] = action
         }

@@ -3,12 +3,12 @@ import org.jetbrains.kotlin.gradle.tasks.*
 plugins {
     `java-library`
     id("org.ajoberstar.grgit") version ("5.0.0")
-    kotlin("jvm") version "1.8.0"
+    kotlin("jvm") version "1.9.0"
 }
 
 group = "me.daniel"
 version = "${getHash()}-dev"
-val spigotVersion = "1.19.3-R0.1-SNAPSHOT"
+val spigotVersion = "1.20.1-R0.1-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_18

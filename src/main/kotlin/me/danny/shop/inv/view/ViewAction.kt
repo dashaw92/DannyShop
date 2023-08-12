@@ -7,12 +7,12 @@ internal sealed interface ViewAction {
     /**
      * Do nothing, this was a normal button click with no meta-action
      */
-    object Pass : ViewAction
+    data object Pass : ViewAction
 
     /**
      * Request the parent re-build the inventory
      */
-    object Refresh : ViewAction
+    data object Refresh : ViewAction
 
     /**
      * Request the base menu change to the provided view
