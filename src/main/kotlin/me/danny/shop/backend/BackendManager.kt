@@ -54,29 +54,36 @@ internal object BackendManager {
         }
         loader.save(root)
 
-        val provider = when (backendType) {
-            BackendType.Yaml -> {
-                val options: YamlOptions =
-                    root.node(*pathOpts, "yaml")
-                        .get(YamlOptions::class.java, defaults[BackendType.Yaml]!! as YamlOptions)
-                YamlLoader(options)
-            }
+//        val provider = when (backendType) {
+//            BackendType.Yaml -> {
+//                val options: YamlOptions =
+//                    root.node(*pathOpts, "yaml")
+//                        .get(YamlOptions::class.java, defaults[BackendType.Yaml]!! as YamlOptions)
+//                YamlLoader(options)
+//            }
+//
+//            BackendType.MongoDB -> {
+//                val options =
+//                    root.node(*pathOpts, "mongo")
+//                        .get(MongoOptions::class.java, defaults[BackendType.MongoDB]!! as MongoOptions)
+//                MongoLoader(options)
+//            }
+//        }
 
-            BackendType.MongoDB -> {
-                val options =
-                    root.node(*pathOpts, "mongo")
-                        .get(MongoOptions::class.java, defaults[BackendType.MongoDB]!! as MongoOptions)
-                MongoLoader(options)
-            }
-        }
+        val options = root.node(*pathOpts, backendType.serName)
+            .get(backendType.clazz, defaults[backendType]!!) as BackendOptions
 
-        return provider
+        return backendType.loaderFn(options)
     }
 }
 
-internal enum class BackendType {
-    Yaml,
-    MongoDB
+internal enum class BackendType(
+    val serName: String,
+    val clazz: Class<out BackendOptions>,
+    val loaderFn: (BackendOptions) -> ShopBackend
+) {
+    Yaml("yaml", YamlOptions::class.java, { opts -> YamlLoader(opts as YamlOptions) }),
+    MongoDB("mongo", MongoOptions::class.java, { opts -> MongoLoader(opts as MongoOptions) })
 }
 
 internal sealed interface BackendOptions
