@@ -1,17 +1,21 @@
 package me.danny.shop.data
 
-import me.danny.shop.*
+import me.danny.shop.DannyShop
+import me.danny.shop.Perm
 import me.danny.shop.data.Expiration.*
-import me.danny.shop.model.*
+import me.danny.shop.model.ID
 import me.danny.shop.model.Item.Cooldown
 import me.danny.shop.model.Item.Cooldown.Time
 import me.danny.shop.model.Item.Cooldown.Time.Companion.Units
-import org.bukkit.*
-import org.bukkit.entity.*
-import org.bukkit.event.*
-import org.bukkit.event.player.*
-import org.bukkit.persistence.*
-import java.time.*
+import org.bukkit.Bukkit
+import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.persistence.PersistentDataAdapterContext
+import org.bukkit.persistence.PersistentDataType
+import java.time.Instant
 import java.util.*
 
 private val cdKey = Key("cooldowns", IDContainerType)
@@ -84,7 +88,7 @@ internal sealed interface Expiration {
                 "s" to Time.multiplier(Units.S),
             )
 
-            //Work from greatest units down to milliseconds,
+            //Work from the greatest units down to milliseconds,
             //collecting whole units and carrying over the remainder
             //for the next unit.
             //The last entry is milliseconds, which will always

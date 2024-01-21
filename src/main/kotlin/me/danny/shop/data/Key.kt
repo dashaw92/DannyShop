@@ -1,19 +1,19 @@
 package me.danny.shop.data
 
-import org.bukkit.*
-import org.bukkit.inventory.*
-import org.bukkit.persistence.*
+import org.bukkit.NamespacedKey
+import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 
 /**
  * Wrap over a Namespaced key to avoid using the data type argument everywhere
  */
 internal data class Key<T, Z>(val key: NamespacedKey, val type: PersistentDataType<T, Z>) {
-    @Suppress("DEPRECATION")
     constructor(key: String, type: PersistentDataType<T, Z>) : this(NamespacedKey("dannyshop", key), type)
 }
 
 internal fun <T, Z> ItemStack.keyValue(key: Key<T, Z>): Z? {
     val meta = itemMeta!!
+    meta.persistentDataContainer.set(key.key, PersistentDataType.LIST.strings(), listOf("a", "b", "c"))
     return meta.persistentDataContainer.get(key.key, key.type)
 }
 

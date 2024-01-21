@@ -1,18 +1,18 @@
-import org.jetbrains.kotlin.gradle.tasks.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
-    id("org.ajoberstar.grgit") version ("5.0.0")
-    kotlin("jvm") version "1.9.0"
+    id("org.ajoberstar.grgit") version ("5.2.1")
+    kotlin("jvm") version "1.9.22"
 }
 
 group = "me.daniel"
 version = "${getHash()}-dev"
-val spigotVersion = "1.20.1-R0.1-SNAPSHOT"
+val spigotVersion = "1.20.4-R0.1-SNAPSHOT"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_18
-    targetCompatibility = JavaVersion.VERSION_18
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
@@ -22,13 +22,14 @@ repositories {
     maven(url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven(url = "https://repo.essentialsx.net/releases/")
     maven(url = "https://jitpack.io")
+    maven(url = "https://papermc.io/repo/repository/maven-public/")
 }
 
 dependencies {
     compileOnly("org.spigotmc:spigot-api:$spigotVersion")
     compileOnly("org.spongepowered:configurate-yaml:4.1.2")
-    compileOnly("net.essentialsx:EssentialsX:2.19.0")
-    compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    compileOnly("net.essentialsx:EssentialsX:2.20.1")
+    compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     implementation("org.mongodb:mongodb-driver-sync:4.8.2")
     implementation(files("libs/InputAPI-e0422fa-dev.jar"))
     implementation(kotlin("stdlib"))
@@ -43,9 +44,9 @@ tasks.named<Copy>("processResources") {
 }
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
-    jvmTarget = "18"
+    jvmTarget = "21"
 }
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
-    jvmTarget = "18"
+    jvmTarget = "21"
 }

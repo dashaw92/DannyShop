@@ -1,11 +1,18 @@
 package me.danny.shop.inv.shop.items
 
-import me.danny.shop.model.*
-import org.apache.commons.lang.*
+import me.danny.shop.model.Item
 
+//https://www.baeldung.com/cs/levenshtein-distance-computation
 internal fun String.dist(other: String?): Int {
-    return if (other == null) this.length
-    else StringUtils.getLevenshteinDistance(other.lowercase(), this.lowercase())
+    if (other.isNullOrEmpty()) return length
+    if (isEmpty()) return other.length
+
+    val change = if (this[0] != other[0]) 1 else 0
+    val del = substring(1).dist(other) + 1
+    val ins = other.substring(1).dist(this) + 1
+    val sub = substring(1).dist(other.substring(1)) + change
+
+    return del.coerceAtMost(ins).coerceAtMost(sub)
 }
 
 internal fun matches(query: String, item: Item): Boolean {
