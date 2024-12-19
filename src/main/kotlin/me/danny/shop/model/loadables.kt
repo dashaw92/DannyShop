@@ -88,6 +88,7 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
      * Remove the category with ID [cid]
      * This will also delete all items belonging to that category
      */
+    //XXX: This might have a bug? I encountered items not being deleted...
     internal fun deleteCategory(cid: ID) {
         val category = getCategory(cid) ?: return
         items.remove(category)

@@ -40,7 +40,7 @@ internal object CooldownHandler {
     }
 
     fun getCooldownTime(player: Player, id: ID): Expiration {
-        val item = DannyShop.SHOP.itemByIid(id)!!
+        val item = DannyShop.SHOP.itemByIid(id) ?: return None
         val container = player.cooldowns()
 
         if (!container.isOnCooldown(id)) return None

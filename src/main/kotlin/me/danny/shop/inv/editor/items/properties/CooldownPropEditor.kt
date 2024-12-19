@@ -102,15 +102,15 @@ internal class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
                     else -> {}
                 }
 
+                duration = duration.coerceAtLeast(1)
                 build(inv)
                 return ViewAction.Pass
             }
 
             Material.COMPARATOR -> {
-                mode = when (mode) {
-                    State.None -> State.Infinite
-                    State.Infinite -> State.Timed
-                    State.Timed -> State.None
+                mode = when (event.click) {
+                    ClickType.RIGHT -> mode.prev()
+                    else -> mode.next()
                 }
 
                 build(inv)
@@ -143,7 +143,7 @@ internal class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
     }
 
     private fun placeUnitButtons(inv: Inventory, range: IntRange) {
-        Time.values()
+        Time.entries
             .map {
                 val material = when (mode) {
                     State.Timed -> if (it == unit) Material.GREEN_TERRACOTTA else Material.RED_TERRACOTTA
@@ -166,7 +166,19 @@ internal class CooldownPropEditor(private val editor: ItemEditor) : MenuView {
     private enum class State {
         None,
         Infinite,
-        Timed
+        Timed;
+
+        fun next(): State = when (this) {
+            None -> Infinite
+            Infinite -> Timed
+            Timed -> None
+        }
+
+        fun prev(): State = when (this) {
+            None -> Timed
+            Timed -> Infinite
+            Infinite -> None
+        }
     }
 
     private enum class Time {

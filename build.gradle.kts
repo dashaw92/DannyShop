@@ -8,7 +8,7 @@ val configurateVersion = "4.1.2"
 val mongoDriverVersion = "5.2.1"
 val essentialsVersion = "2.20.1"
 val vaultVersion = "1.7.1"
-val inputAPIHash = "e0422fa"
+val inputAPIHash = "9c56b66"
 
 plugins {
     `java-library`

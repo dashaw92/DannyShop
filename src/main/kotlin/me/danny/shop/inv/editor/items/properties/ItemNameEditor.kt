@@ -70,7 +70,7 @@ internal class ItemNameEditor(private val editor: ItemEditor) : MenuView {
             player.pluginMsg("Removed item name.")
             item.copy(name = null)
         } else {
-            player.pluginMsg("Renamed item to &e$newName&e!")
+            player.pluginMsg("Renamed item to &e$newName&7!")
             item.copy(name = newName)
         }
 
