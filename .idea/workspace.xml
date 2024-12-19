@@ -5,49 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b94bf21-b535-44e5-9ef9-428020b19a99" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/DannyShop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/DannyShop.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/backend/BackendManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/backend/BackendManager.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/backend/MongoLoader.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/backend/MongoLoader.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/backend/ShopBackend.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/backend/ShopBackend.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/backend/YamlLoader.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/backend/YamlLoader.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/backend/yaml/serializers.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/backend/yaml/serializers.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/commands/BackendAdminCommand.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/commands/BackendAdminCommand.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/commands/ImportCommand.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/commands/ImportCommand.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/commands/ShopCommand.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/commands/ShopCommand.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/economy/Economy.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/economy/Economy.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/importing/ImportListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/importing/ImportListener.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/importing/ImportSession.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/importing/ImportSession.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/importing/ImportedItem.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/importing/ImportedItem.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/input_util.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/input_util.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/Menu.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/Menu.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/Page.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/Page.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/chords.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/chords.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/categories/CategoryEditorView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/categories/CategoryEditorView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/categories/CategoryListingView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/categories/CategoryListingView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/categories/CategoryPages.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/categories/CategoryPages.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/cooldowns/CooldownEditor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/cooldowns/CooldownEditor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/cooldowns/CooldownEditorMainView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/cooldowns/CooldownEditorMainView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/cooldowns/PlayerCooldownEditor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/cooldowns/PlayerCooldownEditor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/ItemEditor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/ItemEditor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/ItemEditorView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/ItemEditorView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/properties/CooldownPropEditor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/properties/CooldownPropEditor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/properties/CostPropEditor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/properties/CostPropEditor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/properties/ItemCategoryEditor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/properties/ItemCategoryEditor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/properties/ItemNameEditor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/properties/ItemNameEditor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/properties/QuantitesPropEditor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/editor/items/properties/QuantitesPropEditor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/listeners/MenuListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/listeners/MenuListener.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/shop/CategoryPage.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/shop/CategoryPage.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/shop/ShopMenu.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/shop/ShopMenu.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/shop/items/ItemPage.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/shop/items/ItemPage.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/shop/purchasing/PurchaseMenu.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/shop/purchasing/PurchaseMenu.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/shop/purchasing/QuantityDisplay.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/shop/purchasing/QuantityDisplay.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/view/MenuView.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/view/MenuView.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/view/StateMenu.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/inv/view/StateMenu.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/model/loadables.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/model/loadables.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/utils/ItemBuilder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/utils/ItemBuilder.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/utils/inventoryUtil.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/me/danny/shop/utils/inventoryUtil.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/plugin.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,7 +93,29 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Gradle.DannyShop [jar]">
+    <configuration name="DannyShop [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
     <configuration name="DannyShop [jar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -158,6 +141,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.DannyShop [jar]" />
+        <item itemvalue="Gradle.DannyShop [clean]" />
       </list>
     </recent_temporary>
   </component>
@@ -177,7 +161,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1734627641177</updated>
-      <workItem from="1734627642538" duration="501000" />
+      <workItem from="1734627642538" duration="873000" />
     </task>
     <servers />
   </component>

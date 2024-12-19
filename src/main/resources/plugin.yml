@@ -3,16 +3,16 @@ main: me.danny.shop.DannyShop
 version: "${git_commit}"
 author: Danny
 description: Danny's shop plugin for Spigot
-api-version: 1.19
+api-version: "${spigot_api}"
 softdepend:
   - Essentials
   - Vault
   - InputAPI
 website: https://github.com/dashaw92/DannyShop
 libraries:
-  - org.jetbrains.kotlin:kotlin-stdlib:1.8.0
-  - org.spongepowered:configurate-yaml:4.1.2
-  - org.mongodb:mongodb-driver-sync:4.8.2
+  - org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}
+  - org.spongepowered:configurate-yaml:${configurate_version}
+  - org.mongodb:mongodb-driver-sync:${mongo_version}
 commands:
   dannyshop:
     aliases: [ "shop", "danshop", "dshop", "dannyssupercoolshopplugin", "anexcessivelylongaliasfortheshop" ]
