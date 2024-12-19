@@ -13,7 +13,7 @@ internal data class Key<T, Z>(val key: NamespacedKey, val type: PersistentDataTy
 
 internal fun <T, Z> ItemStack.keyValue(key: Key<T, Z>): Z? {
     val meta = itemMeta!!
-    meta.persistentDataContainer.set(key.key, PersistentDataType.LIST.strings(), listOf("a", "b", "c"))
+//    meta.persistentDataContainer.set(key.key, PersistentDataType.LIST.strings(), listOf("a", "b", "c"))
     return meta.persistentDataContainer.get(key.key, key.type)
 }
 

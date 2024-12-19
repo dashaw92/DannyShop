@@ -152,6 +152,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
         if (inv.size == 27) {
             rebuildInv()
             build()
+            return
         }
 
         //Render the items and categories

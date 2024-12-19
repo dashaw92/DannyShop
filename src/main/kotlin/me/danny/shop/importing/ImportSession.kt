@@ -119,7 +119,7 @@ internal class ImportSession(
             msg(
                 """
             
-            Each page represents on item to be imported.
+            Each page represents one item to be imported.
             
             Click the values to change them.
             
