@@ -1,17 +1,19 @@
 package me.danny.shop
 
-import me.danny.shop.backend.*
-import me.danny.shop.commands.*
-import me.danny.shop.data.*
-import me.danny.shop.economy.*
-import me.danny.shop.importing.*
-import me.danny.shop.inv.*
-import me.danny.shop.inv.listeners.*
-import me.danny.shop.model.*
-import me.danny.shop.utils.*
-import org.bukkit.*
-import org.bukkit.command.*
-import org.bukkit.plugin.java.*
+import me.danny.shop.backend.BackendManager
+import me.danny.shop.backend.LoadResult
+import me.danny.shop.commands.ShopCommand
+import me.danny.shop.data.CooldownHandler
+import me.danny.shop.data.CooldownListener
+import me.danny.shop.economy.Economy
+import me.danny.shop.importing.ImportListener
+import me.danny.shop.inv.Menu
+import me.danny.shop.inv.listeners.MenuListener
+import me.danny.shop.model.Shop
+import me.danny.shop.utils.color
+import org.bukkit.Bukkit
+import org.bukkit.command.CommandSender
+import org.bukkit.plugin.java.JavaPlugin
 
 /**
  * The one-stop shop plugin

@@ -1,10 +1,11 @@
 package me.danny.shop.inv
 
-import me.danny.shop.utils.*
-import org.bukkit.*
-import org.bukkit.event.inventory.*
-import org.bukkit.inventory.*
-import org.bukkit.potion.*
+import me.danny.shop.utils.ItemBuilder
+import org.bukkit.Material
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.ItemStack
+import org.bukkit.potion.PotionType
 
 /**
  * Represents a rectangle in an inventory

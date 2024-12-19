@@ -1,20 +1,30 @@
 package me.danny.shop.inv.editor.items.properties
 
-import me.danny.libinput.providers.*
 import me.danny.libinput.providers.Input
-import me.danny.shop.*
-import me.danny.shop.data.*
-import me.danny.shop.economy.*
-import me.danny.shop.inv.editor.items.*
-import me.danny.shop.inv.view.*
+import me.danny.shop.DannyShop
+import me.danny.shop.askInput
+import me.danny.shop.collapse
+import me.danny.shop.data.Key
+import me.danny.shop.data.attachKey
+import me.danny.shop.data.keyValue
+import me.danny.shop.economy.Economy
+import me.danny.shop.inv.editor.items.ItemEditor
+import me.danny.shop.inv.editor.items.ItemEditorView
+import me.danny.shop.inv.view.MenuView
+import me.danny.shop.inv.view.ViewAction
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.ItemType
-import me.danny.shop.utils.*
-import org.bukkit.*
-import org.bukkit.entity.*
-import org.bukkit.event.inventory.*
-import org.bukkit.inventory.*
-import org.bukkit.persistence.*
+import me.danny.shop.pluginMsg
+import me.danny.shop.utils.ItemBuilder
+import me.danny.shop.utils.color
+import me.danny.shop.utils.fill
+import org.bukkit.Material
+import org.bukkit.entity.Player
+import org.bukkit.event.inventory.ClickType
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 
 internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
 

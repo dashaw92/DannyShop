@@ -1,11 +1,11 @@
 package me.danny.shop.inv.editor.categories
 
-import me.danny.shop.*
-import me.danny.shop.data.*
-import me.danny.shop.inv.*
-import me.danny.shop.model.*
-import me.danny.shop.utils.*
-import org.bukkit.inventory.*
+import me.danny.shop.DannyShop
+import me.danny.shop.data.attachKey
+import me.danny.shop.inv.Page
+import me.danny.shop.model.Category
+import me.danny.shop.utils.ItemBuilder
+import org.bukkit.inventory.Inventory
 
 internal class CategoryPages(buttons: Pair<Int, Int>, var selected: Category? = null) :
     Page<Category>(DannyShop.SHOP.categories(), Pair(1, 1), Pair(7, 3), buttons) {

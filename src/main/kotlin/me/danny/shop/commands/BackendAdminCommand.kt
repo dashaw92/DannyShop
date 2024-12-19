@@ -1,8 +1,11 @@
 package me.danny.shop.commands
 
-import me.danny.shop.*
-import me.danny.shop.backend.*
-import org.bukkit.command.*
+import me.danny.shop.DannyShop
+import me.danny.shop.backend.BackendManager
+import me.danny.shop.backend.BackendType
+import me.danny.shop.backend.ShopBackend
+import me.danny.shop.pluginMsg
+import org.bukkit.command.CommandSender
 
 internal object BackendAdminCommand {
     fun onCommand(sender: CommandSender, args: Array<out String>): Boolean {

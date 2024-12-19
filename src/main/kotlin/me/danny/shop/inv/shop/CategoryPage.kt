@@ -1,12 +1,13 @@
 package me.danny.shop.inv.shop
 
-import me.danny.shop.data.*
-import me.danny.shop.inv.*
+import me.danny.shop.data.attachKey
+import me.danny.shop.inv.Page
 import me.danny.shop.inv.editor.categories.CategoryEditor.Companion.CATEGORY_KEY
-import me.danny.shop.model.*
-import me.danny.shop.utils.*
-import org.bukkit.entity.*
-import org.bukkit.inventory.*
+import me.danny.shop.model.Category
+import me.danny.shop.utils.ItemBuilder
+import org.bukkit.entity.Player
+import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.ItemFlag
 
 internal class CategoryPage(
     private val viewer: Player,

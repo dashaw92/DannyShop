@@ -2,12 +2,14 @@ package me.danny.shop.backend
 
 import me.danny.shop.backend.MongoOptions.Schema
 import me.danny.shop.backend.MongoOptions.Schema.MongoDBSRV
-import org.bukkit.plugin.*
-import org.spongepowered.configurate.*
-import org.spongepowered.configurate.serialize.*
-import org.spongepowered.configurate.yaml.*
-import java.io.*
-import java.lang.reflect.*
+import org.bukkit.plugin.Plugin
+import org.spongepowered.configurate.ConfigurationNode
+import org.spongepowered.configurate.serialize.TypeSerializer
+import org.spongepowered.configurate.serialize.TypeSerializerCollection
+import org.spongepowered.configurate.yaml.NodeStyle
+import org.spongepowered.configurate.yaml.YamlConfigurationLoader
+import java.io.File
+import java.lang.reflect.Type
 
 internal object BackendManager {
 

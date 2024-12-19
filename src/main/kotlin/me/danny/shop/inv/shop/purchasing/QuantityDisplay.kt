@@ -1,10 +1,12 @@
 package me.danny.shop.inv.shop.purchasing
 
-import me.danny.shop.data.*
-import me.danny.shop.inv.*
-import me.danny.shop.model.*
-import me.danny.shop.utils.*
-import org.bukkit.inventory.*
+import me.danny.shop.data.attachMarker
+import me.danny.shop.inv.LoreField
+import me.danny.shop.inv.Page
+import me.danny.shop.model.Item
+import me.danny.shop.utils.ItemBuilder
+import me.danny.shop.utils.setName
+import org.bukkit.inventory.Inventory
 
 internal class QuantityDisplay(private val item: Item) :
     Page<Int>(item.quantities.predefined, Pair(1, 1), Pair(7, 3), Pair(45 - 3, 45 - 2)) {

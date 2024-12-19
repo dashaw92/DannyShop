@@ -1,16 +1,18 @@
 package me.danny.shop.backend.yaml
 
-import me.danny.shop.model.*
+import me.danny.shop.model.Category
+import me.danny.shop.model.ID
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.*
 import me.danny.shop.model.Item.ItemType.*
-import org.bukkit.*
-import org.bukkit.configuration.file.*
-import org.bukkit.inventory.*
-import org.spongepowered.configurate.*
-import org.spongepowered.configurate.serialize.*
-import java.io.*
-import java.lang.reflect.*
+import me.danny.shop.model.Shop
+import org.bukkit.Material
+import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.inventory.ItemStack
+import org.spongepowered.configurate.ConfigurationNode
+import org.spongepowered.configurate.serialize.TypeSerializer
+import java.io.StringReader
+import java.lang.reflect.Type
 
 //<editor-fold desc="Type serializers">
 internal object ItemStackSerializer : TypeSerializer<ItemStack> {

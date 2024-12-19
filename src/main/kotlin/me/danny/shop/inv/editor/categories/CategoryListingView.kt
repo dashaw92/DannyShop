@@ -1,12 +1,16 @@
 package me.danny.shop.inv.editor.categories
 
-import me.danny.shop.data.*
-import me.danny.shop.inv.view.*
-import me.danny.shop.model.*
-import me.danny.shop.utils.*
-import org.bukkit.*
-import org.bukkit.event.inventory.*
-import org.bukkit.inventory.*
+import me.danny.shop.data.hasKey
+import me.danny.shop.data.keyValue
+import me.danny.shop.inv.view.MenuView
+import me.danny.shop.inv.view.ViewAction
+import me.danny.shop.model.ID
+import me.danny.shop.model.Shop
+import me.danny.shop.utils.ItemBuilder
+import me.danny.shop.utils.fill
+import org.bukkit.Material
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.Inventory
 
 internal class CategoryListingView : MenuView {
     private lateinit var page: CategoryPages

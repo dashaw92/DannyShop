@@ -1,6 +1,8 @@
 package me.danny.shop.importing
 
-import me.danny.shop.model.*
+import me.danny.shop.model.Category
+import me.danny.shop.model.ID
+import me.danny.shop.model.Item
 import me.danny.shop.model.Item.*
 
 internal data class ImportedItem(

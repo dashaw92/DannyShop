@@ -1,12 +1,17 @@
 package me.danny.shop.commands
 
-import me.danny.shop.*
-import me.danny.shop.inv.editor.categories.*
-import me.danny.shop.inv.editor.cooldowns.*
-import me.danny.shop.me.inv.shop.*
-import me.danny.shop.utils.*
-import org.bukkit.command.*
-import org.bukkit.entity.*
+import me.danny.shop.DannyShop
+import me.danny.shop.Perm
+import me.danny.shop.inv.editor.categories.CategoryEditor
+import me.danny.shop.inv.editor.cooldowns.CooldownEditor
+import me.danny.shop.me.inv.shop.ShopMenu
+import me.danny.shop.pluginMsg
+import me.danny.shop.utils.color
+import org.bukkit.command.Command
+import org.bukkit.command.CommandExecutor
+import org.bukkit.command.CommandSender
+import org.bukkit.command.TabCompleter
+import org.bukkit.entity.Player
 
 internal object ShopCommand : CommandExecutor, TabCompleter {
     init {

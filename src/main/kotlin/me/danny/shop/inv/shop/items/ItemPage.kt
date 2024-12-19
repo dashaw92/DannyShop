@@ -1,17 +1,23 @@
 package me.danny.shop.inv.shop.items
 
-import me.danny.shop.*
-import me.danny.shop.data.*
-import me.danny.shop.inv.*
-import me.danny.shop.me.inv.shop.*
-import me.danny.shop.model.*
+import me.danny.shop.DannyShop
+import me.danny.shop.Perm
+import me.danny.shop.data.CooldownHandler
+import me.danny.shop.data.Expiration
+import me.danny.shop.data.attachKey
+import me.danny.shop.inv.LoreField
+import me.danny.shop.inv.Page
+import me.danny.shop.me.inv.shop.ShopMenu
+import me.danny.shop.model.Category
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.ItemType
 import me.danny.shop.model.Item.Quantities.Allowed.Any
-import me.danny.shop.utils.*
-import org.bukkit.*
-import org.bukkit.entity.*
-import org.bukkit.inventory.*
+import me.danny.shop.utils.ItemBuilder
+import org.bukkit.Material
+import org.bukkit.entity.Player
+import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.ItemFlag
+import org.bukkit.inventory.ItemStack
 
 internal class ItemPage(
     private val viewer: Player,

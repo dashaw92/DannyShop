@@ -1,25 +1,32 @@
 package me.danny.shop.me.inv.shop
 
-import me.danny.libinput.providers.*
 import me.danny.libinput.providers.Input
 import me.danny.shop.*
-import me.danny.shop.data.*
-import me.danny.shop.economy.*
+import me.danny.shop.data.Key
+import me.danny.shop.data.hasKey
+import me.danny.shop.data.keyValue
+import me.danny.shop.economy.Economy
 import me.danny.shop.inv.*
 import me.danny.shop.inv.LoreList.toEntry
 import me.danny.shop.inv.editor.categories.CategoryEditor.Companion.CATEGORY_KEY
-import me.danny.shop.inv.editor.items.*
-import me.danny.shop.inv.shop.*
-import me.danny.shop.inv.shop.items.*
-import me.danny.shop.inv.shop.purchasing.*
-import me.danny.shop.model.*
+import me.danny.shop.inv.editor.items.ItemEditor
+import me.danny.shop.inv.shop.CategoryPage
+import me.danny.shop.inv.shop.items.FilterType
+import me.danny.shop.inv.shop.items.ItemPage
+import me.danny.shop.inv.shop.purchasing.PurchaseMenu
+import me.danny.shop.model.Category
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.Quantities.Allowed.Any
-import me.danny.shop.utils.*
-import org.bukkit.*
-import org.bukkit.entity.*
-import org.bukkit.event.inventory.*
-import org.bukkit.persistence.*
+import me.danny.shop.utils.ItemBuilder
+import me.danny.shop.utils.color
+import me.danny.shop.utils.fill
+import org.bukkit.Bukkit
+import org.bukkit.ChatColor
+import org.bukkit.Material
+import org.bukkit.entity.Player
+import org.bukkit.event.inventory.ClickType
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.persistence.PersistentDataType
 
 internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) : Menu(6, "", viewer), RefreshPlease {
 

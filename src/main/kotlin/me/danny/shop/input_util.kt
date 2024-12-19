@@ -1,9 +1,8 @@
 package me.danny.shop
 
 import me.danny.libinput.providers.*
-import me.danny.libinput.providers.Input
-import me.danny.shop.utils.*
-import org.bukkit.*
+import me.danny.shop.utils.color
+import org.bukkit.Material
 
 internal fun askInput(
     prompt: String,

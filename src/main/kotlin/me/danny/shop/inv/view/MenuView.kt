@@ -1,7 +1,7 @@
 package me.danny.shop.inv.view
 
-import org.bukkit.event.inventory.*
-import org.bukkit.inventory.*
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.Inventory
 
 /**
  * Represents an inventory-agnostic GUI that can be plugged into

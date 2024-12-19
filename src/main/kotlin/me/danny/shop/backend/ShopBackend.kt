@@ -1,7 +1,7 @@
 package me.danny.shop.backend
 
-import me.danny.shop.model.*
-import org.bukkit.plugin.*
+import me.danny.shop.model.Shop
+import org.bukkit.plugin.Plugin
 
 internal sealed interface ShopBackend {
     fun name(): String

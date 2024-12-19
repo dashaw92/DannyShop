@@ -1,17 +1,24 @@
 package me.danny.shop.backend
 
-import com.mongodb.*
-import com.mongodb.client.*
+import com.mongodb.ConnectionString
+import com.mongodb.MongoClientSettings
+import com.mongodb.ServerApi
+import com.mongodb.ServerApiVersion
+import com.mongodb.client.MongoClients
+import com.mongodb.client.MongoDatabase
 import me.danny.shop.backend.BackendType.MongoDB
 import me.danny.shop.backend.MongoOptions.Schema
-import me.danny.shop.model.*
+import me.danny.shop.model.Category
+import me.danny.shop.model.ID
+import me.danny.shop.model.Item
 import me.danny.shop.model.Item.*
 import me.danny.shop.model.Item.Quantities.Allowed
-import org.bson.*
-import org.bukkit.*
-import org.bukkit.configuration.file.*
-import org.bukkit.plugin.*
-import java.io.*
+import me.danny.shop.model.Shop
+import org.bson.Document
+import org.bukkit.Material
+import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.plugin.Plugin
+import java.io.StringReader
 
 internal class MongoLoader(options: MongoOptions) : ShopBackend {
 
@@ -121,8 +128,8 @@ internal class MongoLoader(options: MongoOptions) : ShopBackend {
                             "display" to it.display.name,
                             "permission" to it.permission
                         )
-                )
-            })
+                    )
+                })
 
         val items = db.getCollection("items")
         items.deleteMany(Document())

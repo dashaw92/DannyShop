@@ -1,20 +1,25 @@
 package me.danny.shop.importing
 
-import me.danny.shop.*
-import me.danny.shop.model.*
+import me.danny.shop.DannyShop
+import me.danny.shop.model.Category
+import me.danny.shop.model.ID
 import me.danny.shop.model.Item.*
 import me.danny.shop.model.Item.Quantities.Allowed.Any
 import me.danny.shop.model.Item.Quantities.Allowed.Predefined
-import me.danny.shop.utils.*
-import net.md_5.bungee.api.chat.*
+import me.danny.shop.pluginMsg
+import me.danny.shop.utils.ItemBuilder
+import net.md_5.bungee.api.chat.BaseComponent
+import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.ClickEvent.Action.CHANGE_PAGE
 import net.md_5.bungee.api.chat.ClickEvent.Action.RUN_COMMAND
+import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT
-import net.md_5.bungee.api.chat.hover.content.*
-import org.bukkit.*
-import org.bukkit.entity.*
-import org.bukkit.inventory.*
-import org.bukkit.inventory.meta.*
+import net.md_5.bungee.api.chat.TextComponent
+import net.md_5.bungee.api.chat.hover.content.Text
+import org.bukkit.Material
+import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.BookMeta
 import java.util.*
 import net.md_5.bungee.api.ChatColor as Color
 
@@ -200,13 +205,14 @@ internal class ImportSession(
             hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to adjust quantities"))
         }.addPropEvent("qty"))
         base.addExtra("\n")
-        base.addExtra(when (item.quantities.allowed) {
-            Any -> TextComponent("Any")
-            Predefined -> TextComponent("Predefined")
-        }.apply {
-            color = Color.BLACK
-            hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to set allowed mode"))
-        }.addPropEvent("qtymode")
+        base.addExtra(
+            when (item.quantities.allowed) {
+                Any -> TextComponent("Any")
+                Predefined -> TextComponent("Predefined")
+            }.apply {
+                color = Color.BLACK
+                hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to set allowed mode"))
+            }.addPropEvent("qtymode")
         )
         base.addExtra("\n")
 

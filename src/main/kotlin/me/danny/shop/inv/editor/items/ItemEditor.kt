@@ -1,9 +1,10 @@
 package me.danny.shop.inv.editor.items
 
-import me.danny.shop.inv.view.*
-import me.danny.shop.me.inv.shop.*
-import me.danny.shop.model.*
-import org.bukkit.entity.*
+import me.danny.shop.inv.view.MenuView
+import me.danny.shop.inv.view.StateMenu
+import me.danny.shop.me.inv.shop.ShopMenu
+import me.danny.shop.model.ID
+import org.bukkit.entity.Player
 
 internal class ItemEditor(viewer: Player, val item: ID, val returnInfo: ShopMenu.ShopReturnInfo) :
     StateMenu(3, "- &9Item Editor", viewer) {

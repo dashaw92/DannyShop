@@ -1,7 +1,8 @@
 package me.danny.shop.utils
 
-import org.bukkit.*
-import org.bukkit.inventory.*
+import org.bukkit.ChatColor
+import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.ItemStack
 
 internal fun Inventory.fill(filler: ItemStack) {
     (0..<size).forEach { setItem(it, filler) }
