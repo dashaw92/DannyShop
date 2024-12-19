@@ -98,8 +98,8 @@ internal abstract class Page<T>(
      * Renders the previous and next page buttons (if needed)
      */
     private fun drawButtons(inv: Inventory) {
-        val prevPage = ItemBuilder.makeTippedArrow("&cPrevious", PotionType.INSTANT_HEAL)
-        val nextPage = ItemBuilder.makeTippedArrow("&2Next", PotionType.JUMP)
+        val prevPage = ItemBuilder.makeTippedArrow("&cPrevious", PotionType.HEALING)
+        val nextPage = ItemBuilder.makeTippedArrow("&2Next", PotionType.LEAPING)
         if (page() > 0) inv.setItem(buttons.first, prevPage)
         if (page() + 1 < numPages()) inv.setItem(buttons.second, nextPage)
     }

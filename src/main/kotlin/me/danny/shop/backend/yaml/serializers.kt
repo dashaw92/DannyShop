@@ -32,28 +32,28 @@ internal object ItemStackSerializer : TypeSerializer<ItemStack> {
 
 }
 
-internal object ItemTypeSerializer : TypeSerializer<ItemType> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): ItemType {
+internal object ItemTypeSerializer : TypeSerializer<Item.ItemType> {
+    override fun deserialize(type: Type?, node: ConfigurationNode?): Item.ItemType {
         if (node == null) throw IllegalArgumentException("what")
 
         val itemType = node.node("type").string!!
         val obj = node.node("object")
         return when (itemType.lowercase()) {
             "material" -> Mat(obj.get(Material::class.java)!!)
-            "item" -> ItemType.Item(obj.get(ItemStack::class.java)!!)
+            "item" -> Item.ItemType.Item(obj.get(ItemStack::class.java)!!)
             "experience" -> Exp(obj.int)
             "command" -> Command(obj.string!!)
             else -> throw IllegalArgumentException("Unknown item type $itemType")
         }
     }
 
-    override fun serialize(type: Type?, obj: ItemType?, node: ConfigurationNode?) {
+    override fun serialize(type: Type?, obj: Item.ItemType?, node: ConfigurationNode?) {
         if (node == null || obj == null) return
 
         val typeNode = node.node("type")
         when (obj) {
             is Mat -> typeNode.set("material")
-            is ItemType.Item -> typeNode.set("item")
+            is Item.ItemType.Item -> typeNode.set("item")
             is Exp -> typeNode.set("experience")
             is Command -> typeNode.set("command")
         }
@@ -133,7 +133,7 @@ internal object ItemSerializer : TypeSerializer<Item> {
         with(node) {
             val iid = ID(node("iid").string!!)
             val name = node("name").string
-            val item = node("item").get(ItemType::class.java)!!
+            val item = node("item").get(Item.ItemType::class.java)!!
             val cost = node("cost").get(Cost::class.java)!!
             val cooldown = node("cooldown").get(Cooldown::class.java)!!
             val quantities = node("quantities").get(Quantities::class.java)!!
@@ -148,7 +148,7 @@ internal object ItemSerializer : TypeSerializer<Item> {
 
         when (obj.item) {
             is Mat -> if (obj.item.material.isAir) return
-            is ItemType.Item -> if (obj.item.item.type.isAir) return
+            is Item.ItemType.Item -> if (obj.item.item.type.isAir) return
             else -> {}
         }
 
@@ -198,7 +198,7 @@ internal object ShopSerializer : TypeSerializer<Shop> {
             .filter { item ->
                 when (item.item) {
                     is Mat -> !item.item.material.isAir
-                    is ItemType.Item -> !item.item.item.type.isAir
+                    is Item.ItemType.Item -> !item.item.item.type.isAir
                     else -> true
                 }
             }

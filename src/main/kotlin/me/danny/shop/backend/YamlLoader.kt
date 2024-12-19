@@ -17,7 +17,7 @@ import java.io.*
 private fun collection(): TypeSerializerCollection = TypeSerializerCollection.builder()
     .register(ItemStack::class.java, ItemStackSerializer)
     .register(Category::class.java, CategorySerializer)
-    .register(ItemType::class.java, ItemTypeSerializer)
+    .register(Item.ItemType::class.java, ItemTypeSerializer)
     .register(Cost::class.java, CostSerializer)
     .register(Cooldown::class.java, CooldownSerializer)
     .register(Quantities::class.java, QuantitiesSerializer)

@@ -1,18 +1,20 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     `java-library`
-    id("org.ajoberstar.grgit") version ("5.2.1")
-    kotlin("jvm") version "1.9.22"
+    id("org.ajoberstar.grgit") version ("5.3.0")
+    kotlin("jvm") version "2.1.0"
 }
 
 group = "me.daniel"
 version = "${getHash()}-dev"
-val spigotVersion = "1.20.4-R0.1-SNAPSHOT"
+val spigotVersion = "1.21.4-R0.1-SNAPSHOT"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_23
+    targetCompatibility = JavaVersion.VERSION_23
 }
 
 repositories {
@@ -30,7 +32,7 @@ dependencies {
     compileOnly("org.spongepowered:configurate-yaml:4.1.2")
     compileOnly("net.essentialsx:EssentialsX:2.20.1")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
-    implementation("org.mongodb:mongodb-driver-sync:4.8.2")
+    implementation("org.mongodb:mongodb-driver-sync:5.2.1")
     implementation(files("libs/InputAPI-e0422fa-dev.jar"))
     implementation(kotlin("stdlib"))
 }
@@ -42,11 +44,9 @@ tasks.named<Copy>("processResources") {
         expand("git_commit" to version)
     }
 }
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    jvmTarget = "21"
-}
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.kotlinOptions {
-    jvmTarget = "21"
+
+tasks.withType<KotlinJvmCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_23)
+    }
 }

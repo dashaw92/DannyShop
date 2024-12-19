@@ -1,6 +1,7 @@
 package me.danny.shop.inv.shop.purchasing
 
 import me.danny.libinput.providers.*
+import me.danny.libinput.providers.Input
 import me.danny.shop.*
 import me.danny.shop.data.*
 import me.danny.shop.economy.*

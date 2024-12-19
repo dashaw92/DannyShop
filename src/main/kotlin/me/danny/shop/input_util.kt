@@ -1,6 +1,7 @@
 package me.danny.shop
 
 import me.danny.libinput.providers.*
+import me.danny.libinput.providers.Input
 import me.danny.shop.utils.*
 import org.bukkit.*
 

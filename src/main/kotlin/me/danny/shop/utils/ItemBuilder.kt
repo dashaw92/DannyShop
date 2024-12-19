@@ -51,17 +51,17 @@ internal object ItemBuilder {
     fun addEnchantGlow(item: ItemStack): ItemStack {
         val clone = item.clone()
         val im = item.itemMeta!!
-        im.addItemFlags(*ItemFlag.values())
+        im.addItemFlags(*ItemFlag.entries.toTypedArray())
         clone.itemMeta = im
-        clone.addUnsafeEnchantment(Enchantment.DURABILITY, 1)
+        clone.addUnsafeEnchantment(Enchantment.UNBREAKING, 1)
         return clone
     }
 
     fun makeTippedArrow(name: String, type: PotionType, vararg lore: String?): ItemStack {
         val arrow: ItemStack = makeItem(Material.TIPPED_ARROW, 1, name, *lore)
         val pm = arrow.itemMeta as PotionMeta?
-        pm!!.addItemFlags(*ItemFlag.values())
-        pm.basePotionData = PotionData(type)
+        pm!!.addItemFlags(*ItemFlag.entries.toTypedArray())
+        pm.basePotionType = type
         arrow.itemMeta = pm
         return arrow
     }

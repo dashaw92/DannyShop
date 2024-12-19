@@ -1,6 +1,7 @@
 package me.danny.shop.inv.editor.items.properties
 
 import me.danny.libinput.providers.*
+import me.danny.libinput.providers.Input
 import me.danny.shop.*
 import me.danny.shop.data.*
 import me.danny.shop.inv.*

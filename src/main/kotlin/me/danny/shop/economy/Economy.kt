@@ -155,9 +155,9 @@ internal object Economy {
     }
 
     private sealed interface Result {
-        object BypassesCheck : Result
-        object Success : Result
-        object UnknownFailure : Result
+        data object BypassesCheck : Result
+        data object Success : Result
+        data object UnknownFailure : Result
         data class NotEnoughFunds(val needed: Double) : Result
     }
 }
