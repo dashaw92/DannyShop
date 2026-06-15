@@ -61,6 +61,7 @@ class DannyShop : JavaPlugin() {
         Bukkit.getPluginManager().registerEvents(ImportListener, this)
         Bukkit.getPluginManager().registerEvents(ChatInput.ChatInputListener, this)
         getCommand("dannyshop")!!.setExecutor(ShopCommand)
+        startTask()
     }
 
     override fun onDisable() {
@@ -76,7 +77,8 @@ class DannyShop : JavaPlugin() {
             Bukkit.getScheduler().cancelTask(resetTaskHandle)
         }
 
-        resetTaskHandle = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ResetTask, 0L, 72000L)
+        val period = 72000L
+        resetTaskHandle = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ResetTask(period), 0L, period)
     }
 }
 

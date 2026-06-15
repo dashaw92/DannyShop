@@ -3,6 +3,7 @@ package me.danny.shop.inv.shop.items
 import me.danny.shop.DannyShop
 import me.danny.shop.data.attachKey
 import me.danny.shop.economy.LimitTracking
+import me.danny.shop.economy.ResetTask
 import me.danny.shop.inv.LoreField
 import me.danny.shop.inv.Page
 import me.danny.shop.inv.shop.ShopMenu
@@ -15,6 +16,8 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
+import java.time.Instant
+import java.util.concurrent.TimeUnit
 
 internal class ItemPage(
     private val viewer: Player,
@@ -159,8 +162,33 @@ internal class ItemPage(
             val limit = item.sellLimit.amount.toInt()
             val current = limit - (LimitTracking.remaining(viewer, item.iid) ?: 0)
 
+            var resetNext = ResetTask.nextReset - Instant.now().toEpochMilli()
+            var resetFormatted = ""
+            val days = TimeUnit.DAYS.convert(resetNext, TimeUnit.MILLISECONDS)
+            if (days >= 1) {
+                resetNext -= TimeUnit.MILLISECONDS.convert(days, TimeUnit.DAYS)
+                resetFormatted += "${days}d "
+            }
+            val hours = TimeUnit.HOURS.convert(resetNext, TimeUnit.MILLISECONDS)
+            if (hours >= 1) {
+                resetNext -= TimeUnit.MILLISECONDS.convert(hours, TimeUnit.HOURS)
+                resetFormatted += "${hours}h "
+            }
+            val minutes = TimeUnit.MINUTES.convert(resetNext, TimeUnit.MILLISECONDS)
+            if (minutes >= 1) {
+                resetNext -= TimeUnit.MILLISECONDS.convert(minutes, TimeUnit.MINUTES)
+                resetFormatted += "${minutes}m "
+            }
+            val seconds = TimeUnit.SECONDS.convert(resetNext, TimeUnit.MILLISECONDS)
+            if (seconds >= 1) {
+                resetNext -= TimeUnit.MILLISECONDS.convert(seconds, TimeUnit.SECONDS)
+                resetFormatted += "${seconds}s"
+            }
+
             fields.add("")
-            fields.add("&5Sell Limit: &7$current/$limit")
+            fields.add("&5Sell Limit:")
+            fields.add("   &7$current/$limit")
+            fields.add("   &7Reset in ${resetFormatted.trim()}")
         }
 
         if (addPurchaseOption) {

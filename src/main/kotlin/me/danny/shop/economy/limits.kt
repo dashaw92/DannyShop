@@ -4,10 +4,16 @@ import me.danny.shop.DannyShop
 import me.danny.shop.model.ID
 import me.danny.shop.model.Item
 import org.bukkit.entity.Player
+import java.time.Instant
 import java.util.*
 
-object ResetTask : Runnable {
+class ResetTask(val period: Long) : Runnable {
+    companion object {
+        internal var nextReset: Long = Instant.now().toEpochMilli()
+    }
+
     override fun run() {
+        nextReset = Instant.now().toEpochMilli() + (period * 50)
         LimitTracking.resetAll()
     }
 }
