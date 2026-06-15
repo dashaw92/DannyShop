@@ -1,9 +1,9 @@
 package me.danny.shop.inv.editor.items.properties
 
-import me.danny.libinput.providers.Input
 import me.danny.shop.DannyShop
 import me.danny.shop.askInput
 import me.danny.shop.collapse
+import me.danny.shop.input.Input
 import me.danny.shop.inv.editor.items.ItemEditor
 import me.danny.shop.inv.editor.items.ItemEditorView
 import me.danny.shop.inv.view.MenuView
@@ -54,7 +54,7 @@ internal class ItemNameEditor(private val editor: ItemEditor) : MenuView {
             Material.SPRUCE_SIGN -> {
                 val player = event.whoClicked as Player
                 player.closeInventory()
-                askInput("&9New name", Material.SPRUCE_WALL_SIGN, item.name)
+                askInput("&9New name")
                     .getInput(player, ::handleInput)
             }
 

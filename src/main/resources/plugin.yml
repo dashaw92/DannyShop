@@ -5,14 +5,13 @@ author: Danny
 description: Danny's shop plugin for Spigot
 api-version: "${spigot_api}"
 softdepend:
-  - Essentials
+#  - Essentials
   - Vault
-  - InputAPI
+#  - InputAPI
 website: https://github.com/dashaw92/DannyShop
 libraries:
   - org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}
   - org.spongepowered:configurate-yaml:${configurate_version}
-  - org.mongodb:mongodb-driver-sync:${mongo_version}
 commands:
   dannyshop:
     aliases: [ "shop", "danshop", "dshop", "dannyssupercoolshopplugin", "anexcessivelylongaliasfortheshop" ]

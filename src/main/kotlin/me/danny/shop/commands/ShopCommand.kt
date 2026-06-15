@@ -3,8 +3,7 @@ package me.danny.shop.commands
 import me.danny.shop.DannyShop
 import me.danny.shop.Perm
 import me.danny.shop.inv.editor.categories.CategoryEditor
-import me.danny.shop.inv.editor.cooldowns.CooldownEditor
-import me.danny.shop.me.inv.shop.ShopMenu
+import me.danny.shop.inv.shop.ShopMenu
 import me.danny.shop.pluginMsg
 import me.danny.shop.utils.color
 import org.bukkit.command.Command
@@ -33,7 +32,6 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
             }
 
             "catedit" -> requireAdminPlayer(sender, ::CategoryEditor)
-            "cooldowns" -> requireAdminPlayer(sender, ::CooldownEditor)
 
             "backend" -> requireAdmin(sender) {
                 BackendAdminCommand.onCommand(it, cmdArgs)
@@ -49,7 +47,7 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
         args: Array<out String>
     ): MutableList<String>? {
         if (args.size != 1) return null
-        if (sender.hasPermission(Perm.ADMIN)) return mutableListOf("import", "catedit", "cooldowns", "backend")
+        if (sender.hasPermission(Perm.ADMIN)) return mutableListOf("import", "catedit", "backend")
         return null
     }
 

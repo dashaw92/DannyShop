@@ -2,16 +2,13 @@ package me.danny.shop.inv.shop.items
 
 import me.danny.shop.DannyShop
 import me.danny.shop.Perm
-import me.danny.shop.data.CooldownHandler
-import me.danny.shop.data.Expiration
 import me.danny.shop.data.attachKey
 import me.danny.shop.inv.LoreField
 import me.danny.shop.inv.Page
-import me.danny.shop.me.inv.shop.ShopMenu
+import me.danny.shop.inv.shop.ShopMenu
 import me.danny.shop.model.Category
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.ItemType
-import me.danny.shop.model.Item.Quantities.Allowed.Any
 import me.danny.shop.utils.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -35,8 +32,6 @@ internal class ItemPage(
                 FilterType.All -> true
                 FilterType.Materials -> it.item is ItemType.Mat
                 FilterType.Items -> it.item is ItemType.Item
-                FilterType.Commands -> it.item is ItemType.Command
-                FilterType.Experience -> it.item is ItemType.Exp
             }
         }
 
@@ -151,32 +146,18 @@ internal class ItemPage(
         val fields = LoreField()
 
         var addPurchaseOption = viewer.hasPermission(Perm.ADMIN)
-        fields.add("&9Cost:")
+        fields.add("&9Worth:")
         when (item.cost) {
-            is Item.Cost.NotSet -> fields.add("&c  No price set!")
+            is Item.Cost.NotSet -> fields.add("&c  No value set!")
             is Item.Cost.Value -> {
-                addPurchaseOption = addPurchaseOption || !CooldownHandler.isOnCooldown(viewer, item.iid)
+                addPurchaseOption = true
                 fields.add("  &3Each: &7\$%,.2f".format(item.cost.buy))
             }
         }
 
-        when (item.cooldown) {
-            is Item.Cooldown.None -> { /*fields.add("&9Cooldown: &2None")*/
-            }
-
-            is Item.Cooldown.Infinite -> fields.add("&9Cooldown: &4Forever")
-            is Item.Cooldown.Duration -> fields.add(
-                "&9Cooldown: &7${item.cooldown.time.display()}"
-            )
-        }
-        fields.addAll(playerCooldown(item))
-
         if (addPurchaseOption) {
             fields.add("")
-            fields.add("&e[Purchase: Click]")
-            if (item.quantities.allowed == Any || item.quantities.predefined.size > 1) {
-                fields.add("&e[Bulk: Right click]")
-            }
+            fields.add("&e[Sell: Click]")
         }
         if (viewer.hasPermission("Perm.ADMIN")) {
             //Without this, there will be an ugly
@@ -187,26 +168,5 @@ internal class ItemPage(
         }
 
         return ItemBuilder.addLore(tagged, *fields.build())
-    }
-
-    private fun playerCooldown(item: Item): List<String> {
-        //Show the expiration time, but strikethrough it to indicate
-        //that they are exempt due to permissions
-        val modifier = if (viewer.hasPermission(Perm.ADMIN)) "&m"
-        else ""
-
-        val expiration = when (val expiration = CooldownHandler.getCooldownTime(viewer, item.iid)) {
-            is Expiration.None -> mutableListOf()
-            is Expiration.Never -> mutableListOf("&4${modifier}On cooldown forever")
-            is Expiration.Future -> {
-                mutableListOf("&9${modifier}Expires:&9 &7$modifier${expiration.format().firstOrNull() ?: "<1s"}")
-            }
-        }
-
-        if (expiration.isNotEmpty() && viewer.hasPermission(Perm.ADMIN)) {
-            expiration += "&7&o(Cooldown bypassed)"
-        }
-
-        return expiration
     }
 }

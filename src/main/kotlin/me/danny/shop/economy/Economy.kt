@@ -1,10 +1,7 @@
 package me.danny.shop.economy
 
-import com.earth2me.essentials.Essentials
 import me.danny.shop.DannyShop
 import me.danny.shop.Perm
-import me.danny.shop.data.CooldownHandler
-import me.danny.shop.data.Expiration
 import me.danny.shop.model.ID
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.Cost
@@ -51,8 +48,6 @@ internal object Economy {
                 stack.amount = amount
                 stack
             }
-
-            else -> return true
         }
 
         val slotsNeeded = ceil(amount / 64.0).toInt()
@@ -73,21 +68,6 @@ internal object Economy {
 
     fun purchase(player: Player, id: ID, amount: Int = 1) {
         val item = DannyShop.SHOP.itemByIid(id)!!
-
-        if (CooldownHandler.isOnCooldown(player, id)) {
-            when (val expiration = CooldownHandler.getCooldownTime(player, id)) {
-                is Expiration.Never -> player.pluginMsg("&cYou cannot purchase this anymore!")
-                is Expiration.Future -> {
-                    val fullExpiration = expiration.format().take(2).joinToString(" ").trim().ifBlank {
-                        "<1s"
-                    }
-                    player.pluginMsg("You can purchase this again in &o$fullExpiration")
-                }
-
-                else -> {}
-            }
-            return
-        }
 
         val price = when (item.cost) {
             is Cost.Value -> item.cost.buy * amount
@@ -115,27 +95,7 @@ internal object Economy {
                         stack.amount = amount
                         player.inventory.addItem(stack)
                     }
-
-                    is ItemType.Exp -> {
-                        val exp = item.item.exp * amount
-                        player.giveExp(exp)
-                        player.pluginMsg("%,d&e experience given to you.".format(exp))
-                    }
-
-                    is ItemType.Command -> {
-                        var cmd = item.item.command
-                            .replace("\$PLAYER", player.name)
-                            .replace("\$UUID", player.uniqueId.toString())
-                            .replace("\$UUID_NO_DASHES", player.uniqueId.toString().replace("-", ""))
-                        if (cmd.startsWith('/')) cmd = cmd.substring(1)
-
-                        (0 until amount).forEach { _ ->
-                            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd)
-                        }
-                    }
                 }
-
-                CooldownHandler.putOnCooldown(player, id)
             }
 
             is Result.NotEnoughFunds -> {
@@ -150,11 +110,13 @@ internal object Economy {
 
     internal fun getWorth(item: ItemStack): Cost {
         val plug = Bukkit.getPluginManager().getPlugin("Essentials") ?: return Cost.NotSet
-        val ess = plug as Essentials
-
-        val sell = ess.worth.getPrice(ess, item)?.toDouble() ?: return Cost.NotSet
-        val buy = 1.25 * sell
-        return Cost.Value(buy)
+//        val ess = plug as Essentials
+//
+//        val sell = ess.worth.getPrice(ess, item)?.toDouble() ?: return Cost.NotSet
+//
+//        val buy = 1.25 * sell
+//        return Cost.Value(buy)
+        return Cost.NotSet
     }
 
     private sealed interface Result {

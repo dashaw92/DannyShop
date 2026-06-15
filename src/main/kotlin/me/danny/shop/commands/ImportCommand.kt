@@ -1,12 +1,12 @@
 package me.danny.shop.commands
 
-import me.danny.libinput.providers.Input
 import me.danny.shop.Perm
 import me.danny.shop.askInput
 import me.danny.shop.collapse
 import me.danny.shop.data.attachMarker
 import me.danny.shop.data.hasMarker
 import me.danny.shop.importing.ImportSession
+import me.danny.shop.input.Input
 import me.danny.shop.pluginMsg
 import me.danny.shop.utils.ItemBuilder
 import me.danny.shop.utils.color
@@ -26,9 +26,6 @@ internal object ImportCommand {
                 Material.WOODEN_HOE, "&3DannyShop Import Wand",
                 "&eLeft click&7 a &6named chest&7 to import the items",
                 "&7in the chest with default options.",
-                "&7Worth will be determined by Essentials' &6worth.yml",
-                "&7If Essentials is not on the server, you will",
-                "&7have to manually do this!",
                 "",
                 "&3[Permission: &8&o${Perm.ADMIN}&3]",
                 "&4Warning: The chest will be cleared after importing!"
@@ -46,7 +43,7 @@ internal object ImportCommand {
 
         if (args.isEmpty()) {
             player.inventory.addItem(IMPORT_WAND)
-            player.pluginMsg("&7 Import wand given! Info on the wand's tooltip!".color())
+            player.pluginMsg("&7Import wand given! Info on the wand's tooltip!".color())
             return
         }
 
@@ -57,10 +54,8 @@ internal object ImportCommand {
                 val id = args[1]
                 val prop = args[2]
 
-                val needsExtraLength = prop == "name"
-
                 player.closeInventory()
-                askInput("&9Set $prop", Material.SPRUCE_WALL_SIGN, needsExtraLength = needsExtraLength)
+                askInput("&9Set $prop")
                     .getInput(player) { pl, input -> handlePropValue(pl, input, id, prop) }
             }
 

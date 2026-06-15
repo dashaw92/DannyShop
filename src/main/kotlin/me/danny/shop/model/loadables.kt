@@ -32,7 +32,6 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
         when (item.item) {
             is ItemType.Mat -> if (item.item.material.isAir) return
             is ItemType.Item -> if (item.item.item.type.isAir) return
-            else -> {}
         }
 
         items.computeIfAbsent(item.category) { mutableListOf() } += item
@@ -94,6 +93,11 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
         items.remove(category)
         CATEGORIES.remove(category)
         category.deleted = true
+    }
+
+    fun deleteItem(item: ID) {
+        val item = itemByIid(item) ?: return
+        items[item.category]?.removeIf { it.iid == item.iid }
     }
 }
 
@@ -190,8 +194,7 @@ data class Item(
     val name: String? = null,
     val item: ItemType,
     val cost: Cost,
-    val cooldown: Cooldown,
-    val quantities: Quantities,
+    val sellLimit: SellLimit,
     val category: Category
 ) {
     /**
@@ -224,39 +227,6 @@ data class Item(
             override fun display(): ItemStack = item
         }
 
-        /**
-         * Represents enchanting experience the player will receive on purchase
-         */
-        data class Exp(val exp: Int) : ItemType {
-            override fun inner(): Any = exp
-            override fun display(): ItemStack = ItemBuilder.makeItem(
-                Material.EXPERIENCE_BOTTLE,
-                "${ChatColor.GOLD}%,d Experience".format(exp)
-            )
-        }
-
-        /**
-         * Represents a command that will be executed by console on purchase.
-         * Commands support a few keywords to enable interpolation of special values:
-         * - $PLAYER - replaced with the purchasing player's raw name.
-         *   ```
-         *   "/say Hello $PLAYER" = "/say Hello Theano"
-         *   ```
-         *
-         * - $UUID - replaced with the purchasing player's UUID.
-         *   ```
-         *   "/lp user $UUID info" = "/lp user cfa295f9-e01f-44f5-93a2-2e4271d7e015 info"
-         *   ```
-         *
-         * - $UUID_NO_DASHES - replaced with the purchasing player's UUID with dashes removed.
-         *   Same as above, but with no dashes in the UUID
-         */
-        data class Command(val command: String) : ItemType {
-            override fun inner(): Any = command
-            override fun display(): ItemStack =
-                ItemBuilder.makeItem(Material.COMMAND_BLOCK, "${ChatColor.BLUE}Run command", command)
-        }
-
         fun inner(): Any
         fun display(): ItemStack
     }
@@ -274,135 +244,9 @@ data class Item(
         data class Value(val buy: Double) : Cost
     }
 
-    /**
-     * How often an item may be purchased
-     */
-    sealed interface Cooldown {
-        companion object {
-            internal fun parse(serialized: String): Cooldown {
-                return when (val cooldown = serialized.lowercase()) {
-                    "none" -> None
-                    "infinite" -> Infinite
-                    else -> {
-                        if (cooldown.trim().isBlank()) return None
-                        else {
-                            val time = cooldown.takeWhile(Char::isDigit).toLongOrNull()
-                            val unit = cooldown.takeLastWhile(Char::isLetter)
+    sealed interface SellLimit {
+        object None : SellLimit
 
-                            if (time == null) return None
-                            if (unit.isBlank()) return None
-
-                            val ctor: (Long) -> Time = when (unit.lowercase()) {
-                                "ms" -> Cooldown.Time::Millis
-                                "s" -> Cooldown.Time::Seconds
-                                "m" -> Cooldown.Time::Minutes
-                                "h" -> Cooldown.Time::Hours
-                                "d" -> Cooldown.Time::Days
-                                "w" -> Cooldown.Time::Weeks
-                                "mo" -> Cooldown.Time::Months
-                                "y" -> Cooldown.Time::Years
-                                else -> return None
-                            }
-
-                            Duration(ctor(time))
-                        }
-                    }
-                }
-            }
-        }
-
-        /**
-         * The item has no cooldown and can be purchased as often as wanted
-         */
-        data object None : Cooldown
-
-        /**
-         * This item can only be purchased one time
-         */
-        data object Infinite : Cooldown
-
-        /**
-         * Once the item is purchased, the player must wait this amount of time
-         * before they may purchase it again
-         */
-        data class Duration(val time: Time) : Cooldown
-
-        /**
-         * The supported units of time Cooldown recognizes
-         */
-        sealed class Time(internal val time: Long, private val suffix: String) {
-            data class Millis(val millis: Long) : Time(millis, "ms")
-            data class Seconds(val seconds: Long) : Time(seconds, "s")
-            data class Minutes(val minutes: Long) : Time(minutes, "m")
-            data class Hours(val hours: Long) : Time(hours, "h")
-            data class Days(val days: Long) : Time(days, "d")
-            data class Weeks(val weeks: Long) : Time(weeks, "w")
-            data class Months(val months: Long) : Time(months, "mo")
-            data class Years(val years: Long) : Time(years, "y")
-
-            fun display(): String = "$time$suffix"
-            internal fun multiplier(): Long {
-                return when (this) {
-                    is Millis -> multipliers[Units.Ms]
-                    is Seconds -> multipliers[Units.S]
-                    is Minutes -> multipliers[Units.M]
-                    is Hours -> multipliers[Units.H]
-                    is Days -> multipliers[Units.D]
-                    is Weeks -> multipliers[Units.W]
-                    is Months -> multipliers[Units.Mo]
-                    is Years -> multipliers[Units.Y]
-                }!!
-            }
-
-            companion object {
-                internal enum class Units {
-                    Ms, S, M, H, D, W, Mo, Y
-                }
-
-                private val multipliers = mapOf(
-                    Units.Y to 1000L * 60 * 60 * 24 * 7 * 4 * 12,
-                    Units.Mo to 1000L * 60 * 60 * 24 * 7 * 4,
-                    Units.W to 1000L * 60 * 60 * 24 * 7,
-                    Units.D to 1000L * 60 * 60 * 24,
-                    Units.H to 1000L * 60 * 60,
-                    Units.M to 1000L * 60,
-                    Units.S to 1000L,
-                    Units.Ms to 1L
-                )
-
-                internal fun multiplier(unit: Units): Long = multipliers[unit]!!
-            }
-        }
-    }
-
-    /**
-     * Permits customization of how much of an item can be purchased at once.
-     * * predefined - A list of predefined quantities the item is available in
-     * * allowed - What quantities are available for purchase
-     */
-    data class Quantities(val predefined: List<Int>, val allowed: Allowed) {
-        enum class Allowed {
-            /**
-             * The player may enter any number (within reason)
-             * to purchase that many units of the item.
-             * The predefined list in this case serves only as a convenience.
-             */
-            Any,
-
-            /**
-             * The player can only purchase the item in amounts listed in the
-             * predefined list, they cannot enter a custom amount.
-             * The main purpose for this option is to support items that the player
-             * can only purchase N of one time:
-             * ```yaml
-             * ...:
-             *   cooldown: infinite
-             *   quantities:
-             *     predefined: [1]
-             *     allowed: Predefined
-             * ```
-             */
-            Predefined
-        }
+        data class Amount(val amount: UInt) : SellLimit
     }
 }

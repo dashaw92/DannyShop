@@ -4,8 +4,9 @@ import me.danny.shop.DannyShop
 import me.danny.shop.inv.editor.items.properties.*
 import me.danny.shop.inv.view.MenuView
 import me.danny.shop.inv.view.ViewAction
-import me.danny.shop.me.inv.shop.ShopMenu
+import me.danny.shop.inv.shop.ShopMenu
 import me.danny.shop.model.Item
+import me.danny.shop.pluginMsg
 import me.danny.shop.utils.ItemBuilder
 import me.danny.shop.utils.fill
 import org.bukkit.Material
@@ -34,8 +35,6 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
         val footer = arrayOf("", "&e[Edit: Click]")
 
         val costButton = ItemBuilder.makeItem(Material.EMERALD, "&ePricing", *cost(item), *footer)
-        val cooldownButton =
-            ItemBuilder.makeItem(Material.CLOCK, "&eCooldown", *cooldown(item), *footer)
         val nameButton = ItemBuilder.makeItem(Material.NAME_TAG, "&eName", *name(item), *footer)
         val categoryButton = ItemBuilder.makeItem(
             Material.CHEST,
@@ -43,15 +42,26 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
             "&7${item.category.name}",
             *footer
         )
-        val quantitiesButton =
-            ItemBuilder.makeItem(Material.WRITABLE_BOOK, "&eQuantities", *quantities(item), *footer)
+        val sellLimitButton = ItemBuilder.makeItem(
+            Material.IRON_DOOR,
+            "&eSell Limit", *sellLimit(item), *footer
+        )
+
+        val deleteButton = ItemBuilder.makeItem(
+            Material.BARRIER,
+            "&cDelete item",
+            "&7&oRemove the item from the shop.",
+            "&7&oThis &4&ocannot&7&o be undone!",
+            "",
+            "&9[Confirm: Shift right click]"
+        )
 
         inv.setItem(11, costButton)
-        inv.setItem(12, cooldownButton)
-        inv.setItem(13, nameButton)
-        inv.setItem(14, categoryButton)
-        inv.setItem(15, quantitiesButton)
+        inv.setItem(12, sellLimitButton)
+        inv.setItem(14, nameButton)
+        inv.setItem(15, categoryButton)
         inv.setItem(0, id)
+        inv.setItem(inv.size - 9, deleteButton)
     }
 
     override fun onClick(inv: Inventory, event: InventoryClickEvent): ViewAction {
@@ -60,12 +70,18 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
             return ViewAction.Pass
         }
 
+        if (event.currentItem!!.type == Material.BARRIER && event.isShiftClick && event.isRightClick) {
+            event.whoClicked.pluginMsg("&cItem deleted.")
+            DannyShop.SHOP.deleteItem(editor.item)
+            ShopMenu(editor.viewer, editor.returnInfo)
+            return ViewAction.Pass
+        }
+
         val newView = when (event.currentItem!!.type) {
             Material.EMERALD -> CostPropEditor(editor)
-            Material.WRITABLE_BOOK -> QuantitesPropEditor(editor)
-            Material.CLOCK -> CooldownPropEditor(editor)
             Material.CHEST -> ItemCategoryEditor(editor)
             Material.NAME_TAG -> ItemNameEditor(editor)
+            Material.IRON_DOOR -> SellLimitEditor(editor)
             else -> null
         } ?: return ViewAction.Pass
         return ViewAction.ChangeView(newView)
@@ -75,8 +91,6 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
         return when (item.item) {
             is Item.ItemType.Mat -> "Material"
             is Item.ItemType.Item -> "ItemStack"
-            is Item.ItemType.Exp -> "Experience"
-            is Item.ItemType.Command -> "Command"
         }
     }
 
@@ -85,34 +99,12 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
             is Item.Cost.NotSet -> arrayOf(
                 "&cNot set!",
                 "",
-                "&7&oPlayers cannot purchase this!",
+                "&c&oPlayers cannot sell this!",
                 "&7&oSet a price to fix!"
             )
 
             is Item.Cost.Value -> arrayOf(
                 "&9Each: &7\$%,.2f".format(item.cost.buy),
-            )
-        }
-    }
-
-    private fun cooldown(item: Item): Array<String> {
-        return when (item.cooldown) {
-            is Item.Cooldown.None -> arrayOf(
-                "&2None",
-                "",
-                "&7&oPlayers may purchase this with no limit"
-            )
-
-            is Item.Cooldown.Infinite -> arrayOf(
-                "&4Infinite",
-                "",
-                "&7&oPlayers may purchase this once"
-            )
-
-            is Item.Cooldown.Duration -> arrayOf(
-                "&9Timed: &7${item.cooldown.time.display()}",
-                "",
-                "&7&oPlayers must wait before purchasing again"
             )
         }
     }
@@ -133,18 +125,20 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
         }
     }
 
-    private fun quantities(item: Item): Array<String> {
-        return arrayOf(
-            "&9Predefined: &7${item.quantities.predefined}",
-            "&9Mode: &7${item.quantities.allowed}",
-            "",
-            "&7&o%s".format(
-                when (item.quantities.allowed) {
-                    Item.Quantities.Allowed.Any -> "Players can buy any amount of this at once"
-                    Item.Quantities.Allowed.Predefined -> "Players may only buy a predefined amount"
-                }
+    private fun sellLimit(item: Item): Array<String> {
+        return when (item.sellLimit) {
+            is Item.SellLimit.None -> arrayOf(
+                "&cNo sell limit set.",
+                "",
+                "&7&oPlayers can sell an unlimited amount of this item."
             )
-        )
-    }
 
+            is Item.SellLimit.Amount -> arrayOf(
+                "&9Sell limit: &7${item.sellLimit.amount}",
+                "",
+                "&7&oPlayers are limited to selling",
+                "&7&othis many units in a refresh window."
+            )
+        }
+    }
 }

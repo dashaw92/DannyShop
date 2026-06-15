@@ -6,14 +6,12 @@ import me.danny.shop.collapse
 import me.danny.shop.data.Key
 import me.danny.shop.data.attachKey
 import me.danny.shop.data.keyValue
-import me.danny.shop.economy.Economy
 import me.danny.shop.input.Input
 import me.danny.shop.inv.editor.items.ItemEditor
 import me.danny.shop.inv.editor.items.ItemEditorView
 import me.danny.shop.inv.view.MenuView
 import me.danny.shop.inv.view.ViewAction
 import me.danny.shop.model.Item
-import me.danny.shop.model.Item.ItemType
 import me.danny.shop.pluginMsg
 import me.danny.shop.utils.ItemBuilder
 import me.danny.shop.utils.color
@@ -25,48 +23,42 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
+import kotlin.math.absoluteValue
 
-internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
+internal class SellLimitEditor(private val editor: ItemEditor) : MenuView {
 
-    private var buy: Double = 0.0
+    private var limit: UInt = 0u
 
     init {
         val item = DannyShop.SHOP.itemByIid(editor.item)!!
-        when (item.cost) {
-            is Item.Cost.Value -> {
-                buy = item.cost.buy
-            }
+        when (item.sellLimit) {
+            is Item.SellLimit.None -> limit = 0u
 
             //Add a shortcut for when the worth.yml has changed since import
-            is Item.Cost.NotSet -> {
-                if (item.item is ItemType.Mat) {
-                    val essCost = Economy.getWorth(ItemStack(item.item.material))
-                    if (essCost is Item.Cost.Value) {
-                        buy = essCost.buy
-                    }
-                }
-            }
+            is Item.SellLimit.Amount -> limit = item.sellLimit.amount
         }
     }
 
-    override fun onOpen(): ViewAction = ViewAction.Resize(3, "&7- &9Adjust Pricing")
+    override fun onOpen(): ViewAction = ViewAction.Resize(3, "&7- &9Adjust Sell Limit")
 
     override fun build(inv: Inventory) {
         val filler = ItemBuilder.makeItem(Material.BLACK_STAINED_GLASS_PANE, " ")
         inv.fill(filler)
 
-        val amounts = listOf(1.0, 10.0, 100.0, 250.0, 1000.0, 10000.0, 100_000.0, 1_000_000.0)
+        val amounts = listOf(16, 32, 64, 128, 256, 512, 1024, 2048)
         placeButtons(amounts, inv)
 
         inv.setItem(
             inv.size - 2, ItemBuilder.makeItem(
                 Material.ANVIL,
-                "&5Confirm Price",
-                "&9Each: &7\$%,.2f".format(buy),
-                "",
-                "&7Shift right click to &4unset price&7.",
-                "&7&oUnsetting the price will make this",
-                "&7item &c&ounavailable&7 for selling!",
+                "&5Confirm Sell Limit",
+                "&9Sell limit: &7${
+                    when (limit) {
+                        0u -> "&cNo limit"
+                        else -> "$limit"
+                    }
+                }",
+                "&7Shift right click to &4remove sell limit&7.",
                 "",
                 "&e[Confirm: Click]",
                 "&e[Unset: Shift right click]"
@@ -83,10 +75,10 @@ internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
 
         when (event.currentItem!!.type) {
             Material.ANVIL -> {
-                val cost: Item.Cost = if (event.isShiftClick && event.isRightClick) Item.Cost.NotSet
-                else Item.Cost.Value(buy)
+                val limit: Item.SellLimit = if (limit == 0u || (event.isShiftClick && event.isRightClick)) Item.SellLimit.None
+                else Item.SellLimit.Amount(limit)
 
-                DannyShop.SHOP.replaceItem(item.iid, item.copy(cost = cost))
+                DannyShop.SHOP.replaceItem(item.iid, item.copy(sellLimit = limit))
                 return ViewAction.ChangeView(ItemEditorView(editor))
             }
 
@@ -96,8 +88,8 @@ internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
 
             Material.SPRUCE_SIGN -> {
                 player.closeInventory()
-                askInput("&eSet sell price")
-                    .getInput(player) { pl, input -> setPrice(pl, input, { buy = it }, event.inventory) }
+                askInput("&eSet sell limit")
+                    .getInput(player) { pl, input -> setLimit(pl, input, { limit = it }, event.inventory) }
             }
 
             else -> {}
@@ -108,33 +100,38 @@ internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
 
     private fun handleButton(event: InventoryClickEvent) {
         var amount = event.currentItem!!.keyValue(AMOUNT_KEY)!!
-        if (event.isShiftClick) amount *= 10.0
-        else if (event.isRightClick) amount /= 2.0
+        if (event.isShiftClick) amount *= 10
+        else if (event.isRightClick) amount /= 2
         else if (event.click == ClickType.NUMBER_KEY) {
             amount *= (event.hotbarButton + 1)
         }
 
-        buy = (buy + amount).coerceAtLeast(0.0)
-        val msg = if (amount < 0) "&7Sell price &cdecreased by &e$%,.2f".format(amount)
-        else "&7Sell price &aincreased by &e$%,.2f".format(amount)
-        event.whoClicked.pluginMsg("$msg".color())
+        if (amount < 0 && limit.toInt() - amount.absoluteValue <= 0) {
+            limit = 0u
+            event.whoClicked.pluginMsg("&7Sell limit &cremoved&7.".color())
+        } else {
+            limit = (limit + amount.toUInt()).coerceAtLeast(0u)
+            val msg = if (amount < 0) "&7Sell limit &cdecreased by &e$amount"
+            else "&7Sell price &aincreased by &e$amount"
+            event.whoClicked.pluginMsg("$msg".color())
+        }
     }
 
-    private fun placeButtons(amounts: List<Double>, inv: Inventory) {
-        fun buyPriceButton(amount: Double): ItemStack = makeButton(amount)
+    private fun placeButtons(amounts: List<Int>, inv: Inventory) {
+        fun buyPriceButton(amount: Int): ItemStack = makeButton(amount)
 
         amounts.map(::buyPriceButton).zip(0..8)
             .forEach { pair -> inv.setItem(pair.second, pair.first) }
         amounts.map { -it }
             .map(::buyPriceButton).zip(9..17)
             .forEach { pair -> inv.setItem(pair.second, pair.first) }
-        inv.setItem(8, ItemBuilder.makeItem(Material.SPRUCE_SIGN, "&eSet custom Sell price"))
+        inv.setItem(8, ItemBuilder.makeItem(Material.SPRUCE_SIGN, "&eSet custom Sell Limit"))
     }
 
-    private fun makeButton(amount: Double): ItemStack {
+    private fun makeButton(amount: Int): ItemStack {
         val type: Material
         val prefix: String
-        if (amount < 0.0) {
+        if (amount < 0) {
             type = Material.RED_TERRACOTTA
             prefix = "&9Decrease by"
         } else {
@@ -144,8 +141,8 @@ internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
 
         return ItemBuilder.makeItem(
             type,
-            "&eSell Price",
-            "$prefix &7\$%,.2f".format(amount),
+            "&eChange Sell Limit",
+            "$prefix &7$amount".format(amount),
             "&8&m                        ",
             "&eShift click&7 for 10x",
             "&eRight click&7 for 0.5x",
@@ -153,15 +150,16 @@ internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
         ).attachKey(AMOUNT_KEY, amount)
     }
 
-    private fun setPrice(player: Player, input: Input, setter: (Double) -> Unit, inv: Inventory) {
+    private fun setLimit(player: Player, input: Input, setter: (UInt) -> Unit, inv: Inventory) {
         val line = input.collapse()
 
-        val price = line.toDoubleOrNull()
-        if (price != null && price.isFinite() && price >= 0.0) {
-            setter(price)
-            player.pluginMsg("Price set to &2$%,.2f&7.".format(price))
+        val limit = line.toIntOrNull()
+        if (limit != null && limit > 0) {
+            setter(limit.toUInt())
+            player.pluginMsg("Sell limit set to $limit.")
         } else {
-            player.pluginMsg("&cUnable to read price from \"&d$line&c\"...")
+            setter(0u)
+            player.pluginMsg("Sell limit removed.")
         }
 
         build(inv)
@@ -169,6 +167,6 @@ internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
     }
 
     companion object {
-        private val AMOUNT_KEY = Key("costprop_amount", PersistentDataType.DOUBLE)
+        private val AMOUNT_KEY = Key("sell_limit", PersistentDataType.INTEGER)
     }
 }

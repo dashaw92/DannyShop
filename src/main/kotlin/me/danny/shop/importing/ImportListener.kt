@@ -82,19 +82,11 @@ internal object ImportListener : Listener {
                 val iid = ID.generate()
                 val type = itemType(item)
 
-                val cost = when (type) {
-                    is Item.ItemType.Mat, is Item.ItemType.Item -> getWorth(item)
-                    else -> Item.Cost.NotSet
-                }
+                val cost = getWorth(item)
 
-                val quantities = when (type) {
-                    is Item.ItemType.Mat -> Item.Quantities(listOf(1, 32, 64), Item.Quantities.Allowed.Any)
-                    else -> Item.Quantities(listOf(1), Item.Quantities.Allowed.Predefined)
-                }
+                val sellLimit = Item.SellLimit.None
 
-                val cooldown = Item.Cooldown.None
-
-                ImportedItem(iid, type, null, cooldown, cost, quantities)
+                ImportedItem(iid, type, null, cost, sellLimit)
             }.toMutableList()
         //inv.clear()
 
@@ -113,39 +105,11 @@ internal object ImportListener : Listener {
     private fun itemType(item: ItemStack): Item.ItemType {
         //In general, items with ItemMeta attached are custom items (ItemType.Item)
         //wew, that's a lot of "item" for one sentence 😅
-        if (item.hasItemMeta()) {
-            //We need to handle the custom types (experience and commands) first
-            //All custom items are defined by their name, so..:
-            if (item.itemMeta!!.hasDisplayName()) {
-                val name = item.itemMeta!!.displayName
-                when (item.type) {
-                    //These checks are intentionally fallthrough
-
-                    //Exp items are experience bottles with the name "Exp <amount>"
-                    Material.EXPERIENCE_BOTTLE -> {
-                        if (name.startsWith("Exp ")) {
-                            val amount = name.takeLastWhile { it.isDigit() }.toIntOrNull()
-                            if (amount != null) {
-                                return Item.ItemType.Exp(amount)
-                            }
-                        }
-                    }
-
-                    //Command items are command blocks with the name "/<command>"
-                    Material.COMMAND_BLOCK -> {
-                        if (name.startsWith('/')) {
-                            return Item.ItemType.Command(name)
-                        }
-                    }
-
-                    else -> {}
-                }
-            }
-            //It's none of the special item types, so now it's a custom item
-            return Item.ItemType.Item(item)
+        return if (item.hasItemMeta()) {
+            Item.ItemType.Item(item)
         } else {
             //Raw materials
-            return Item.ItemType.Mat(item.type)
+            Item.ItemType.Mat(item.type)
         }
     }
 }

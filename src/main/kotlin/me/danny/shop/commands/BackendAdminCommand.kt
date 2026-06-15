@@ -14,12 +14,18 @@ internal object BackendAdminCommand {
             return true
         }
 
-        when (args[0].lowercase()) {
-            "migrate" -> migrationCommand(sender, args.copyOfRange(1, args.size))
-            "save" -> saveCommand(sender)
-            "switch" -> switchCommand(sender, args.copyOfRange(1, args.size))
-            else -> sender.pluginMsg("Usage: /shop backend [save | migrate <yaml|mongo> | switch <yaml|mongo>]")
+        if (args[0].lowercase() == "save") {
+            save(sender)
+        } else {
+            sender.pluginMsg("Usage: /shop backend [save]")
         }
+
+//        when (args[0].lowercase()) {
+//            "migrate" -> migrationCommand(sender, args.copyOfRange(1, args.size))
+//            "save" -> saveCommand(sender)
+//            "switch" -> switchCommand(sender, args.copyOfRange(1, args.size))
+//            else -> sender.pluginMsg("Usage: /shop backend [save | migrate <yaml|mongo> | switch <yaml|mongo>]")
+//        }
 
         return true
     }
@@ -31,9 +37,8 @@ internal object BackendAdminCommand {
     private fun migrationCommand(sender: CommandSender, args: Array<out String>) {
         val toBackend = when (args.first().lowercase()) {
             "yaml" -> BackendType.Yaml
-            "mongo" -> BackendType.MongoDB
             else -> {
-                sender.pluginMsg("&cUnrecognized backend type. Supported: &7yaml&c, &7mongo&c.")
+                sender.pluginMsg("&cUnrecognized backend type. Supported: &7yaml&c.")
                 return
             }
         }
@@ -68,7 +73,6 @@ internal object BackendAdminCommand {
     private fun switchCommand(sender: CommandSender, args: Array<out String>) {
         val toBackend = when (args.first().lowercase()) {
             "yaml" -> BackendType.Yaml
-            "mongo" -> BackendType.MongoDB
             else -> {
                 sender.pluginMsg("&cUnrecognized backend type. Supported: &7yaml&c, &7mongo&c.")
                 return

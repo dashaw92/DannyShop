@@ -3,10 +3,9 @@ package me.danny.shop
 import me.danny.shop.backend.BackendManager
 import me.danny.shop.backend.LoadResult
 import me.danny.shop.commands.ShopCommand
-import me.danny.shop.data.CooldownHandler
-import me.danny.shop.data.CooldownListener
 import me.danny.shop.economy.Economy
 import me.danny.shop.importing.ImportListener
+import me.danny.shop.input.ChatInput
 import me.danny.shop.inv.Menu
 import me.danny.shop.inv.listeners.MenuListener
 import me.danny.shop.model.Shop
@@ -58,13 +57,12 @@ class DannyShop : JavaPlugin() {
 
         Bukkit.getPluginManager().registerEvents(MenuListener, this)
         Bukkit.getPluginManager().registerEvents(ImportListener, this)
-        Bukkit.getPluginManager().registerEvents(CooldownListener, this)
+        Bukkit.getPluginManager().registerEvents(ChatInput.ChatInputListener, this);
         getCommand("dannyshop")!!.setExecutor(ShopCommand)
     }
 
     override fun onDisable() {
         try {
-            CooldownHandler.saveAll()
             backend.saveShop(this, SHOP)
             Menu.closeOpenInvs()
         } catch (ignored: NoClassDefFoundError) {

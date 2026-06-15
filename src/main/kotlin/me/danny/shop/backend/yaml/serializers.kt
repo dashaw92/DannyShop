@@ -34,30 +34,26 @@ internal object ItemStackSerializer : TypeSerializer<ItemStack> {
 
 }
 
-internal object ItemTypeSerializer : TypeSerializer<Item.ItemType> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Item.ItemType {
+internal object ItemTypeSerializer : TypeSerializer<ItemType> {
+    override fun deserialize(type: Type?, node: ConfigurationNode?): ItemType {
         if (node == null) throw IllegalArgumentException("what")
 
         val itemType = node.node("type").string!!
         val obj = node.node("object")
         return when (itemType.lowercase()) {
             "material" -> Mat(obj.get(Material::class.java)!!)
-            "item" -> Item.ItemType.Item(obj.get(ItemStack::class.java)!!)
-            "experience" -> Exp(obj.int)
-            "command" -> Command(obj.string!!)
+            "item" -> Item(obj.get(ItemStack::class.java)!!)
             else -> throw IllegalArgumentException("Unknown item type $itemType")
         }
     }
 
-    override fun serialize(type: Type?, obj: Item.ItemType?, node: ConfigurationNode?) {
+    override fun serialize(type: Type?, obj: ItemType?, node: ConfigurationNode?) {
         if (node == null || obj == null) return
 
         val typeNode = node.node("type")
         when (obj) {
             is Mat -> typeNode.set("material")
-            is Item.ItemType.Item -> typeNode.set("item")
-            is Exp -> typeNode.set("experience")
-            is Command -> typeNode.set("command")
+            is ItemType.Item -> typeNode.set("item")
         }
 
         node.node("object").set(obj.inner())
@@ -88,41 +84,23 @@ internal object CostSerializer : TypeSerializer<Cost> {
 
 }
 
-internal object CooldownSerializer : TypeSerializer<Cooldown> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Cooldown {
+internal object SellLimitSerializer : TypeSerializer<SellLimit> {
+    override fun deserialize(type: Type?, node: ConfigurationNode?): SellLimit {
         if (node == null) throw IllegalArgumentException("what")
 
-        val cooldown = node.string!!.lowercase()
-        return Cooldown.parse(cooldown)
-    }
-
-    override fun serialize(type: Type?, obj: Cooldown?, node: ConfigurationNode?) {
-        if (obj == null || node == null) return
-
-        when (obj) {
-            is Cooldown.None -> node.set("none")
-            is Cooldown.Infinite -> node.set("infinite")
-            is Cooldown.Duration -> node.set(obj.time.display())
+        val limit = node.getInt(0)
+        return when {
+            limit <= 0 -> SellLimit.None
+            else -> SellLimit.Amount(limit.toUInt())
         }
     }
 
-}
-
-internal object QuantitiesSerializer : TypeSerializer<Quantities> {
-    override fun deserialize(type: Type?, node: ConfigurationNode?): Quantities {
-        if (node == null) throw IllegalArgumentException("what")
-
-        val predefined = node.node("predefined").getList(java.lang.Integer::class.java)!!
-            .map { it.toInt() }
-            .toList()
-        val allowed = node.node("allowed").get(Quantities.Allowed::class.java)!!
-        return Quantities(predefined, allowed)
-    }
-
-    override fun serialize(type: Type?, obj: Quantities?, node: ConfigurationNode?) {
+    override fun serialize(type: Type?, obj: SellLimit?, node: ConfigurationNode?) {
         if (obj == null || node == null) return
-        node.node("predefined").set(obj.predefined)
-        node.node("allowed").set(obj.allowed)
+        node.set(when(obj) {
+            is SellLimit.None -> 0
+            is SellLimit.Amount -> obj.amount.toInt()
+        })
     }
 
 }
@@ -135,12 +113,11 @@ internal object ItemSerializer : TypeSerializer<Item> {
         with(node) {
             val iid = ID(node("iid").string!!)
             val name = node("name").string
-            val item = node("item").get(Item.ItemType::class.java)!!
+            val item = node("item").get(ItemType::class.java)!!
             val cost = node("cost").get(Cost::class.java)!!
-            val cooldown = node("cooldown").get(Cooldown::class.java)!!
-            val quantities = node("quantities").get(Quantities::class.java)!!
+            val sellLimit = node("sell-limit").get(SellLimit::class.java)!!
             val category = Shop.getCategory(ID(node("category").string!!))!!
-            return Item(iid, name, item, cost, cooldown, quantities, category)
+            return Item(iid, name, item, cost, sellLimit, category)
         }
 
     }
@@ -150,8 +127,7 @@ internal object ItemSerializer : TypeSerializer<Item> {
 
         when (obj.item) {
             is Mat -> if (obj.item.material.isAir) return
-            is Item.ItemType.Item -> if (obj.item.item.type.isAir) return
-            else -> {}
+            is ItemType.Item -> if (obj.item.item.type.isAir) return
         }
 
         obj.run {
@@ -160,8 +136,7 @@ internal object ItemSerializer : TypeSerializer<Item> {
                 node("name").set(name)
                 node("item").set(item)
                 node("cost").set(cost)
-                node("cooldown").set(cooldown)
-                node("quantities").set(quantities)
+                node("sell-limit").set(sellLimit)
                 node("category").set(category.cid.id)
             }
         }
@@ -200,8 +175,7 @@ internal object ShopSerializer : TypeSerializer<Shop> {
             .filter { item ->
                 when (item.item) {
                     is Mat -> !item.item.material.isAir
-                    is Item.ItemType.Item -> !item.item.item.type.isAir
-                    else -> true
+                    is ItemType.Item -> !item.item.item.type.isAir
                 }
             }
             .map { it!! }

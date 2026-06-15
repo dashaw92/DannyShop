@@ -1,22 +1,20 @@
-package me.danny.shop.me.inv.shop
+package me.danny.shop.inv.shop
 
-import me.danny.libinput.providers.Input
 import me.danny.shop.*
 import me.danny.shop.data.Key
 import me.danny.shop.data.hasKey
 import me.danny.shop.data.keyValue
 import me.danny.shop.economy.Economy
+import me.danny.shop.input.Input
 import me.danny.shop.inv.*
 import me.danny.shop.inv.LoreList.toEntry
 import me.danny.shop.inv.editor.categories.CategoryEditor.Companion.CATEGORY_KEY
 import me.danny.shop.inv.editor.items.ItemEditor
-import me.danny.shop.inv.shop.CategoryPage
 import me.danny.shop.inv.shop.items.FilterType
 import me.danny.shop.inv.shop.items.ItemPage
 import me.danny.shop.inv.shop.purchasing.PurchaseMenu
 import me.danny.shop.model.Category
 import me.danny.shop.model.Item
-import me.danny.shop.model.Item.Quantities.Allowed.Any
 import me.danny.shop.utils.ItemBuilder
 import me.danny.shop.utils.color
 import me.danny.shop.utils.fill
@@ -110,8 +108,6 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
                     FilterType.All toEntry listOf("Displaying everything"),
                     FilterType.Materials toEntry listOf("Displaying only raw materials"),
                     FilterType.Items toEntry listOf("Displaying only custom items"),
-                    FilterType.Commands toEntry listOf("Displaying only commands"),
-                    FilterType.Experience toEntry listOf("Displaying only experience packs"),
                 ), itemPage.filterType
             )
         )
@@ -127,7 +123,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
         //Hide categories when the player cannot see them anymore
         if (!categoryPage.selected.isVisible(viewer)) {
             val changeTo = categories.firstOrNull { it.isVisible(viewer) }
-            //If no categories are visisible to this player,
+            //If no categories are visible to this player,
             //or there are no categories in the shop,
             //display the empty shop (changes inventory size to 27)
             if (changeTo == null) {
@@ -206,12 +202,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
                 }
 
                 fun doPurchase() {
-                    if (event.click == ClickType.RIGHT && (item.quantities.allowed == Any || item.quantities.predefined.size > 1)) PurchaseMenu(
-                        viewer,
-                        item.iid,
-                        returnInfo
-                    )
-                    else Economy.purchase(viewer, item.iid)
+                    Economy.purchase(viewer, item.iid)
                 }
 
                 when (item.cost) {
@@ -261,7 +252,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
                 }
 
                 viewer.closeInventory()
-                askInput("Search", Material.SPRUCE_WALL_SIGN)
+                askInput("Search")
                     .getInput(viewer) { _, input -> changeSearchQuery(input) }
                 return
             }

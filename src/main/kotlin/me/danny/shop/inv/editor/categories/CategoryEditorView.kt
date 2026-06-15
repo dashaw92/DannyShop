@@ -1,12 +1,15 @@
 package me.danny.shop.inv.editor.categories
 
-import me.danny.libinput.providers.*
 import me.danny.shop.DannyShop
 import me.danny.shop.askInput
 import me.danny.shop.collapse
 import me.danny.shop.data.Key
 import me.danny.shop.data.attachMarker
 import me.danny.shop.data.hasMarker
+import me.danny.shop.input.ChatInput
+import me.danny.shop.input.Input
+import me.danny.shop.input.MultipleLines
+import me.danny.shop.input.SingleLine
 import me.danny.shop.inv.view.MenuView
 import me.danny.shop.inv.view.ViewAction
 import me.danny.shop.model.Category
@@ -72,17 +75,11 @@ internal class CategoryEditorView(val category: Category) : MenuView {
             }
 
             if (clicked.hasMarker(RENAME_BUTTON_KEY)) {
-                val provider = if (SignInput.isAvailable()) {
-                    SignInput()
-                        .withLines(arrayOf(category.name, "^^^^^", "DannyShop", "Rename category"))
-                        .withMaterial(Material.BIRCH_WALL_SIGN)
-                } else {
-                    ChatInput()
-                        .requestLines(1)
-                        .withEscapeWords("cancel")
-                        .withPrefix("&6[DannyShop]&7 ".color())
-                        .withPrompt("&9Rename category:")
-                }
+                val provider = ChatInput()
+                    .requestLines(1)
+                    .withEscapeWords("cancel")
+                    .withPrefix("&6[DannyShop]&7".color())
+                    .withPrompt("&9Rename category:")
 
                 player.closeInventory()
                 provider.getInput(player) { pl, input -> handleRename(pl, input, inv) }
@@ -90,7 +87,7 @@ internal class CategoryEditorView(val category: Category) : MenuView {
 
             if (clicked.hasMarker(PERMISSION_BUTTON_KEY)) {
                 player.closeInventory()
-                askInput("&9Set permission", Material.BIRCH_WALL_SIGN, category.permission)
+                askInput("&9Set permission (${category.permission})")
                     .getInput(player) { pl, input -> handlePermission(pl, input, inv) }
             }
 

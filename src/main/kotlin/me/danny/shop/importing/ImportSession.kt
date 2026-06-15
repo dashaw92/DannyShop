@@ -3,9 +3,7 @@ package me.danny.shop.importing
 import me.danny.shop.DannyShop
 import me.danny.shop.model.Category
 import me.danny.shop.model.ID
-import me.danny.shop.model.Item.*
-import me.danny.shop.model.Item.Quantities.Allowed.Any
-import me.danny.shop.model.Item.Quantities.Allowed.Predefined
+import me.danny.shop.model.Item.Cost
 import me.danny.shop.pluginMsg
 import me.danny.shop.utils.ItemBuilder
 import net.md_5.bungee.api.chat.BaseComponent
@@ -49,7 +47,6 @@ internal class ImportSession(
         val item = items.find { it.iid.id == id } ?: return
         when (prop.lowercase()) {
             "name" -> item.name = value
-            "cooldown" -> item.cooldown = Cooldown.parse(value.lowercase())
             "cost" -> item.cost = when (value.trim()) {
                 "" -> Cost.NotSet
                 else -> {
@@ -58,18 +55,6 @@ internal class ImportSession(
                     else Cost.Value(price)
                 }
             }
-
-            "qty" -> item.quantities =
-                Quantities(value.split(' ').mapNotNull { it.toIntOrNull() }, item.quantities.allowed)
-
-            "qtymode" -> item.quantities = Quantities(
-                item.quantities.predefined, when (value.lowercase()) {
-                    "any" -> Any
-                    "predefined" -> Predefined
-                    else -> Any
-                }
-            )
-
             else -> return
         }
         updatePage(iidMap.entries.find { (_, otherId) -> id == otherId.id }?.key ?: return)
@@ -102,6 +87,7 @@ internal class ImportSession(
         val book = ItemBuilder.makeItem(Material.WRITTEN_BOOK, "DannyShop")
         val meta = book.itemMeta!! as BookMeta
         meta.spigot().addPage(arrayOf(infoPage()))
+
         iidMap.forEach { (_, iid) ->
             meta.spigot().addPage(arrayOf(buildPage(iid)))
         }
@@ -174,20 +160,7 @@ internal class ImportSession(
         )
         base.newLine()
 
-        base.addExtra(addProp("Cooldown:"))
-        base.addExtra(when (item.cooldown) {
-            is Cooldown.None -> TextComponent("None").apply { color = Color.DARK_GREEN }
-            is Cooldown.Infinite -> TextComponent("Infinite").apply { color = Color.DARK_RED }
-            is Cooldown.Duration -> TextComponent((item.cooldown as Cooldown.Duration).time.display()).apply {
-                color = Color.BLACK
-            }
-        }.apply {
-            hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to change cooldown"))
-        }.addPropEvent("cooldown")
-        )
-        base.newLine()
-
-        base.addExtra(addProp("Cost:"))
+        base.addExtra(addProp("Worth:"))
         base.addExtra(when (item.cost) {
             is Cost.NotSet -> TextComponent("Not set").apply { color = Color.RED }
             is Cost.Value -> TextComponent("$%,.2f".format((item.cost as Cost.Value).buy)).apply {
@@ -199,28 +172,11 @@ internal class ImportSession(
         )
         base.newLine()
 
-        base.addExtra(addProp("Quantities:"))
-        base.addExtra(TextComponent(item.quantities.predefined.joinToString(separator = ", ", limit = 6)).apply {
-            color = Color.BLACK
-            hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to adjust quantities"))
-        }.addPropEvent("qty"))
-        base.addExtra("\n")
-        base.addExtra(
-            when (item.quantities.allowed) {
-                Any -> TextComponent("Any")
-                Predefined -> TextComponent("Predefined")
-            }.apply {
-                color = Color.BLACK
-                hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to set allowed mode"))
-            }.addPropEvent("qtymode")
-        )
-        base.addExtra("\n")
-
         base.addExtra(TextComponent("[Return to Home]").apply {
             color = Color.DARK_PURPLE
             isBold = true
             hoverEvent = HoverEvent(SHOW_TEXT, Text("Return to page 1"))
-            clickEvent = ClickEvent(CHANGE_PAGE, "0")
+            clickEvent = ClickEvent(CHANGE_PAGE, "1")
         })
         return base
     }

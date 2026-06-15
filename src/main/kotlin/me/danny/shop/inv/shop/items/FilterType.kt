@@ -18,14 +18,4 @@ internal enum class FilterType {
      * Only custom items
      */
     Items,
-
-    /**
-     * Only commands
-     */
-    Commands,
-
-    /**
-     * Only experience items
-     */
-    Experience
 }
