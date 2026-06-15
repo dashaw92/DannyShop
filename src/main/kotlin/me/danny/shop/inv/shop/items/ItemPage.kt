@@ -1,8 +1,8 @@
 package me.danny.shop.inv.shop.items
 
 import me.danny.shop.DannyShop
-import me.danny.shop.Perm
 import me.danny.shop.data.attachKey
+import me.danny.shop.economy.LimitTracking
 import me.danny.shop.inv.LoreField
 import me.danny.shop.inv.Page
 import me.danny.shop.inv.shop.ShopMenu
@@ -145,19 +145,30 @@ internal class ItemPage(
 
         val fields = LoreField()
 
-        var addPurchaseOption = viewer.hasPermission(Perm.ADMIN)
+        var addPurchaseOption = false
         fields.add("&9Worth:")
         when (item.cost) {
             is Item.Cost.NotSet -> fields.add("&c  No value set!")
             is Item.Cost.Value -> {
                 addPurchaseOption = true
-                fields.add("  &3Each: &7\$%,.2f".format(item.cost.buy))
+                fields.add("  &3Each: &7$%,.2f".format(item.cost.buy))
             }
+        }
+
+        if (item.sellLimit is Item.SellLimit.Amount) {
+            val limit = item.sellLimit.amount.toInt()
+            val current = limit - (LimitTracking.remaining(viewer, item.iid) ?: 0)
+
+            fields.add("")
+            fields.add("&5Sell Limit: &7$current/$limit")
         }
 
         if (addPurchaseOption) {
             fields.add("")
-            fields.add("&e[Sell: Click]")
+            fields.add("&6Sell:")
+            fields.add("   &e[1: Click]")
+            fields.add("   &e[X: Right click]")
+            fields.add("   &e[All: Shift right click]")
         }
         if (viewer.hasPermission("Perm.ADMIN")) {
             //Without this, there will be an ugly

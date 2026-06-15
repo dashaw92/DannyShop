@@ -19,7 +19,7 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         if (args.isEmpty()) {
-            requirePlayer(sender) {
+            requirePlayer(sender, Perm.OPEN_SHOP) {
                 ShopMenu(it)
             }
             return true
@@ -31,10 +31,15 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
                 ImportCommand.onCommand(it, cmdArgs)
             }
 
-            "catedit" -> requireAdminPlayer(sender, ::CategoryEditor)
+            "edit-categories" -> requireAdminPlayer(sender, ::CategoryEditor)
 
             "backend" -> requireAdmin(sender) {
                 BackendAdminCommand.onCommand(it, cmdArgs)
+            }
+
+            "reset-limits" -> requireAdmin(sender) {
+                sender.pluginMsg("&7Sell limits refreshed.")
+                DannyShop.instance().startTask()
             }
         }
         return true
@@ -45,15 +50,15 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
         command: Command,
         label: String,
         args: Array<out String>
-    ): MutableList<String>? {
+    ): List<String>? {
         if (args.size != 1) return null
-        if (sender.hasPermission(Perm.ADMIN)) return mutableListOf("import", "catedit", "backend")
+        if (sender.hasPermission(Perm.ADMIN)) return listOf("import", "edit-categories", "backend", "reset-limits")
         return null
     }
 
     private fun requireAdminPlayer(sender: CommandSender, func: (Player) -> Unit) {
         requireAdmin(sender) {
-            requirePlayer(it, func)
+            requirePlayer(it, func = func)
         }
     }
 
@@ -65,11 +70,17 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
         func(sender)
     }
 
-    private fun requirePlayer(sender: CommandSender, func: (Player) -> Unit) {
+    private fun requirePlayer(sender: CommandSender, permission: String? = null, func: (Player) -> Unit) {
         if (sender !is Player) {
-            sender.pluginMsg("Sorry, but only players may use this command.".color())
+            sender.pluginMsg("&cSorry, but only players may use this command.".color())
             return
         }
+
+        if (permission != null && !sender.hasPermission(permission)) {
+            sender.pluginMsg("&cYou don't have permission to do this.".color())
+            return
+        }
+
         func(sender)
     }
 }

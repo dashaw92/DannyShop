@@ -6,14 +6,12 @@ import me.danny.shop.collapse
 import me.danny.shop.data.Key
 import me.danny.shop.data.attachKey
 import me.danny.shop.data.keyValue
-import me.danny.shop.economy.Economy
 import me.danny.shop.input.Input
 import me.danny.shop.inv.editor.items.ItemEditor
 import me.danny.shop.inv.editor.items.ItemEditorView
 import me.danny.shop.inv.view.MenuView
 import me.danny.shop.inv.view.ViewAction
 import me.danny.shop.model.Item
-import me.danny.shop.model.Item.ItemType
 import me.danny.shop.pluginMsg
 import me.danny.shop.utils.ItemBuilder
 import me.danny.shop.utils.color
@@ -32,20 +30,8 @@ internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
 
     init {
         val item = DannyShop.SHOP.itemByIid(editor.item)!!
-        when (item.cost) {
-            is Item.Cost.Value -> {
-                buy = item.cost.buy
-            }
-
-            //Add a shortcut for when the worth.yml has changed since import
-            is Item.Cost.NotSet -> {
-                if (item.item is ItemType.Mat) {
-                    val essCost = Economy.getWorth(ItemStack(item.item.material))
-                    if (essCost is Item.Cost.Value) {
-                        buy = essCost.buy
-                    }
-                }
-            }
+        if (item.cost is Item.Cost.Value) {
+            buy = item.cost.buy
         }
     }
 
@@ -61,10 +47,10 @@ internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
         inv.setItem(
             inv.size - 2, ItemBuilder.makeItem(
                 Material.ANVIL,
-                "&5Confirm Price",
+                "&5Confirm Value",
                 "&9Each: &7\$%,.2f".format(buy),
                 "",
-                "&7Shift right click to &4unset price&7.",
+                "&7Shift right click to &4unset value&7.",
                 "&7&oUnsetting the price will make this",
                 "&7item &c&ounavailable&7 for selling!",
                 "",
@@ -117,7 +103,7 @@ internal class CostPropEditor(private val editor: ItemEditor) : MenuView {
         buy = (buy + amount).coerceAtLeast(0.0)
         val msg = if (amount < 0) "&7Sell price &cdecreased by &e$%,.2f".format(amount)
         else "&7Sell price &aincreased by &e$%,.2f".format(amount)
-        event.whoClicked.pluginMsg("$msg".color())
+        event.whoClicked.pluginMsg(msg.color())
     }
 
     private fun placeButtons(amounts: List<Double>, inv: Inventory) {

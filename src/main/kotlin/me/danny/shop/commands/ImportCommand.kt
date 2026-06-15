@@ -28,8 +28,7 @@ internal object ImportCommand {
                 "&7in the chest with default options.",
                 "",
                 "&3[Permission: &8&o${Perm.ADMIN}&3]",
-                "&4Warning: The chest will be cleared after importing!"
-            ), *ItemFlag.values()
+            ), *ItemFlag.entries.toTypedArray()
         )
     ).attachMarker(WAND_KEY)
 

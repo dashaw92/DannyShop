@@ -249,4 +249,17 @@ data class Item(
 
         data class Amount(val amount: UInt) : SellLimit
     }
+
+    fun matchesItemStack(stack: ItemStack): Boolean = when(item) {
+        is ItemType.Mat -> item.material == stack.type
+        is ItemType.Item -> {
+            val self = item.item
+
+            if (self.type != stack.type) return false
+            if (self.enchantments.size != stack.enchantments.size) return false
+            if (self.enchantments != stack.enchantments) return false
+
+            return true
+        }
+    }
 }

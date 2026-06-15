@@ -4,6 +4,7 @@ import me.danny.shop.backend.BackendManager
 import me.danny.shop.backend.LoadResult
 import me.danny.shop.commands.ShopCommand
 import me.danny.shop.economy.Economy
+import me.danny.shop.economy.ResetTask
 import me.danny.shop.importing.ImportListener
 import me.danny.shop.input.ChatInput
 import me.danny.shop.inv.Menu
@@ -33,11 +34,12 @@ class DannyShop : JavaPlugin() {
     }
 
     internal var backend = BackendManager.loadDefaultProvider(this)
+    private var resetTaskHandle: Int = -1
 
     override fun onEnable() {
         if (!Economy.hasEconomy()) {
             logger.warning("Vault not found!")
-            logger.warning("The shop may be edited, but no items may be purchased!")
+            logger.warning("The shop may be edited, but no items may be sold!")
         }
 
         SHOP = when (val result = backend.loadShop(this)) {
@@ -57,7 +59,7 @@ class DannyShop : JavaPlugin() {
 
         Bukkit.getPluginManager().registerEvents(MenuListener, this)
         Bukkit.getPluginManager().registerEvents(ImportListener, this)
-        Bukkit.getPluginManager().registerEvents(ChatInput.ChatInputListener, this);
+        Bukkit.getPluginManager().registerEvents(ChatInput.ChatInputListener, this)
         getCommand("dannyshop")!!.setExecutor(ShopCommand)
     }
 
@@ -65,8 +67,16 @@ class DannyShop : JavaPlugin() {
         try {
             backend.saveShop(this, SHOP)
             Menu.closeOpenInvs()
-        } catch (ignored: NoClassDefFoundError) {
+        } catch (_: NoClassDefFoundError) {
         }
+    }
+
+    internal fun startTask() {
+        if (resetTaskHandle != -1) {
+            Bukkit.getScheduler().cancelTask(resetTaskHandle)
+        }
+
+        resetTaskHandle = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ResetTask, 0L, 72000L)
     }
 }
 

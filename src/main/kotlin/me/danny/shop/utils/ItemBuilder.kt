@@ -82,4 +82,9 @@ internal object ItemBuilder {
         clone.itemMeta = im
         return clone
     }
+
+    internal fun ItemStack.withAmount(amount: Int): ItemStack {
+        this.amount = amount
+        return this
+    }
 }

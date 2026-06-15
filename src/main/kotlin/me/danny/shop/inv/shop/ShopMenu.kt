@@ -12,7 +12,7 @@ import me.danny.shop.inv.editor.categories.CategoryEditor.Companion.CATEGORY_KEY
 import me.danny.shop.inv.editor.items.ItemEditor
 import me.danny.shop.inv.shop.items.FilterType
 import me.danny.shop.inv.shop.items.ItemPage
-import me.danny.shop.inv.shop.purchasing.PurchaseMenu
+import me.danny.shop.inv.shop.purchasing.SellMenu
 import me.danny.shop.model.Category
 import me.danny.shop.model.Item
 import me.danny.shop.utils.ItemBuilder
@@ -103,7 +103,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
             "&e[Reset: Right click]"
         )
         val typeFilter = ItemBuilder.makeItem(
-            Material.HOPPER, "&eItem Filter", *LoreList.makeList(
+            Material.COMPARATOR, "&eItem Filter", *LoreList.makeList(
                 listOf(
                     FilterType.All toEntry listOf("Displaying everything"),
                     FilterType.Materials toEntry listOf("Displaying only raw materials"),
@@ -111,8 +111,18 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
                 ), itemPage.filterType
             )
         )
+
+        val sellAllButton = ItemBuilder.makeItem(
+            Material.HOPPER, "&eSell all",
+            "&7Sell all items from your inventory.",
+            "",
+            "&e[All: Click]",
+            "&e[Category only: Right click]"
+        )
+
         inv.setItem(inv.size - 7, searchButton)
         inv.setItem(inv.size - 6, typeFilter)
+        inv.setItem(inv.size - 1, sellAllButton)
 
         refresh()
 
@@ -192,25 +202,24 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
                 ItemEditor(viewer, item.iid, returnInfo)
             } else {
                 if (!Economy.hasEconomy()) {
-                    viewer.pluginMsg("&cCannot purchase this! No economy is active!")
+                    viewer.pluginMsg("&cCannot sell this! No economy is active!")
                     return
                 }
 
                 if (!item.category.isVisible(viewer)) {
-                    viewer.pluginMsg("&cCannot purchase this! You lack permission!")
+                    viewer.pluginMsg("&cCannot sell this! You lack permission!")
                     return
                 }
 
-                fun doPurchase() {
-                    Economy.purchase(viewer, item.iid)
-                }
-
                 when (item.cost) {
-                    is Item.Cost.Value -> doPurchase()
-                    else -> {
-                        if (viewer.hasPermission(Perm.ADMIN)) doPurchase()
-                        else viewer.pluginMsg("&cCannot purchase this! No price is set.")
+                    is Item.Cost.Value -> {
+                        if (event.isLeftClick) Economy.sell(viewer, item.iid, 1)
+                        else {
+                            if (event.isShiftClick) Economy.sellAll(viewer, item.iid)
+                            else SellMenu(viewer, item.iid, returnInfo)
+                        }
                     }
+                    else -> viewer.pluginMsg("&cCannot sell this! No price is set.")
                 }
             }
             return
@@ -233,7 +242,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
         //</editor-fold>
         //<editor-fold desc="Shop menu controls (filter, search, etc)">
         when (clicked.type) {
-            Material.HOPPER -> {
+            Material.COMPARATOR -> {
                 val filterType = when (event.click) {
                     ClickType.RIGHT -> itemPage.filterType.prev()
                     else -> itemPage.filterType.next()
@@ -255,6 +264,13 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
                 askInput("Search")
                     .getInput(viewer) { _, input -> changeSearchQuery(input) }
                 return
+            }
+
+            Material.HOPPER -> {
+                //left click: everything
+                //right click: only this category
+                val sellCategory = if (event.isRightClick) selected.cid else null
+                Economy.sellInventory(viewer, sellCategory)
             }
 
             else -> {}

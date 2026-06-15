@@ -2,7 +2,6 @@ package me.danny.shop.importing
 
 import me.danny.shop.Perm
 import me.danny.shop.commands.ImportCommand
-import me.danny.shop.economy.Economy.getWorth
 import me.danny.shop.model.Category
 import me.danny.shop.model.ID
 import me.danny.shop.model.Item
@@ -29,11 +28,11 @@ import org.bukkit.inventory.ItemStack
 internal object ImportListener : Listener {
 
     private val chests = object : Tag<Material> {
-        val materials = mutableSetOf(Material.CHEST, Material.TRAPPED_CHEST)
+        val materials = setOf(Material.CHEST, Material.TRAPPED_CHEST, *Tag.COPPER_CHESTS.values.toTypedArray())
 
         @Suppress("DEPRECATION")
         override fun getKey(): NamespacedKey = NamespacedKey("dannyshop", "chest_tag")
-        override fun getValues(): MutableSet<Material> = materials
+        override fun getValues(): Set<Material> = materials
         override fun isTagged(item: Material): Boolean = materials.contains(item)
     }
 
@@ -51,7 +50,7 @@ internal object ImportListener : Listener {
         if (state.customName == null || state.inventory.isEmpty) return
         val name = state.customName!!
         if (Shop.findCategoryByName(name) == null) {
-            Shop.addCategory(Category(name, Material.CHEST))
+            Shop.addCategory(Category(name, state.inventory.contents.filterNotNull().firstOrNull()?.type ?: Material.CHEST))
             player.pluginMsg("Created category &e$name&7.")
         }
 
@@ -68,7 +67,6 @@ internal object ImportListener : Listener {
             }
 
             player.pluginMsg("Cleaning up previous session. Items from previous session will not be imported.")
-//            session.importAll()
             ImportSession.delete(player.uniqueId)
         }
         importItems(player, category, state.inventory)
@@ -81,14 +79,10 @@ internal object ImportListener : Listener {
             .map { item ->
                 val iid = ID.generate()
                 val type = itemType(item)
-
-                val cost = getWorth(item)
-
                 val sellLimit = Item.SellLimit.None
 
-                ImportedItem(iid, type, null, cost, sellLimit)
+                ImportedItem(iid, type, null, Item.Cost.NotSet, sellLimit)
             }.toMutableList()
-        //inv.clear()
 
         val session = ImportSession(player, category, importItems)
         session.openEditor()
@@ -104,7 +98,6 @@ internal object ImportListener : Listener {
 
     private fun itemType(item: ItemStack): Item.ItemType {
         //In general, items with ItemMeta attached are custom items (ItemType.Item)
-        //wew, that's a lot of "item" for one sentence 😅
         return if (item.hasItemMeta()) {
             Item.ItemType.Item(item)
         } else {

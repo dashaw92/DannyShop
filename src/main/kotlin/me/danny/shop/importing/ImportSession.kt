@@ -3,6 +3,7 @@ package me.danny.shop.importing
 import me.danny.shop.DannyShop
 import me.danny.shop.model.Category
 import me.danny.shop.model.ID
+import me.danny.shop.model.Item
 import me.danny.shop.model.Item.Cost
 import me.danny.shop.pluginMsg
 import me.danny.shop.utils.ItemBuilder
@@ -53,6 +54,14 @@ internal class ImportSession(
                     val price = value.toDoubleOrNull()
                     if (price == null) Cost.NotSet
                     else Cost.Value(price)
+                }
+            }
+            "sell-limit" -> item.sellLimit = when(value.trim()) {
+                "" -> Item.SellLimit.None
+                else -> {
+                    val amount = value.toIntOrNull()
+                    if (amount == null || amount <= 0) Item.SellLimit.None
+                    else Item.SellLimit.Amount(amount.toUInt())
                 }
             }
             else -> return
@@ -170,6 +179,15 @@ internal class ImportSession(
             hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to adjust price"))
         }.addPropEvent("cost")
         )
+        base.newLine()
+
+        base.addExtra(addProp("Sell Limit:"))
+        base.addExtra(when (item.sellLimit) {
+            is Item.SellLimit.None -> TextComponent("No limit").apply { color = Color.RED }
+            is Item.SellLimit.Amount -> TextComponent("${(item.sellLimit as Item.SellLimit.Amount).amount}") .apply { color = Color.DARK_PURPLE }
+        }.apply {
+            hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to adjust sell limit"))
+        }.addPropEvent("sell-limit"))
         base.newLine()
 
         base.addExtra(TextComponent("[Return to Home]").apply {
