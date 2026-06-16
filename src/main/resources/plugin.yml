@@ -5,15 +5,15 @@ author: Danny
 description: Danny's shop plugin for Spigot
 api-version: "${spigot_api}"
 softdepend:
-#  - Essentials
-  - Vault
-#  - InputAPI
+  - Vault #
+  - WorldGuard # Sell wand
+  - GriefPrevention # Sell wand
 website: https://github.com/dashaw92/DannyShop
 libraries:
   - org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}
   - org.spongepowered:configurate-yaml:${configurate_version}
 commands:
   dannyshop:
-    aliases: [ "shop", "danshop", "dshop", "dannyssupercoolshopplugin", "anexcessivelylongaliasfortheshop" ]
+    aliases: [ "s", "sh", "shop", "danshop", "dshop", "dannyssupercoolshopplugin", "anexcessivelylongaliasfortheshop" ]
     description: DannyShop main command
     usage: /<command> args

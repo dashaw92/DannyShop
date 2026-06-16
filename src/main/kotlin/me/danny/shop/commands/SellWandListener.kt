@@ -4,54 +4,82 @@ import me.danny.shop.DannyShop
 import me.danny.shop.Perm
 import me.danny.shop.economy.Economy
 import me.danny.shop.pluginMsg
+import me.danny.shop.world.ProtectionProviders
 import org.bukkit.Material
+import org.bukkit.block.Block
+import org.bukkit.block.Chest
 import org.bukkit.block.Container
+import org.bukkit.block.DoubleChest
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.inventory.BlockInventoryHolder
 
 /**
- * Listens for players punching chests with the import wand
- * When this occurs, attempt to import the items in the chest
- * into the shop
+ * Listens for players right clicking chests with the sell wand
  */
 internal object SellWandListener : Listener {
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST) //let protection plugins get first say and heed their cancellation result
-    fun onPlayerPunch(event: PlayerInteractEvent) {
+    @EventHandler
+    fun onPlayerUse(event: PlayerInteractEvent) {
         val player = event.player
 
         if (!event.hasItem() || !SellWandCommand.isWand(event.item!!) || !player.hasPermission(Perm.SELL_WAND)) return
 
-        if (event.action == Action.RIGHT_CLICK_BLOCK) {
-            if (!player.isSneaking && event.clickedBlock?.state is BlockInventoryHolder) return
-            event.isCancelled = true
-            return
-        }
-        if (event.action != Action.LEFT_CLICK_BLOCK || event.clickedBlock?.state !is Container) return
+        if (event.action != Action.RIGHT_CLICK_BLOCK) return
         event.isCancelled = true
 
+        if (event.clickedBlock?.state !is Container) return
+
+        if (!ProtectionProviders.canUseChestAt(player, event.clickedBlock!!.location)) {
+            player.pluginMsg("No permission to sell from this.")
+            return
+        }
+
         val state = event.clickedBlock!!.state as Container
-        if (state.inventory.isEmpty) return
+        if (state.inventory.isEmpty) {
+            player.pluginMsg("Nothing to sell from this container.")
+            return
+        }
 
         player.pluginMsg("Selling items from container.")
+        if (state.inventory.holder is DoubleChest) {
+            val chest = state.inventory.holder as DoubleChest
+            val left = (chest.leftSide as Chest).block
+            val right = (chest.rightSide as Chest).block
+
+            val canSellLeft = ProtectionProviders.canUseChestAt(player, left.location)
+            val canSellRight = ProtectionProviders.canUseChestAt(player, right.location)
+
+            if (canSellLeft && canSellRight) {
+                sellBlockState(player, left, left.state as Container)
+                sellBlockState(player, right, right.state as Container)
+            } else {
+                player.pluginMsg("No permission to sell from this.")
+                return
+            }
+        } else {
+            sellBlockState(player, event.clickedBlock!!, state)
+        }
+    }
+
+    private fun sellBlockState(player: Player, block: Block, state: Container) {
         Economy.sellInventory(player, state.snapshotInventory, null)
-        if(!state.update()) {
+
+        if (!state.update()) {
             DannyShop.instance().logger.warning("Failed to update container after sell wand interaction.")
             DannyShop.instance().logger.warning("To mitigate potential item duplication, the container will be deleted completely.")
-            DannyShop.instance().logger.warning("Container at (${event.clickedBlock!!.location}) is now Air.")
-            event.clickedBlock!!.type = Material.AIR
+            DannyShop.instance().logger.warning("Container at (${block.location.world?.name}, ${block.location.blockX}, ${block.location.blockY}, ${block.location.blockZ}, ) is now Air.")
+            block.type = Material.AIR
         }
     }
 
     @EventHandler
     fun onWandDrop(event: PlayerDropItemEvent) {
-        if (ImportCommand.isWand(event.itemDrop.itemStack)) {
-            event.player.pluginMsg("Removed import wand!")
+        if (SellWandCommand.isWand(event.itemDrop.itemStack)) {
+            event.player.pluginMsg("Removed sell wand!")
             event.itemDrop.remove()
         }
     }

@@ -32,13 +32,16 @@ repositories {
     maven(url = "https://repo.essentialsx.net/releases/")
     maven(url = "https://jitpack.io")
     maven(url = "https://papermc.io/repo/repository/maven-public/")
+    maven(url = "https://maven.enginehub.org/repo")
 }
 
 dependencies {
     compileOnly("org.spigotmc:spigot-api:$spigotVersion")
     compileOnly("org.spongepowered:configurate-yaml:$configurateVersion")
-//    compileOnly("net.essentialsx:EssentialsX:$essentialsVersion")
     compileOnly("com.github.MilkBowl:VaultAPI:$vaultVersion")
+
+    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.17")
+    compileOnly("com.github.GriefPrevention:GriefPrevention:18.0.0")
     implementation(kotlin("stdlib"))
 }
 

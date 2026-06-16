@@ -19,7 +19,7 @@ internal object SellWandCommand {
         ItemBuilder.addAttribute(
             ItemBuilder.makeItem(
                 Material.ORANGE_CARPET, "&3DannyShop Sell Wand",
-                "&eLeft click&7 a &6container&7 to sell all items",
+                "&eRight click&7 a &6container&7 to sell all items",
                 "&7in the chest.",
                 "",
                 "&3[Permission: &8&o${Perm.SELL_WAND}&3]",
