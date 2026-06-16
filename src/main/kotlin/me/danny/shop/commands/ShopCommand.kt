@@ -45,6 +45,10 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
                 sender.pluginMsg("&7Sell limits refreshed.")
                 DannyShop.instance().startTask()
             }
+
+            "eco-log" -> requiresPermission(sender, Perm.ECOLOG) {
+                EcoLogCommand.onCommand(sender, cmdArgs)
+            }
         }
         return true
     }
@@ -55,13 +59,22 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
         label: String,
         args: Array<out String>
     ): List<String>? {
-        var available = mutableListOf<String>()
-        if (args.size != 1) return null
+        val available = mutableListOf<String>()
         if (sender.hasPermission(Perm.SELL_WAND)) available.add("sell-wand")
-        if (sender.hasPermission(Perm.ADMIN)) available.addAll(listOf("import", "edit-categories", "backend", "reset-limits"))
+        if (sender.hasPermission(Perm.ECOLOG)) available.add("eco-log")
+        if (sender.hasPermission(Perm.ADMIN)) available.addAll(
+            listOf(
+                "import",
+                "edit-categories",
+                "backend",
+                "reset-limits"
+            )
+        )
 
         if (args.isEmpty()) return available
-        return available.filter { cmd -> cmd.lowercase().startsWith(args[0].lowercase()) }
+        if (args.size == 1) return available.filter { cmd -> cmd.lowercase().startsWith(args[0].lowercase()) }
+        if (args.size == 2 && args[0].equals("eco-log", true)) return EcoLogCommand.onTabComplete(sender, args[1])
+        return null
     }
 
     private fun requireAdminPlayer(sender: CommandSender, func: (Player) -> Unit) {
@@ -72,9 +85,18 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
 
     private fun requireAdmin(sender: CommandSender, func: (CommandSender) -> Unit) {
         if (!sender.hasPermission(Perm.ADMIN)) {
-            sender.pluginMsg("&cYou lack permission.")
+            sender.pluginMsg("&cYou don't have permission to do this.".color())
             return
         }
+        func(sender)
+    }
+
+    private fun requiresPermission(sender: CommandSender, permission: String, func: (CommandSender) -> Unit) {
+        if (!sender.hasPermission(permission)) {
+            sender.pluginMsg("&cYou don't have permission to do this.".color())
+            return
+        }
+
         func(sender)
     }
 

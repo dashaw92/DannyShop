@@ -4,6 +4,7 @@ import me.danny.shop.backend.BackendManager
 import me.danny.shop.backend.LoadResult
 import me.danny.shop.commands.SellWandListener
 import me.danny.shop.commands.ShopCommand
+import me.danny.shop.config.Config
 import me.danny.shop.economy.Economy
 import me.danny.shop.economy.ResetTask
 import me.danny.shop.importing.ImportListener
@@ -11,6 +12,10 @@ import me.danny.shop.input.ChatInput
 import me.danny.shop.inv.Menu
 import me.danny.shop.inv.listeners.MenuListener
 import me.danny.shop.model.Shop
+import me.danny.shop.tracking.Analytics
+import me.danny.shop.tracking.Logging
+import me.danny.shop.tracking.getAnalytics
+import me.danny.shop.tracking.getLogging
 import me.danny.shop.utils.color
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
@@ -35,6 +40,9 @@ class DannyShop : JavaPlugin() {
     }
 
     internal var backend = BackendManager.loadDefaultProvider(this)
+    internal lateinit var config: Config
+    internal lateinit var ecolog: Logging
+    internal lateinit var analytics: Analytics
     private var resetTaskHandle: Int = -1
 
     override fun onEnable() {
@@ -43,6 +51,7 @@ class DannyShop : JavaPlugin() {
             logger.warning("The shop may be edited, but no items may be sold!")
         }
 
+        config = BackendManager.getConfig(this)
         SHOP = when (val result = backend.loadShop(this)) {
             is LoadResult.Failure -> {
                 logger.severe("Failed to load shop from backend (${backend.name()})")
@@ -56,6 +65,12 @@ class DannyShop : JavaPlugin() {
             is LoadResult.Success -> result.shop
         }
 
+        analytics = getAnalytics(config)
+        analytics.load()
+
+        ecolog = getLogging(config)
+        ecolog.load()
+
         Menu.scheduleRefreshTask()
 
         Bukkit.getPluginManager().registerEvents(MenuListener, this)
@@ -67,6 +82,8 @@ class DannyShop : JavaPlugin() {
     }
 
     override fun onDisable() {
+        analytics.save()
+        ecolog.save()
         try {
             backend.saveShop(this, SHOP)
             Menu.closeOpenInvs()
@@ -79,8 +96,8 @@ class DannyShop : JavaPlugin() {
             Bukkit.getScheduler().cancelTask(resetTaskHandle)
         }
 
-        val period = 72000L
-        resetTaskHandle = Bukkit.getScheduler().scheduleSyncRepeatingTask(this, ResetTask(period), 0L, period)
+        resetTaskHandle = Bukkit.getScheduler()
+            .scheduleSyncRepeatingTask(this, ResetTask(config.sellLimitRefreshTicks), 0L, config.sellLimitRefreshTicks)
     }
 }
 

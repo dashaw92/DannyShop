@@ -2,11 +2,10 @@ package me.danny.shop.model
 
 import me.danny.shop.Perm
 import me.danny.shop.model.Item.ItemType
-import me.danny.shop.utils.ItemBuilder
-import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import java.io.Serializable
 
 /**
  * Represents the DannyShop, holding all items
@@ -107,7 +106,7 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
  * they are unique. Duplicate IDs will cause
  * undefined behavior.
  */
-data class ID(internal val id: String) {
+data class ID(internal val id: String) : Serializable {
     companion object {
         /**
          * Systematically generate a new IID based off the current
@@ -250,7 +249,7 @@ data class Item(
         data class Amount(val amount: UInt) : SellLimit
     }
 
-    fun matchesItemStack(stack: ItemStack): Boolean = when(item) {
+    fun matchesItemStack(stack: ItemStack): Boolean = when (item) {
         is ItemType.Mat -> item.material == stack.type
         is ItemType.Item -> {
             val self = item.item
@@ -262,4 +261,14 @@ data class Item(
             return true
         }
     }
+
+    internal fun itemName(): String = humanize(
+        when (item) {
+            is ItemType.Mat -> item.material.name
+            is ItemType.Item -> item.item.type.name
+        }
+    )
+
+    private fun humanize(name: String): String =
+        name.split('_').joinToString(" ") { word -> word.first().uppercaseChar() + word.substring(1).lowercase() }
 }

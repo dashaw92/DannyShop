@@ -122,7 +122,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
 
         inv.setItem(inv.size - 7, searchButton)
         inv.setItem(inv.size - 6, typeFilter)
-        inv.setItem(inv.size - 1, sellAllButton)
+        if (viewer.hasPermission(Perm.SELL)) inv.setItem(inv.size - 1, sellAllButton)
 
         refresh()
 
@@ -211,6 +211,8 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
                     return
                 }
 
+                if (!viewer.hasPermission(Perm.SELL)) return
+
                 when (item.cost) {
                     is Item.Cost.Value -> {
                         if (event.isLeftClick) {
@@ -266,7 +268,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
                 return
             }
 
-            Material.HOPPER -> {
+            Material.HOPPER if viewer.hasPermission(Perm.SELL) -> {
                 //left click: everything
                 //right click: only this category
                 val sellCategory = if (event.isRightClick) selected.cid else null

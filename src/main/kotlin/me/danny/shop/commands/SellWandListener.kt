@@ -33,6 +33,11 @@ internal object SellWandListener : Listener {
 
         if (event.clickedBlock?.state !is Container) return
 
+        if (!player.hasPermission(Perm.SELL)) {
+            player.pluginMsg("&cYou aren't allowed to sell items.")
+            return
+        }
+
         if (!ProtectionProviders.canUseChestAt(player, event.clickedBlock!!.location)) {
             player.pluginMsg("No permission to sell from this.")
             return

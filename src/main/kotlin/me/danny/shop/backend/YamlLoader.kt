@@ -4,7 +4,8 @@ import me.danny.shop.backend.BackendType.Yaml
 import me.danny.shop.backend.yaml.*
 import me.danny.shop.model.Category
 import me.danny.shop.model.Item
-import me.danny.shop.model.Item.*
+import me.danny.shop.model.Item.Cost
+import me.danny.shop.model.Item.SellLimit
 import me.danny.shop.model.Shop
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
@@ -45,8 +46,8 @@ internal class YamlLoader(private val options: YamlOptions) : ShopBackend {
         val root = loader(plugin).load()
         return try {
             //Attempt to load the shop (can be null if no shop.yml exists)
-            val shop: Shop? = root.node("shop").get(Shop::class.java)
-            LoadResult.Success(shop ?: Shop(mutableMapOf()))
+            val shop: Shop = root.node("shop").get(Shop::class.java) ?: Shop(mutableMapOf())
+            LoadResult.Success(shop)
         } catch (ex: SerializationException) {
             LoadResult.Failure(ex)
         }
@@ -55,7 +56,6 @@ internal class YamlLoader(private val options: YamlOptions) : ShopBackend {
     override fun saveShop(plugin: Plugin, shop: Shop) {
         val loader = loader(plugin)
         val root = loader.load()
-        root.set(null)
         root.node("shop").set(shop)
         loader.save(root)
     }

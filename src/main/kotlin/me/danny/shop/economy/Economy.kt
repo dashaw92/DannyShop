@@ -1,6 +1,7 @@
 package me.danny.shop.economy
 
 import me.danny.shop.DannyShop
+import me.danny.shop.Perm
 import me.danny.shop.model.ID
 import me.danny.shop.model.Item
 import me.danny.shop.pluginMsg
@@ -48,19 +49,24 @@ internal object Economy {
     }
 
     internal fun sell(viewer: Player, inventory: Inventory, iid: ID, amount: Int) {
+        if (!viewer.hasPermission(Perm.SELL)) {
+            viewer.pluginMsg("&cYou aren't allowed to sell items.")
+            return
+        }
+
         val item = DannyShop.SHOP.itemByIid(iid) ?: return
         if (item.cost !is Item.Cost.Value) return
 
         val value = item.cost.buy
 
         if (amount == 0) {
-            viewer.pluginMsg("&cYou don't have any &o${itemName(item)}&c to sell!")
+            viewer.pluginMsg("&cYou don't have any &o${item.itemName()}&c to sell!")
             return
         }
 
         var remaining = getLimitForItem(viewer, iid, amount)
         if (remaining == 0) {
-            viewer.pluginMsg("&cYou've hit the limit for &o${itemName(item)}&c.")
+            viewer.pluginMsg("&cYou've hit the limit for &o${item.itemName()}&c.")
             return
         }
         var sold = 0
@@ -76,6 +82,8 @@ internal object Economy {
         }
 
         LimitTracking.add(viewer, iid, sold)
+        DannyShop.instance().analytics.log(item.iid, sold.toLong())
+        DannyShop.instance().ecolog.log(viewer, item, sold.toLong(), sold * value)
         messageProfit(viewer, item, sold, sold * value)
     }
 
@@ -109,7 +117,7 @@ internal object Economy {
     }
 
     private fun messageProfit(viewer: Player, item: Item, sold: Int, profit: Double) {
-        val name = itemName(item)
+        val name = item.itemName()
         if (sold == 0) {
             viewer.pluginMsg("&cYou don't have any &o$name&c to sell!")
         } else {
@@ -117,14 +125,4 @@ internal object Economy {
             econ.depositPlayer(viewer, profit)
         }
     }
-
-    private fun itemName(item: Item): String = humanize(
-        when (item.item) {
-            is Item.ItemType.Mat -> item.item.material.name
-            is Item.ItemType.Item -> item.item.item.type.name
-        }
-    )
-
-    private fun humanize(name: String): String =
-        name.split('_').joinToString(" ") { word -> word.first().uppercaseChar() + word.substring(1).lowercase() }
 }

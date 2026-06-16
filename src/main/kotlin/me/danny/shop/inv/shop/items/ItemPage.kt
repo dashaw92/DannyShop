@@ -1,6 +1,7 @@
 package me.danny.shop.inv.shop.items
 
 import me.danny.shop.DannyShop
+import me.danny.shop.Perm
 import me.danny.shop.data.attachKey
 import me.danny.shop.economy.LimitTracking
 import me.danny.shop.economy.ResetTask
@@ -153,7 +154,7 @@ internal class ItemPage(
         when (item.cost) {
             is Item.Cost.NotSet -> fields.add("&c  No value set!")
             is Item.Cost.Value -> {
-                addPurchaseOption = true
+                addPurchaseOption = viewer.hasPermission(Perm.SELL)
                 fields.add("  &3Each: &7$%,.2f".format(item.cost.buy))
             }
         }
@@ -181,7 +182,7 @@ internal class ItemPage(
             }
             val seconds = TimeUnit.SECONDS.convert(resetNext, TimeUnit.MILLISECONDS)
             if (seconds >= 1) {
-                resetNext -= TimeUnit.MILLISECONDS.convert(seconds, TimeUnit.SECONDS)
+//                resetNext -= TimeUnit.MILLISECONDS.convert(seconds, TimeUnit.SECONDS)
                 resetFormatted += "${seconds}s"
             }
 
@@ -189,6 +190,21 @@ internal class ItemPage(
             fields.add("&5Sell Limit:")
             fields.add("   &7$current/$limit")
             fields.add("   &7Reset in ${resetFormatted.trim()}")
+        }
+
+        if (viewer.hasPermission(Perm.ECOLOG) && DannyShop.instance().config.ecoAnalyticsEnabled) {
+            val hist = DannyShop.instance().analytics.getHistory(item.iid)
+            if (hist != null) {
+                val day = hist.getFirstNDays(1).sum()
+                val week = hist.getFirstNDays(7).sum()
+                val month = hist.getFirstNDays(30).sum()
+
+                fields.add("")
+                fields.add("&2Volume:")
+                fields.add("   &91d: &7$day")
+                fields.add("   &97d: &7$week")
+                fields.add("   &930d: &7$month")
+            }
         }
 
         if (addPurchaseOption) {
