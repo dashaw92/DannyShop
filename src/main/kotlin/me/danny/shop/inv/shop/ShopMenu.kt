@@ -198,7 +198,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
             val item = shop.itemByIid(iid) ?: return
 
             val returnInfo = ShopReturnInfo(itemPage, categoryPage)
-            if (event.click == ClickType.SHIFT_LEFT && viewer.hasPermission(Perm.ADMIN)) {
+            if (event.click == ClickType.SHIFT_RIGHT && viewer.hasPermission(Perm.ADMIN)) {
                 ItemEditor(viewer, item.iid, returnInfo)
             } else {
                 if (!Economy.hasEconomy()) {
@@ -213,11 +213,11 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
 
                 when (item.cost) {
                     is Item.Cost.Value -> {
-                        if (event.isLeftClick) Economy.sell(viewer, viewer.inventory, item.iid, 1)
-                        else {
+                        if (event.isLeftClick) {
                             if (event.isShiftClick) Economy.sellAll(viewer, viewer.inventory, item.iid)
-                            else SellMenu(viewer, item.iid, returnInfo)
+                            else Economy.sell(viewer, viewer.inventory, item.iid, 1)
                         }
+                        else SellMenu(viewer, item.iid, returnInfo)
                     }
                     else -> viewer.pluginMsg("&cCannot sell this! No price is set.")
                 }

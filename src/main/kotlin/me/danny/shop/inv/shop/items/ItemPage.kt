@@ -196,14 +196,14 @@ internal class ItemPage(
             fields.add("&6Sell:")
             fields.add("   &e[1: Click]")
             fields.add("   &e[X: Right click]")
-            fields.add("   &e[All: Shift right click]")
+            fields.add("   &e[All: Shift click]")
         }
         if (viewer.hasPermission("Perm.ADMIN")) {
             //Without this, there will be an ugly
             //empty line for viewers without perms
             //on items with no prices set
             if (!addPurchaseOption) fields.add("")
-            fields.add("&3[Edit: Shift click]")
+            fields.add("&3[Edit: Shift right click]")
         }
 
         return ItemBuilder.addLore(tagged, *fields.build())

@@ -52,6 +52,12 @@ internal object Economy {
         if (item.cost !is Item.Cost.Value) return
 
         val value = item.cost.buy
+
+        if (amount == 0) {
+            viewer.pluginMsg("&cYou don't have any &o${itemName(item)}&c to sell!")
+            return
+        }
+
         var remaining = getLimitForItem(viewer, iid, amount)
         if (remaining == 0) {
             viewer.pluginMsg("&cYou've hit the limit for &o${itemName(item)}&c.")
@@ -103,11 +109,11 @@ internal object Economy {
     }
 
     private fun messageProfit(viewer: Player, item: Item, sold: Int, profit: Double) {
+        val name = itemName(item)
         if (sold == 0) {
-            viewer.pluginMsg("&cYou don't have any to sell!")
+            viewer.pluginMsg("&cYou don't have any &o$name&c to sell!")
         } else {
-            val name = itemName(item)
-            viewer.pluginMsg("&aSold ${sold}x&o${name}&a for $%,.2f.".format(profit))
+            viewer.pluginMsg("&aSold ${sold}x&o$name&a for $%,.2f.".format(profit))
             econ.depositPlayer(viewer, profit)
         }
     }
