@@ -20,7 +20,8 @@ class WorldGuardProtection : WorldProtection {
 
         val container = WorldGuard.getInstance().platform.regionContainer
         val query = container.createQuery()
-        return query.getApplicableRegions(wgLoc)
-            .testState(wgPl, Flags.CHEST_ACCESS)
+        val regions = query.getApplicableRegions(wgLoc)
+        val use = regions.testState(wgPl, Flags.CHEST_ACCESS)
+        return regions.size() == 0 || use
     }
 }
