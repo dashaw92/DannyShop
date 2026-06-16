@@ -65,7 +65,7 @@ internal class SellMenu(viewer: Player, item: ID, private val returnInfo: ShopMe
         }
 
         if (clicked.hasKey(PRICE_KEY)) {
-            Economy.sell(viewer, item.iid, clicked.amount)
+            Economy.sell(viewer, viewer.inventory, item.iid, clicked.amount)
             return
         }
 
@@ -75,7 +75,7 @@ internal class SellMenu(viewer: Player, item: ID, private val returnInfo: ShopMe
                 askInput("&9Sell custom amount")
                     .getInput(viewer, ::handleCustomQuantity)
             } else {
-                Economy.sell(viewer, item.iid, customAmount)
+                Economy.sell(viewer, viewer.inventory, item.iid, customAmount)
             }
         }
     }

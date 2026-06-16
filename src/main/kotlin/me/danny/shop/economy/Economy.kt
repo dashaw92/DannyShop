@@ -20,12 +20,6 @@ internal object Economy {
         return rsp.provider
     }
 
-    private val SLOTS = run {
-        val baseInv = (0..35).toMutableList()
-        baseInv.add(40) //off-hand slot
-        baseInv
-    }
-
     private fun decreaseSlot(inv: Inventory, slot: Int, amount: Int = 1): Int {
         val item = inv.getItem(slot) ?: return 0
         val stackSize = item.amount
@@ -53,7 +47,7 @@ internal object Economy {
         return amount
     }
 
-    internal fun sell(viewer: Player, iid: ID, amount: Int) {
+    internal fun sell(viewer: Player, inventory: Inventory, iid: ID, amount: Int) {
         val item = DannyShop.SHOP.itemByIid(iid) ?: return
         if (item.cost !is Item.Cost.Value) return
 
@@ -65,11 +59,11 @@ internal object Economy {
         }
         var sold = 0
 
-        for (i in SLOTS) {
-            val it = viewer.inventory.getItem(i)
+        for (i in inventory.contents.indices) {
+            val it = inventory.getItem(i)
             if (it == null || !item.matchesItemStack(it)) continue
 
-            val soldThisSlot = decreaseSlot(viewer.inventory, i, remaining)
+            val soldThisSlot = decreaseSlot(inventory, i, remaining)
             sold += soldThisSlot
             remaining -= soldThisSlot
             if (remaining == 0) break
@@ -79,32 +73,32 @@ internal object Economy {
         messageProfit(viewer, item, sold, sold * value)
     }
 
-    fun sellAll(viewer: Player, iid: ID) {
+    fun sellAll(viewer: Player, inventory: Inventory, iid: ID) {
         val item = DannyShop.SHOP.itemByIid(iid) ?: return
         var count = 0
 
-        for (i in SLOTS) {
-            val it = viewer.inventory.getItem(i)
+        for (i in inventory.contents.indices) {
+            val it = inventory.getItem(i)
             if (it == null || !item.matchesItemStack(it)) continue
             count += it.amount
         }
 
-        sell(viewer, iid, count)
+        sell(viewer, inventory, iid, count)
     }
 
-    fun sellInventory(viewer: Player, sellCategory: ID?) {
+    fun sellInventory(viewer: Player, inventory: Inventory, sellCategory: ID?) {
         val itemPool = DannyShop.SHOP.items
             .filterKeys { it.isVisible(viewer) }
             .filterKeys { sellCategory == null || it.cid == sellCategory }
             .values.flatten()
             .filter { it.cost is Item.Cost.Value }
 
-        for (i in SLOTS) {
-            val stack = viewer.inventory.getItem(i) ?: continue
+        for (i in inventory.contents.indices) {
+            val stack = inventory.getItem(i) ?: continue
             val match = itemPool.filter { it.matchesItemStack(stack) }
                 .maxByOrNull { (it.cost as Item.Cost.Value).buy } ?: continue
 
-            sellAll(viewer, match.iid)
+            sellAll(viewer, inventory, match.iid)
         }
     }
 

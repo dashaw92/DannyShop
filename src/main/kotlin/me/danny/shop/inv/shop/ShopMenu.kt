@@ -213,9 +213,9 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
 
                 when (item.cost) {
                     is Item.Cost.Value -> {
-                        if (event.isLeftClick) Economy.sell(viewer, item.iid, 1)
+                        if (event.isLeftClick) Economy.sell(viewer, viewer.inventory, item.iid, 1)
                         else {
-                            if (event.isShiftClick) Economy.sellAll(viewer, item.iid)
+                            if (event.isShiftClick) Economy.sellAll(viewer, viewer.inventory, item.iid)
                             else SellMenu(viewer, item.iid, returnInfo)
                         }
                     }
@@ -270,7 +270,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
                 //left click: everything
                 //right click: only this category
                 val sellCategory = if (event.isRightClick) selected.cid else null
-                Economy.sellInventory(viewer, sellCategory)
+                Economy.sellInventory(viewer, viewer.inventory, sellCategory)
             }
 
             else -> {}

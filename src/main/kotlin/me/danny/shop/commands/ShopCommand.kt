@@ -31,6 +31,10 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
                 ImportCommand.onCommand(it, cmdArgs)
             }
 
+            "sell-wand" -> requirePlayer(sender, Perm.SELL_WAND) {
+                SellWandCommand.onCommand(it, cmdArgs)
+            }
+
             "edit-categories" -> requireAdminPlayer(sender, ::CategoryEditor)
 
             "backend" -> requireAdmin(sender) {
@@ -51,9 +55,13 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
         label: String,
         args: Array<out String>
     ): List<String>? {
+        var available = mutableListOf<String>()
         if (args.size != 1) return null
-        if (sender.hasPermission(Perm.ADMIN)) return listOf("import", "edit-categories", "backend", "reset-limits")
-        return null
+        if (sender.hasPermission(Perm.SELL_WAND)) available.add("sell-wand")
+        if (sender.hasPermission(Perm.ADMIN)) available.addAll(listOf("import", "edit-categories", "backend", "reset-limits"))
+
+        if (args.isEmpty()) return available
+        return available.filter { cmd -> cmd.lowercase().startsWith(args[0].lowercase()) }
     }
 
     private fun requireAdminPlayer(sender: CommandSender, func: (Player) -> Unit) {

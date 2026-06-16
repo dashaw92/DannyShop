@@ -2,6 +2,7 @@ package me.danny.shop
 
 import me.danny.shop.backend.BackendManager
 import me.danny.shop.backend.LoadResult
+import me.danny.shop.commands.SellWandListener
 import me.danny.shop.commands.ShopCommand
 import me.danny.shop.economy.Economy
 import me.danny.shop.economy.ResetTask
@@ -59,6 +60,7 @@ class DannyShop : JavaPlugin() {
 
         Bukkit.getPluginManager().registerEvents(MenuListener, this)
         Bukkit.getPluginManager().registerEvents(ImportListener, this)
+        Bukkit.getPluginManager().registerEvents(SellWandListener, this)
         Bukkit.getPluginManager().registerEvents(ChatInput.ChatInputListener, this)
         getCommand("dannyshop")!!.setExecutor(ShopCommand)
         startTask()
