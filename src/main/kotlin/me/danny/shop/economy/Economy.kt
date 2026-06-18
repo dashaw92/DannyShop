@@ -81,6 +81,7 @@ internal object Economy {
             if (remaining == 0) break
         }
 
+        if (sold == 0) return
         LimitTracking.add(viewer, iid, sold)
         DannyShop.instance().analytics.log(item.iid, sold.toLong())
         DannyShop.instance().ecolog.log(viewer, item, sold.toLong(), sold * value)

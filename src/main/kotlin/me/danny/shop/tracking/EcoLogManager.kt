@@ -7,7 +7,6 @@ import java.io.*
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
@@ -16,10 +15,8 @@ import java.util.zip.GZIPOutputStream
 private fun now(): ZonedDateTime = ZonedDateTime.now()
 
 private fun generateLogfileDate(zdt: ZonedDateTime = now()): String = zdt.format(
-    DateTimeFormatter.ofLocalizedDate(
-        FormatStyle.SHORT
-    )
-).replace('/', '-')
+    DateTimeFormatter.ofPattern("LLL-yyyy")
+)
 
 private fun logfileName(zdt: ZonedDateTime = now()): String = "sales-${generateLogfileDate(zdt)}.csv.gz"
 private fun formatDateTime(zdt: ZonedDateTime): String = zdt.format(DateTimeFormatter.ISO_DATE_TIME)
@@ -62,7 +59,8 @@ internal data class SaleRecord(
         ext
     )
 
-    internal fun toCSV(): String = "${formatDateTime(time)},$seller,${item.id},$amount,${price.toDouble()},${ext.toDouble()}"
+    internal fun toCSV(): String =
+        "${formatDateTime(time)},$seller,${item.id},$amount,${price.toDouble()},${ext.toDouble()}"
 }
 
 
