@@ -11,13 +11,13 @@ import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.Tag
 import org.bukkit.block.Chest
+import org.bukkit.block.Container
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
 /**
@@ -50,7 +50,12 @@ internal object ImportListener : Listener {
         if (state.customName == null || state.inventory.isEmpty) return
         val name = state.customName!!
         if (Shop.findCategoryByName(name) == null) {
-            Shop.addCategory(Category(name, state.inventory.contents.filterNotNull().firstOrNull()?.type ?: Material.CHEST))
+            Shop.addCategory(
+                Category(
+                    name,
+                    state.inventory.contents.filterNotNull().firstOrNull()?.type ?: Material.CHEST
+                )
+            )
             player.pluginMsg("Created category &e$name&7.")
         }
 
@@ -69,22 +74,25 @@ internal object ImportListener : Listener {
             player.pluginMsg("Cleaning up previous session. Items from previous session will not be imported.")
             ImportSession.delete(player.uniqueId)
         }
-        importItems(player, category, state.inventory)
+        importItems(player, category, state)
     }
 
-    private fun importItems(player: Player, category: Category, inv: Inventory) {
+    private fun importItems(player: Player, category: Category, blockState: Container) {
+        val inv = blockState.snapshotInventory
         val importItems = inv.asSequence()
             .filterNotNull()
             .filterNot { it.type.isAir }
             .map { item ->
                 val iid = ID.generate()
+                val name =
+                    if (item.hasItemMeta() && item.itemMeta!!.hasDisplayName()) item.itemMeta!!.displayName else null
                 val type = itemType(item)
                 val sellLimit = Item.SellLimit.None
 
-                ImportedItem(iid, type, null, Item.Cost.NotSet, sellLimit)
+                ImportedItem(iid, type, name, Item.Cost.NotSet, sellLimit)
             }.toMutableList()
 
-        val session = ImportSession(player, category, importItems)
+        val session = ImportSession(player, category, importItems, blockState)
         session.openEditor()
     }
 

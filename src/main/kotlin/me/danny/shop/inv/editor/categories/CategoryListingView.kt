@@ -15,6 +15,12 @@ import org.bukkit.inventory.Inventory
 internal class CategoryListingView : MenuView {
     private lateinit var page: CategoryPages
 
+    constructor()
+
+    private constructor(page: CategoryPages) {
+        this.page = page
+    }
+
     override fun onOpen(): ViewAction = ViewAction.Resize(5)
 
     override fun build(inv: Inventory) {
@@ -34,7 +40,7 @@ internal class CategoryListingView : MenuView {
             event.currentItem!!.hasKey(CategoryEditor.CATEGORY_KEY) -> {
                 val cid = ID(event.currentItem!!.keyValue(CategoryEditor.CATEGORY_KEY) ?: return ViewAction.Pass)
                 val category = Shop.getCategory(cid) ?: return ViewAction.Pass
-                return ViewAction.ChangeView(CategoryEditorView(category))
+                return ViewAction.ChangeView(CategoryEditorView(category) { CategoryListingView(page) })
             }
 
             event.currentItem!!.type == Material.BARRIER -> event.whoClicked.closeInventory()

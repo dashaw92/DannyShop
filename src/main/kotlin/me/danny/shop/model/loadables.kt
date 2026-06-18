@@ -257,17 +257,26 @@ data class Item(
             if (self.type != stack.type) return false
             if (self.enchantments.size != stack.enchantments.size) return false
             if (self.enchantments != stack.enchantments) return false
+            if (self.hasItemMeta()) {
+                if (!stack.hasItemMeta()) return false
+                val myMeta = self.itemMeta!!
+                val otherMeta = stack.itemMeta!!
+
+                val name =
+                    if (myMeta.hasDisplayName()) otherMeta.hasDisplayName() && myMeta.displayName == otherMeta.displayName else true
+                val lore = if (myMeta.hasLore()) otherMeta.hasLore() && myMeta.lore == otherMeta.lore else true
+
+                if (!name || !lore) return false
+            }
 
             return true
         }
     }
 
-    internal fun itemName(): String = humanize(
-        when (item) {
-            is ItemType.Mat -> item.material.name
-            is ItemType.Item -> item.item.type.name
-        }
-    )
+    internal fun itemName(): String = when (item) {
+        is ItemType.Mat -> humanize(item.material.name)
+        is ItemType.Item -> name ?: humanize(item.item.type.name)
+    }
 
     private fun humanize(name: String): String =
         name.split('_').joinToString(" ") { word -> word.first().uppercaseChar() + word.substring(1).lowercase() }

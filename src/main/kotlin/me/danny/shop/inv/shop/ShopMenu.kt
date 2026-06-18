@@ -53,7 +53,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
             viewer,
             shop.items(selected.cid),
             FilterType.All,
-            Pair(inv.size - 2, inv.size - 1)
+            Pair(inv.size - 4, inv.size - 3)
         )
     private var categoryPage: CategoryPage =
         shopReturnInfo?.categoryPage ?: CategoryPage(viewer, shop.categories(), selected, Pair(1, 46))
@@ -66,13 +66,17 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
     private fun rebuildInv() {
         val page = itemPage.page() + 1
         val maxPages = itemPage.numPages()
-        inv = Bukkit.createInventory(
-            this, 6 * 9,
-            "$prefix- ${ChatColor.BLUE}${categoryPage.selected().name} ${ChatColor.DARK_GRAY}(%d/%d)".format(
-                page,
-                maxPages
-            )
-        )
+
+        val catName = categoryPage.selected().name
+        var title = "$prefix- &9$catName &7($page/$maxPages)".color()
+        val stripped = ChatColor.stripColor(title)!!
+        val overflow = stripped.length - 32
+        if (overflow > 0) {
+            val choppedCategory = catName
+                .substring(0, catName.length - overflow - 3) + ".."
+            title = "$prefix- &9$choppedCategory &7($page/$maxPages)".color()
+        }
+        inv = Bukkit.createInventory(this, 6 * 9, title)
     }
 
     override fun build() {
@@ -218,9 +222,9 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
                         if (event.isLeftClick) {
                             if (event.isShiftClick) Economy.sellAll(viewer, viewer.inventory, item.iid)
                             else Economy.sell(viewer, viewer.inventory, item.iid, 1)
-                        }
-                        else SellMenu(viewer, item.iid, returnInfo)
+                        } else SellMenu(viewer, item.iid, returnInfo)
                     }
+
                     else -> viewer.pluginMsg("&cCannot sell this! No price is set.")
                 }
             }

@@ -154,11 +154,11 @@ internal fun format(bd: BigDecimal): String {
 
 internal fun BigDecimal.fmt(): String = format(this)
 
-private fun String.comp(): BaseComponent = TextComponent(this)
-private fun BaseComponent.color(c: ChatColor): BaseComponent {
+internal fun String.comp(): BaseComponent = TextComponent(this)
+internal fun BaseComponent.color(c: ChatColor): BaseComponent {
     return this.also { it.applyStyle(ComponentStyle.builder().color(c).build()) }
 }
 
-private fun BaseComponent.italic(): BaseComponent {
+internal fun BaseComponent.italic(): BaseComponent {
     return this.also { it.applyStyle(ComponentStyle.builder().italic(true).build()) }
 }

@@ -107,13 +107,22 @@ internal object Economy {
             .values.flatten()
             .filter { it.cost is Item.Cost.Value }
 
+        //first collect all applicable items that will be sold in this transaction
+        //skipping this step and selling directly will potentially diminish profits
+        //if they're selling an item that has more than one applicable shop item match
+        val foundItems = mutableSetOf<Item>()
         for (i in inventory.contents.indices) {
             val stack = inventory.getItem(i) ?: continue
             val match = itemPool.filter { it.matchesItemStack(stack) }
                 .maxByOrNull { (it.cost as Item.Cost.Value).buy } ?: continue
 
-            sellAll(viewer, inventory, match.iid)
+            foundItems += match
         }
+
+        //now sort the applicable items by cost descending so the player earns as much as possible
+        foundItems
+            .sortedByDescending { (it.cost as Item.Cost.Value).buy }
+            .forEach { sellAll(viewer, inventory, it.iid) }
     }
 
     private fun messageProfit(viewer: Player, item: Item, sold: Int, profit: Double) {

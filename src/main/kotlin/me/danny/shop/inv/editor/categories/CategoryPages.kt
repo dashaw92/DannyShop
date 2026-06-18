@@ -6,6 +6,7 @@ import me.danny.shop.inv.Page
 import me.danny.shop.model.Category
 import me.danny.shop.utils.ItemBuilder
 import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.ItemFlag
 
 internal class CategoryPages(buttons: Pair<Int, Int>, var selected: Category? = null) :
     Page<Category>(DannyShop.SHOP.categories(), Pair(1, 1), Pair(7, 3), buttons) {
@@ -18,7 +19,12 @@ internal class CategoryPages(buttons: Pair<Int, Int>, var selected: Category? = 
             .drop(page * size)
             .take(size)
             .map {
-                val item = ItemBuilder.makeItem(it.display, "&e${it.name}")
+                val item = ItemBuilder.makeItem(it.display, "&e${it.name}",
+                    "&9CID: &7${it.cid.id}",
+                    "&9Permission: &e&o${it.permission ?: "&2None"}",
+                    "&9Items: &7${DannyShop.SHOP.items(it.cid).size}",
+                )
+                    .let { i -> ItemBuilder.addAttribute(i, *ItemFlag.entries.toTypedArray()) }
                     .attachKey(CategoryEditor.CATEGORY_KEY, it.cid.id)
                 if (it.name == selected?.name) {
                     ItemBuilder.addEnchantGlow(item)

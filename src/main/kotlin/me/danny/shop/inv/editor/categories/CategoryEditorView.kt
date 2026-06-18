@@ -21,9 +21,10 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.ItemFlag
 import org.bukkit.persistence.PersistentDataType
 
-internal class CategoryEditorView(val category: Category) : MenuView {
+internal class CategoryEditorView(val category: Category, private val returnToViewSupplier: () -> MenuView) : MenuView {
 
     companion object {
         private val DELETE_BUTTON_KEY = Key("delete_category", PersistentDataType.BYTE)
@@ -41,13 +42,22 @@ internal class CategoryEditorView(val category: Category) : MenuView {
             13, ItemBuilder.makeItem(
                 category.display, "&e${category.name}",
                 "&7Click an item to change the icon"
-            )
+            ).let { ItemBuilder.addAttribute(it, *ItemFlag.entries.toTypedArray()) }
         )
 
         inv.setItem(
             11, ItemBuilder.makeItem(
                 Material.WRITABLE_BOOK, "&eSet permission",
-                "&7${category.permission ?: "&7No permission set"}"
+                *if (category.permission != null) {
+                    listOf(
+                        "&9Permission: &7&o${category.permission}",
+                        "",
+                        "&e[Set: Click]",
+                        "&c[Remove: Right click]"
+                    )
+                } else {
+                    listOf("&9No permission set")
+                }.toTypedArray(),
             ).attachMarker(PERMISSION_BUTTON_KEY)
         )
 
@@ -64,14 +74,14 @@ internal class CategoryEditorView(val category: Category) : MenuView {
     }
 
     override fun onClick(inv: Inventory, event: InventoryClickEvent): ViewAction {
-        if (event.slot == inv.size - 1) return ViewAction.ChangeView(CategoryListingView())
+        if (event.slot == inv.size - 1) return ViewAction.ChangeView(returnToViewSupplier())
         if (event.clickedInventory == inv) {
             val clicked = event.currentItem!!
             val player = event.whoClicked as Player
             if (clicked.hasMarker(DELETE_BUTTON_KEY)) {
                 DannyShop.SHOP.deleteCategory(category.cid)
                 event.whoClicked.pluginMsg("Category &e${category.name}&7 deleted.".color())
-                return ViewAction.ChangeView(CategoryListingView())
+                return ViewAction.ChangeView(returnToViewSupplier())
             }
 
             if (clicked.hasMarker(RENAME_BUTTON_KEY)) {
@@ -86,6 +96,14 @@ internal class CategoryEditorView(val category: Category) : MenuView {
             }
 
             if (clicked.hasMarker(PERMISSION_BUTTON_KEY)) {
+                if (event.isRightClick) {
+                    category.setPermission(null)
+                    player.pluginMsg("&eCategory permission removed.")
+                    build(inv)
+                    player.openInventory(inv)
+                    return ViewAction.Pass
+                }
+
                 player.closeInventory()
                 askInput("&9Set permission (${category.permission})")
                     .getInput(player) { pl, input -> handlePermission(pl, input, inv) }
@@ -103,7 +121,7 @@ internal class CategoryEditorView(val category: Category) : MenuView {
         val newName = input.collapse()
 
         category.changeName(newName)
-        player.pluginMsg("Category name changed to &e$newName&7.")
+        player.pluginMsg("&eCategory name changed to &7$newName&e.")
         build(inv)
         player.openInventory(inv)
     }
@@ -115,11 +133,7 @@ internal class CategoryEditorView(val category: Category) : MenuView {
         }.ifBlank { null }
 
         category.setPermission(newName)
-        if (newName == null) {
-            player.pluginMsg("Category permission cleared.")
-        } else {
-            player.pluginMsg("Category permission set to &e$newName&7.")
-        }
+        player.pluginMsg("&eCategory permission set to &7&o$newName&e.")
         build(inv)
         player.openInventory(inv)
     }

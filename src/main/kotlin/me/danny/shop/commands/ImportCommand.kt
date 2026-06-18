@@ -27,6 +27,7 @@ internal object ImportCommand {
                 "&eLeft click&7 a &6named chest&7 to import the items",
                 "&7in the chest with default options.",
                 "",
+                "&4Warning: &7Once imported, the chest will be emptied",
                 "&3[Permission: &8&o${Perm.ADMIN}&3]",
             ), *ItemFlag.entries.toTypedArray()
         )

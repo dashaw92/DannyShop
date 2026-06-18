@@ -11,3 +11,10 @@ High priority messages:         Red
 List active:                    Green
 List inactive:                  Dark gray
 List description                Light gray
+
+---
+
+yeah basically ignore all that and do what looks right
+but adhere to the following action format:
+
+[<Action>: <Input>], i.e. [Edit: Shift right click]

@@ -1,6 +1,7 @@
 package me.danny.shop.importing
 
 import me.danny.shop.DannyShop
+import me.danny.shop.commands.comp
 import me.danny.shop.model.Category
 import me.danny.shop.model.ID
 import me.danny.shop.model.Item
@@ -16,6 +17,7 @@ import net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT
 import net.md_5.bungee.api.chat.TextComponent
 import net.md_5.bungee.api.chat.hover.content.Text
 import org.bukkit.Material
+import org.bukkit.block.Container
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.BookMeta
@@ -25,7 +27,8 @@ import net.md_5.bungee.api.ChatColor as Color
 internal class ImportSession(
     private val who: Player,
     private val category: Category,
-    private val items: MutableList<ImportedItem>
+    private val items: MutableList<ImportedItem>,
+    private val source: Container,
 ) {
     companion object {
         private val sessions: MutableMap<UUID, ImportSession> = mutableMapOf()
@@ -56,7 +59,8 @@ internal class ImportSession(
                     else Cost.Value(price)
                 }
             }
-            "sell-limit" -> item.sellLimit = when(value.trim()) {
+
+            "sell-limit" -> item.sellLimit = when (value.trim()) {
                 "" -> Item.SellLimit.None
                 else -> {
                     val amount = value.toIntOrNull()
@@ -64,6 +68,7 @@ internal class ImportSession(
                     else Item.SellLimit.Amount(amount.toUInt())
                 }
             }
+
             else -> return
         }
         updatePage(iidMap.entries.find { (_, otherId) -> id == otherId.id }?.key ?: return)
@@ -90,6 +95,9 @@ internal class ImportSession(
                 who.pluginMsg("Imported &e${item.iid.id}&7.")
                 DannyShop.SHOP.addItem(item)
             }
+        source.snapshotInventory.clear()
+        source.update()
+        who.pluginMsg("Source container for imported items cleared.")
     }
 
     private fun generateBook(): ItemStack {
@@ -157,37 +165,45 @@ internal class ImportSession(
         val base = TextComponent()
         base.addExtra(TextComponent("${item.iid.id}\n").apply {
             color = Color.GOLD
-            hoverEvent = HoverEvent(SHOW_TEXT, Text("${item.item}"))
+            hoverEvent =
+                HoverEvent(SHOW_TEXT, Text(listOf("${item.item}".comp(), "\nClick to copy ID".comp()).toTypedArray()))
+            clickEvent = ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, item.iid.id)
         })
         base.addExtra(addProp("Name:"))
-        base.addExtra(when (item.name) {
-            null -> TextComponent("Not set").apply { color = Color.RED }
-            else -> TextComponent(item.name).apply { color = Color.BLACK }
-        }.apply {
-            hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to set name"))
-        }.addPropEvent("name")
+        base.addExtra(
+            when (item.name) {
+                null -> TextComponent("Not set").apply { color = Color.RED }
+                else -> TextComponent(item.name).apply { color = Color.BLACK }
+            }.apply {
+                hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to set name"))
+            }.addPropEvent("name")
         )
         base.newLine()
 
         base.addExtra(addProp("Worth:"))
-        base.addExtra(when (item.cost) {
-            is Cost.NotSet -> TextComponent("Not set").apply { color = Color.RED }
-            is Cost.Value -> TextComponent("$%,.2f".format((item.cost as Cost.Value).buy)).apply {
-                color = Color.BLACK
-            }
-        }.apply {
-            hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to adjust price"))
-        }.addPropEvent("cost")
+        base.addExtra(
+            when (item.cost) {
+                is Cost.NotSet -> TextComponent("Not set").apply { color = Color.RED }
+                is Cost.Value -> TextComponent("$%,.2f".format((item.cost as Cost.Value).buy)).apply {
+                    color = Color.BLACK
+                }
+            }.apply {
+                hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to adjust price"))
+            }.addPropEvent("cost")
         )
         base.newLine()
 
         base.addExtra(addProp("Sell Limit:"))
-        base.addExtra(when (item.sellLimit) {
-            is Item.SellLimit.None -> TextComponent("No limit").apply { color = Color.RED }
-            is Item.SellLimit.Amount -> TextComponent("${(item.sellLimit as Item.SellLimit.Amount).amount}") .apply { color = Color.DARK_PURPLE }
-        }.apply {
-            hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to adjust sell limit"))
-        }.addPropEvent("sell-limit"))
+        base.addExtra(
+            when (item.sellLimit) {
+                is Item.SellLimit.None -> TextComponent("No limit").apply { color = Color.RED }
+                is Item.SellLimit.Amount -> TextComponent("${(item.sellLimit as Item.SellLimit.Amount).amount}").apply {
+                    color = Color.DARK_PURPLE
+                }
+            }.apply {
+                hoverEvent = HoverEvent(SHOW_TEXT, Text("Click to adjust sell limit"))
+            }.addPropEvent("sell-limit")
+        )
         base.newLine()
 
         base.addExtra(TextComponent("[Return to Home]").apply {

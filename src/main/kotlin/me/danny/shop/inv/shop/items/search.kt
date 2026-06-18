@@ -37,6 +37,8 @@ internal fun String.dist(rhs: String?) : Int {
 }
 
 internal fun matches(query: String, item: Item): Boolean {
+    if (item.iid.id == query) return true
+
     val maxDist = query.length / 2
     val type = item.item.display().type.name.replace('_', ' ').lowercase()
     //If the material name contains the query, or the distance is within maxDist

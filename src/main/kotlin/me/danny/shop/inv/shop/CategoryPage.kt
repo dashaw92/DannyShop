@@ -1,5 +1,7 @@
 package me.danny.shop.inv.shop
 
+import me.danny.shop.DannyShop
+import me.danny.shop.Perm
 import me.danny.shop.data.attachKey
 import me.danny.shop.inv.Page
 import me.danny.shop.inv.editor.categories.CategoryEditor.Companion.CATEGORY_KEY
@@ -25,8 +27,17 @@ internal class CategoryPage(
         displayedCategories()
             .map {
                 var item =
-                    ItemBuilder.addAttribute(ItemBuilder.makeItem(it.display, "&e${it.name}"), *ItemFlag.values())
+                    ItemBuilder.makeItem(
+                        it.display, "&e${it.name}",
+                        "&6Items: &7${DannyShop.SHOP.items(it.cid).size}",
+                    )
+                        .let { i -> ItemBuilder.addAttribute(i, *ItemFlag.entries.toTypedArray()) }
                 if (it == selected) item = ItemBuilder.addEnchantGlow(item)
+
+                if (viewer.hasPermission(Perm.ADMIN)) {
+                    item = ItemBuilder.addLore(item, "&9Permission: &e&o${it.permission ?: "&2None"}")
+                }
+
                 item.attachKey(CATEGORY_KEY, it.name)
             }
             .forEachIndexed { index, item -> inv.setItem(index * 9, item) }
