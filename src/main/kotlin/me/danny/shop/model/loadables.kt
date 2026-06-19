@@ -229,7 +229,7 @@ data class Item(
          */
         data class Item(val item: ItemStack) : ItemType {
             override fun inner(): Any = item
-            override fun display(): ItemStack = item
+            override fun display(): ItemStack = item.clone()
         }
 
         fun inner(): Any
@@ -259,23 +259,24 @@ data class Item(
         is ItemType.Mat -> item.material == stack.type
         is ItemType.Item -> {
             val self = item.item
+            return self.isSimilar(stack)
 
-            if (self.type != stack.type) return false
-            if (self.enchantments.size != stack.enchantments.size) return false
-            if (self.enchantments != stack.enchantments) return false
-            if (self.hasItemMeta()) {
-                if (!stack.hasItemMeta()) return false
-                val myMeta = self.itemMeta!!
-                val otherMeta = stack.itemMeta!!
-
-                val name =
-                    if (myMeta.hasDisplayName()) otherMeta.hasDisplayName() && myMeta.displayName == otherMeta.displayName else true
-                val lore = if (myMeta.hasLore()) otherMeta.hasLore() && myMeta.lore == otherMeta.lore else true
-
-                if (!name || !lore) return false
-            }
-
-            return true
+//            if (self.type != stack.type) return false
+//            if (self.enchantments.size != stack.enchantments.size) return false
+//            if (self.enchantments != stack.enchantments) return false
+//            if (self.hasItemMeta()) {
+//                if (!stack.hasItemMeta()) return false
+//                val myMeta = self.itemMeta!!
+//                val otherMeta = stack.itemMeta!!
+//
+//                val name =
+//                    if (myMeta.hasDisplayName()) otherMeta.hasDisplayName() && myMeta.displayName == otherMeta.displayName else true
+//                val lore = if (myMeta.hasLore()) otherMeta.hasLore() && myMeta.lore == otherMeta.lore else true
+//
+//                if (!name || !lore) return false
+//            }
+//
+//            return true
         }
     }
 
