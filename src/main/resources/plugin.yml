@@ -17,3 +17,7 @@ commands:
     aliases: [ "s", "sh", "shop", "danshop", "dshop", "dannyssupercoolshopplugin", "anexcessivelylongaliasfortheshop" ]
     description: DannyShop main command
     usage: /<command> args
+  sell:
+    aliases: [ "stonks", "dansell", "makemoney", "bigbusinesstime", "hustle" ]
+    description: "Sell command!"
+    usage: /<command> <mode> [amount]

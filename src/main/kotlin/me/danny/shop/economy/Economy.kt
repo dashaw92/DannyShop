@@ -102,11 +102,7 @@ internal object Economy {
     }
 
     fun sellInventory(viewer: Player, inventory: Inventory, sellCategory: ID?) {
-        val itemPool = DannyShop.SHOP.items
-            .filterKeys { it.isVisible(viewer) }
-            .filterKeys { sellCategory == null || it.cid == sellCategory }
-            .values.flatten()
-            .filter { it.cost is Item.Cost.Value }
+        val itemPool = DannyShop.SHOP.sellableItems(viewer, sellCategory)
 
         //first collect all applicable items that will be sold in this transaction
         //skipping this step and selling directly will potentially diminish profits

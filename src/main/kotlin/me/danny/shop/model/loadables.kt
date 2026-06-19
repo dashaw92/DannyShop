@@ -98,6 +98,12 @@ data class Shop(val items: MutableMap<Category, MutableList<Item>>) {
         val item = itemByIid(item) ?: return
         items[item.category]?.removeIf { it.iid == item.iid }
     }
+
+    internal fun sellableItems(subject: Player, category: ID?): List<Item> = items
+        .filterKeys { it.isVisible(subject) }
+        .filterKeys { category == null || it.cid == category }
+        .values.flatten()
+        .filter { it.cost is Item.Cost.Value }
 }
 
 /**
