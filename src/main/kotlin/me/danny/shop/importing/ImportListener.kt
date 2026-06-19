@@ -14,11 +14,17 @@ import org.bukkit.block.Chest
 import org.bukkit.block.Container
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
+import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.inventory.ClickType
+import org.bukkit.event.inventory.InventoryAction
+import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.PlayerInventory
 
 /**
  * Listens for players punching chests with the import wand
@@ -101,6 +107,39 @@ internal object ImportListener : Listener {
         if (ImportCommand.isWand(event.itemDrop.itemStack)) {
             event.player.pluginMsg("Removed import wand!")
             event.itemDrop.remove()
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    fun onDeath(event: PlayerDeathEvent) {
+        var i = 0
+        while (i < event.drops.size) {
+            if (ImportCommand.isWand(event.drops[i])) {
+                event.drops.removeAt(i)
+            } else {
+                i++
+            }
+        }
+    }
+
+    @EventHandler
+    fun onInvClick(event: InventoryClickEvent) {
+        val isWand = ImportCommand::isWand
+
+        if (event.click == ClickType.NUMBER_KEY) {
+            val item = event.whoClicked.inventory.getItem(event.hotbarButton) ?: return
+            if (item.type.isAir) return
+            event.isCancelled = isWand(item)
+        } else {
+            val item = event.view.getItem(event.rawSlot) ?: return
+            if (event.clickedInventory !is PlayerInventory && event.cursor != null && !event.cursor!!.type.isAir) {
+                event.isCancelled = isWand(event.cursor!!)
+                return
+            } else {
+                if (item.type.isAir) return
+                event.isCancelled = isWand(item)
+                        && event.action == InventoryAction.MOVE_TO_OTHER_INVENTORY
+            }
         }
     }
 

@@ -41,6 +41,15 @@ internal object ImportCommand {
             return
         }
 
+        for (i in player.inventory.contents.indices) {
+            val item = player.inventory.getItem(i) ?: continue
+            if (item.type.isAir) continue
+            if (isWand(item)) {
+                player.pluginMsg("&cYou already have an import wand!")
+                return
+            }
+        }
+
         if (args.isEmpty()) {
             player.inventory.addItem(IMPORT_WAND)
             player.pluginMsg("&7Import wand given! Info on the wand's tooltip!".color())

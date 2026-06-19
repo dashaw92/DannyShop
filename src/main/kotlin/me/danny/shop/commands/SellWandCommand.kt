@@ -35,6 +35,15 @@ internal object SellWandCommand {
             return
         }
 
+        for (i in player.inventory.contents.indices) {
+            val item = player.inventory.getItem(i) ?: continue
+            if (item.type.isAir) continue
+            if (isWand(item)) {
+                player.pluginMsg("&cYou already have a sell wand!")
+                return
+            }
+        }
+
         player.inventory.addItem(SELL_WAND)
         player.pluginMsg("&7Sell wand given! Info on the wand's tooltip!".color())
     }

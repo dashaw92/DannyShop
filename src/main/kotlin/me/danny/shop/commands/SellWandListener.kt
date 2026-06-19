@@ -2,6 +2,7 @@ package me.danny.shop.commands
 
 import me.danny.shop.DannyShop
 import me.danny.shop.Perm
+import me.danny.shop.commands.SellWandCommand.isWand
 import me.danny.shop.economy.Economy
 import me.danny.shop.pluginMsg
 import me.danny.shop.world.ProtectionProviders
@@ -12,10 +13,16 @@ import org.bukkit.block.Container
 import org.bukkit.block.DoubleChest
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
+import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.inventory.ClickType
+import org.bukkit.event.inventory.InventoryAction
+import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.inventory.PlayerInventory
 
 /**
  * Listens for players right clicking chests with the sell wand
@@ -86,6 +93,39 @@ internal object SellWandListener : Listener {
         if (SellWandCommand.isWand(event.itemDrop.itemStack)) {
             event.player.pluginMsg("Removed sell wand!")
             event.itemDrop.remove()
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    fun onDeath(event: PlayerDeathEvent) {
+        var i = 0
+        while (i < event.drops.size) {
+            if (isWand(event.drops[i])) {
+                event.drops.removeAt(i)
+            } else {
+                i++
+            }
+        }
+    }
+
+    @EventHandler
+    fun onInvClick(event: InventoryClickEvent) {
+        val isWand = SellWandCommand::isWand
+
+        if (event.click == ClickType.NUMBER_KEY) {
+            val item = event.whoClicked.inventory.getItem(event.hotbarButton) ?: return
+            if (item.type.isAir) return
+            event.isCancelled = isWand(item)
+        } else {
+            val item = event.view.getItem(event.rawSlot) ?: return
+            if (event.clickedInventory !is PlayerInventory && event.cursor != null && !event.cursor!!.type.isAir) {
+                event.isCancelled = isWand(event.cursor!!)
+                return
+            } else {
+                if (item.type.isAir) return
+                event.isCancelled = isWand(item)
+                        && event.action == InventoryAction.MOVE_TO_OTHER_INVENTORY
+            }
         }
     }
 }
