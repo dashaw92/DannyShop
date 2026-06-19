@@ -5,7 +5,6 @@ import me.danny.shop.Perm
 import me.danny.shop.inv.editor.categories.CategoryEditor
 import me.danny.shop.inv.shop.ShopMenu
 import me.danny.shop.pluginMsg
-import me.danny.shop.utils.color
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -42,12 +41,23 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
             }
 
             "reset-limits" -> requireAdmin(sender) {
-                sender.pluginMsg("&7Sell limits refreshed.")
+                it.pluginMsg("&7Sell limits refreshed.")
                 DannyShop.instance().startTask()
             }
 
             "eco-log" -> requiresPermission(sender, Perm.ECOLOG) {
-                EcoLogCommand.onCommand(sender, cmdArgs)
+                EcoLogCommand.onCommand(it, cmdArgs)
+            }
+
+            "eco-log-gui" -> requirePlayer(sender, Perm.ECOLOG) {
+                sender.pluginMsg("&cThis feature is W.I.P. and is disabled until further notice.")
+//
+//                if (!DannyShop.instance().config.loggingEnabled) {
+//                    sender.pluginMsg("&cEconomy logging is not enabled.")
+//                    return@requirePlayer
+//                }
+//
+//                EcoLogMenu(it)
             }
         }
         return true
@@ -61,7 +71,9 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
     ): List<String>? {
         val available = mutableListOf<String>()
         if (sender.hasPermission(Perm.SELL_WAND)) available.add("sell-wand")
-        if (sender.hasPermission(Perm.ECOLOG)) available.add("eco-log")
+        if (sender.hasPermission(Perm.ECOLOG) && DannyShop.instance().config.loggingEnabled) {
+            available.addAll(listOf("eco-log", "eco-log-gui"))
+        }
         if (sender.hasPermission(Perm.ADMIN)) available.addAll(
             listOf(
                 "import",
@@ -85,7 +97,7 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
 
     private fun requireAdmin(sender: CommandSender, func: (CommandSender) -> Unit) {
         if (!sender.hasPermission(Perm.ADMIN)) {
-            sender.pluginMsg("&cYou don't have permission to do this.".color())
+            sender.pluginMsg("&cYou don't have permission to do this.")
             return
         }
         func(sender)
@@ -93,7 +105,7 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
 
     private fun requiresPermission(sender: CommandSender, permission: String, func: (CommandSender) -> Unit) {
         if (!sender.hasPermission(permission)) {
-            sender.pluginMsg("&cYou don't have permission to do this.".color())
+            sender.pluginMsg("&cYou don't have permission to do this.")
             return
         }
 
@@ -102,12 +114,12 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
 
     private fun requirePlayer(sender: CommandSender, permission: String? = null, func: (Player) -> Unit) {
         if (sender !is Player) {
-            sender.pluginMsg("&cSorry, but only players may use this command.".color())
+            sender.pluginMsg("&cSorry, but only players may use this command.")
             return
         }
 
         if (permission != null && !sender.hasPermission(permission)) {
-            sender.pluginMsg("&cYou don't have permission to do this.".color())
+            sender.pluginMsg("&cYou don't have permission to do this.")
             return
         }
 
