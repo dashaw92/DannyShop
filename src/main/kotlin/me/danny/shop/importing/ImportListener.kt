@@ -18,13 +18,9 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.event.inventory.ClickType
-import org.bukkit.event.inventory.InventoryAction
-import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.PlayerInventory
 
 /**
  * Listens for players punching chests with the import wand
@@ -122,26 +118,26 @@ internal object ImportListener : Listener {
         }
     }
 
-    @EventHandler
-    fun onInvClick(event: InventoryClickEvent) {
-        val isWand = ImportCommand::isWand
-
-        if (event.click == ClickType.NUMBER_KEY) {
-            val item = event.whoClicked.inventory.getItem(event.hotbarButton) ?: return
-            if (item.type.isAir) return
-            event.isCancelled = isWand(item)
-        } else {
-            val item = event.view.getItem(event.rawSlot) ?: return
-            if (event.clickedInventory !is PlayerInventory && event.cursor != null && !event.cursor!!.type.isAir) {
-                event.isCancelled = isWand(event.cursor!!)
-                return
-            } else {
-                if (item.type.isAir) return
-                event.isCancelled = isWand(item)
-                        && event.action == InventoryAction.MOVE_TO_OTHER_INVENTORY
-            }
-        }
-    }
+//    @EventHandler
+//    fun onInvClick(event: InventoryClickEvent) {
+//        val isWand = ImportCommand::isWand
+//
+//        if (event.click == ClickType.NUMBER_KEY) {
+//            val item = event.whoClicked.inventory.getItem(event.hotbarButton) ?: return
+//            if (item.type.isAir) return
+//            event.isCancelled = isWand(item)
+//        } else {
+//            val item = event.view.getItem(event.rawSlot) ?: return
+//            if (event.clickedInventory !is PlayerInventory && event.cursor != null && !event.cursor!!.type.isAir) {
+//                event.isCancelled = isWand(event.cursor!!)
+//                return
+//            } else {
+//                if (item.type.isAir) return
+//                event.isCancelled = isWand(item)
+//                        && event.action == InventoryAction.MOVE_TO_OTHER_INVENTORY
+//            }
+//        }
+//    }
 
     private fun itemType(item: ItemStack): Item.ItemType {
         //In general, items with ItemMeta attached are custom items (ItemType.Item)
