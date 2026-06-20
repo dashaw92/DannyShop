@@ -43,6 +43,9 @@ internal object LoreList {
         }.forEach(lore::add)
         lore += ""
         description.map { "&7$it" }.forEach(lore::add)
+        lore += ""
+        lore += "&e[Next: Click]"
+        lore += "&e[Previous: Right click]"
         return lore.toTypedArray()
     }
 

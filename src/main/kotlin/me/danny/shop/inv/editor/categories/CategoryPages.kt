@@ -19,10 +19,13 @@ internal class CategoryPages(buttons: Pair<Int, Int>, var selected: Category? = 
             .drop(page * size)
             .take(size)
             .map {
-                val item = ItemBuilder.makeItem(it.display, "&e${it.name}",
+                val item = ItemBuilder.makeItem(
+                    it.display, "&e${it.name}",
                     "&9CID: &7${it.cid.id}",
                     "&9Permission: &e&o${it.permission ?: "&2None"}",
                     "&9Items: &7${DannyShop.SHOP.items(it.cid).size}",
+                    "",
+                    "&e[Edit: Click]"
                 )
                     .let { i -> ItemBuilder.addAttribute(i, *ItemFlag.entries.toTypedArray()) }
                     .attachKey(CategoryEditor.CATEGORY_KEY, it.cid.id)
@@ -36,6 +39,7 @@ internal class CategoryPages(buttons: Pair<Int, Int>, var selected: Category? = 
         for (item in items) {
             inv.setItem(invIdx, item)
             invIdx += 1
+            if (invIdx % 8 == 0) invIdx += 3
         }
     }
 }

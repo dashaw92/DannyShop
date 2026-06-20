@@ -53,7 +53,7 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
             "&7&oRemove the item from the shop.",
             "&7&oThis &4&ocannot&7&o be undone!",
             "",
-            "&9[Confirm: Shift right click]"
+            "&c[Confirm: Shift right click]"
         )
 
         inv.setItem(11, costButton)

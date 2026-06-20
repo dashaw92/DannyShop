@@ -41,7 +41,8 @@ internal class CategoryEditorView(val category: Category, private val returnToVi
         inv.setItem(
             13, ItemBuilder.makeItem(
                 category.display, "&e${category.name}",
-                "&7Click an item to change the icon"
+                "&6Click &7any item in &6your inventory",
+                "&7to change the icon of this category"
             ).let { ItemBuilder.addAttribute(it, *ItemFlag.entries.toTypedArray()) }
         )
 
@@ -56,17 +57,36 @@ internal class CategoryEditorView(val category: Category, private val returnToVi
                         "&c[Remove: Right click]"
                     )
                 } else {
-                    listOf("&9No permission set")
+                    listOf(
+                        "&9No permission set",
+                        "",
+                        "&e[Set: Click]",
+                    )
                 }.toTypedArray(),
             ).attachMarker(PERMISSION_BUTTON_KEY)
         )
 
-        inv.setItem(15, ItemBuilder.makeItem(Material.NAME_TAG, "&eChange name").attachMarker(RENAME_BUTTON_KEY))
+        inv.setItem(
+            15,
+            ItemBuilder.makeItem(
+                Material.NAME_TAG, "&eChange name",
+                "&9Name: &7${category.name}",
+                "",
+                "&e[Set: Click]"
+            )
+                .attachMarker(RENAME_BUTTON_KEY)
+        )
 
         inv.setItem(
             inv.size - 9, ItemBuilder.makeItem(
-                Material.BARRIER, "&4Delete Category",
-                "&7This is irreversible!!!"
+                Material.BARRIER,
+                "&cDelete Category",
+                "&7&oRemove the category from the shop.",
+                "&7&oThis &4&ocannot&7&o be undone!",
+                "&4&oWarning: &7&oAll items in this category",
+                "&7&owill &c&oalso be deleted!",
+                "",
+                "&c[Confirm: Shift right click]"
             ).attachMarker(DELETE_BUTTON_KEY)
         )
 
@@ -78,7 +98,7 @@ internal class CategoryEditorView(val category: Category, private val returnToVi
         if (event.clickedInventory == inv) {
             val clicked = event.currentItem!!
             val player = event.whoClicked as Player
-            if (clicked.hasMarker(DELETE_BUTTON_KEY)) {
+            if (event.isRightClick && event.isShiftClick && clicked.hasMarker(DELETE_BUTTON_KEY)) {
                 DannyShop.SHOP.deleteCategory(category.cid)
                 event.whoClicked.pluginMsg("Category &e${category.name}&7 deleted.".color())
                 return ViewAction.ChangeView(returnToViewSupplier())
