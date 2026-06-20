@@ -1,12 +1,6 @@
-package me.danny.shop
+package me.danny.shop.input
 
-import me.danny.shop.input.ChatInput
-import me.danny.shop.input.Input
-import me.danny.shop.input.InputProvider
-import me.danny.shop.input.MultipleLines
-import me.danny.shop.input.SingleLine
 import me.danny.shop.utils.color
-import org.bukkit.Material
 
 internal fun askInput(
     prompt: String,

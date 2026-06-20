@@ -1,8 +1,8 @@
 package me.danny.shop.inv.shop.purchasing
 
 import me.danny.shop.DannyShop
-import me.danny.shop.askInput
-import me.danny.shop.collapse
+import me.danny.shop.input.askInput
+import me.danny.shop.input.collapse
 import me.danny.shop.data.Key
 import me.danny.shop.data.attachMarker
 import me.danny.shop.data.hasKey

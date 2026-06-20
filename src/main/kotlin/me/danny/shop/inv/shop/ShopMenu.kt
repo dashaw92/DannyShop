@@ -6,6 +6,8 @@ import me.danny.shop.data.hasKey
 import me.danny.shop.data.keyValue
 import me.danny.shop.economy.Economy
 import me.danny.shop.input.Input
+import me.danny.shop.input.askInput
+import me.danny.shop.input.collapse
 import me.danny.shop.inv.*
 import me.danny.shop.inv.LoreList.toEntry
 import me.danny.shop.inv.editor.categories.CategoryEditor.Companion.CATEGORY_KEY

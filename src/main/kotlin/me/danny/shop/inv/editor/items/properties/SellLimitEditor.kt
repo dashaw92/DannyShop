@@ -1,8 +1,8 @@
 package me.danny.shop.inv.editor.items.properties
 
 import me.danny.shop.DannyShop
-import me.danny.shop.askInput
-import me.danny.shop.collapse
+import me.danny.shop.input.askInput
+import me.danny.shop.input.collapse
 import me.danny.shop.data.Key
 import me.danny.shop.data.attachKey
 import me.danny.shop.data.keyValue
