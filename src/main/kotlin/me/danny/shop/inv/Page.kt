@@ -99,8 +99,22 @@ internal abstract class Page<T>(
      * Renders the previous and next page buttons (if needed)
      */
     private fun drawButtons(inv: Inventory) {
-        val prevPage = ItemBuilder.makeTippedArrow("&cPrevious", PotionType.HEALING)
-        val nextPage = ItemBuilder.makeTippedArrow("&2Next", PotionType.LEAPING)
+        val prevPage = ItemBuilder.makeTippedArrow(
+            "&cPrevious",
+            PotionType.HEALING,
+            "&9Page: &7${page + 1}/${numPages()}",
+            "",
+            "&e[Previous: Click]",
+            "&e[First: Right click]"
+        )
+        val nextPage =
+            ItemBuilder.makeTippedArrow(
+                "&2Next", PotionType.LEAPING,
+                "&9Page: &7${page + 1}/${numPages()}",
+                "",
+                "&e[Next: Click]",
+                "&e[Last: Right click]"
+            )
         if (page() > 0) inv.setItem(buttons.first, prevPage)
         if (page() + 1 < numPages()) inv.setItem(buttons.second, nextPage)
     }
@@ -112,11 +126,17 @@ internal abstract class Page<T>(
     fun onClick(event: InventoryClickEvent, callback: Runnable) {
         when (event.slot) {
             buttons.first -> {
-                if (prevPage()) callback.run()
+                if (event.isRightClick) {
+                    page = 0
+                    callback.run()
+                } else if (prevPage()) callback.run()
             }
 
             buttons.second -> {
-                if (nextPage()) callback.run()
+                if (event.isRightClick) {
+                    page = numPages() - 1
+                    callback.run()
+                } else if (nextPage()) callback.run()
             }
         }
     }
