@@ -119,7 +119,6 @@ data class ID(internal val id: String) : Serializable {
          * time and a pRNG.
          */
         internal fun generate(): ID {
-            System.nanoTime()
             val now = System.currentTimeMillis()
             val salt = (Math.random() * 1000).toInt()
             return ID("%x%x".format(now, salt))

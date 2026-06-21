@@ -5,6 +5,7 @@ import me.danny.shop.Perm
 import me.danny.shop.pluginMsg
 import me.danny.shop.tracking.EcoLogMgr
 import me.danny.shop.tracking.SaleRecord
+import me.danny.shop.utils.getElapsed
 import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.chat.BaseComponent
 import net.md_5.bungee.api.chat.ComponentStyle
@@ -16,8 +17,6 @@ import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import java.math.BigDecimal
 import java.text.NumberFormat
-import java.time.Duration
-import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -93,6 +92,7 @@ private fun recordToString(sale: SaleRecord): BaseComponent {
 
     val base = TextComponent()
     base.addExtra(time)
+    base.addExtra(" ".comp())
     base.addExtra(info)
     base.addExtra(": ".comp().color(ChatColor.YELLOW))
     base.addExtra(TextComponent("${sale.amount} ").color(ChatColor.LIGHT_PURPLE))
@@ -113,21 +113,7 @@ private fun recordToString(sale: SaleRecord): BaseComponent {
 }
 
 private fun calcElapsed(time: ZonedDateTime): BaseComponent {
-    val duration = Duration.between(time, ZonedDateTime.now(ZoneOffset.UTC))
-    val days = duration.toDays()
-    val hours = duration.toHours()
-    val mins = duration.toMinutes()
-    val secs = duration.toSeconds()
-
-    val elapsed =
-        if (days >= 1) "${days}d"
-        else if (hours >= 1) "${hours}h"
-        else if (mins >= 1) "${mins}m"
-        else if (secs >= 1) "${secs}s"
-        else "Now"
-
-    val comp = "".comp().color(ChatColor.DARK_GRAY)
-    comp.addExtra("$elapsed ".comp())
+    val comp = time.getElapsed().comp().color(ChatColor.DARK_GRAY)
     comp.hoverEvent = HoverEvent(
         Action.SHOW_TEXT,
         Text(

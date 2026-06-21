@@ -19,6 +19,7 @@ private fun generateLogfileDate(zdt: ZonedDateTime = now()): String = zdt.format
 )
 
 private fun logfileName(zdt: ZonedDateTime = now()): String = "sales-${generateLogfileDate(zdt)}.csv.gz"
+private val initialLogName = logfileName() //used to filter out the current log so it's not loaded as historical
 private fun formatDateTime(zdt: ZonedDateTime): String = zdt.format(DateTimeFormatter.ISO_DATE_TIME)
 
 internal data class SaleRecord(
@@ -74,9 +75,10 @@ internal object EcoLogMgr {
 
     private val baseDir = DannyShop.instance().dataFolder.resolve("logs/")
 
-    fun availableLogs(): List<String> = baseDir.list().toList()
+    fun availableLogs(): List<String> = baseDir.list().toList().filter { name -> name != initialLogName  }
 
     fun loadHistorical(name: String): EcoLog? {
+        if (name == initialLogName) return (DannyShop.instance().ecolog as EcoLogging).currentLog
         val file = baseDir.resolve(name)
         if (file.absoluteFile.parentFile != baseDir.absoluteFile) {
             //do not permit any directory traversal.

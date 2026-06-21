@@ -7,7 +7,7 @@ import org.bukkit.persistence.PersistentDataType
 /**
  * Wrap over a Namespaced key to avoid using the data type argument everywhere
  */
-internal data class Key<T, Z>(val key: NamespacedKey, val type: PersistentDataType<T, Z>) {
+internal data class Key<T : Any, Z : Any>(val key: NamespacedKey, val type: PersistentDataType<T, Z>) {
     constructor(key: String, type: PersistentDataType<T, Z>) : this(NamespacedKey("dannyshop", key), type)
 }
 

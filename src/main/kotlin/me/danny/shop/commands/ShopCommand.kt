@@ -2,6 +2,7 @@ package me.danny.shop.commands
 
 import me.danny.shop.DannyShop
 import me.danny.shop.Perm
+import me.danny.shop.inv.ecolog.EcoLogMenu
 import me.danny.shop.inv.editor.categories.CategoryEditor
 import me.danny.shop.inv.shop.ShopMenu
 import me.danny.shop.pluginMsg
@@ -50,14 +51,14 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
             }
 
             "eco-log-gui" -> requirePlayer(sender, Perm.ECOLOG) {
-                sender.pluginMsg("&cThis feature is W.I.P. and is disabled until further notice.")
-//
-//                if (!DannyShop.instance().config.loggingEnabled) {
-//                    sender.pluginMsg("&cEconomy logging is not enabled.")
-//                    return@requirePlayer
-//                }
-//
-//                EcoLogMenu(it)
+//                sender.pluginMsg("&cThis feature is W.I.P. and is disabled until further notice.")
+
+                if (!DannyShop.instance().config.loggingEnabled) {
+                    sender.pluginMsg("&cEconomy logging is not enabled.")
+                    return@requirePlayer
+                }
+
+                EcoLogMenu(it)
             }
         }
         return true

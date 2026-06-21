@@ -19,8 +19,8 @@ internal class ItemVolumeHistory(val bins: LongArray = LongArray(TOTAL_BINS.toIn
     }
 }
 
-// [1, 2, 3, ..., n].shift(1) -> [0, 1, 2, 3, ...]
-private fun LongArray.shift(amount: Int) {
+// [1, 2, 3, ..., n].shift(1) -> [0, 1, 2, 3, ... n - 1]
+private fun LongArray.shift(amount: Int = 1) {
     val n = amount.coerceIn(0, size - 1)
     if (n == 0) return
 

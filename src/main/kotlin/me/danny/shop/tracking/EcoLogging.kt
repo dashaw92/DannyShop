@@ -22,9 +22,9 @@ internal fun getLogging(config: Config): Logging {
 
 private object DummyLogging : Logging
 
-private class EcoLogging(private val config: Config) : Logging {
+internal class EcoLogging(private val config: Config) : Logging {
 
-    private lateinit var currentLog: EcoLogMgr.EcoLog
+    internal lateinit var currentLog: EcoLogMgr.EcoLog
 
     override fun load() {
         if (!config.loggingPersistLogs) return

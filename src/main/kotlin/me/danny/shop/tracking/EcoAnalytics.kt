@@ -93,7 +93,6 @@ private class EcoAnalytics : Analytics {
         data.lastTick = calcNextTick()
 
         data.history.values.forEach(ItemVolumeHistory::startNextBin)
-//        ViewerInventory.refreshAll()
     }
 
     override fun allKeys(): Set<ID> = data.history.keys
@@ -103,7 +102,6 @@ private class EcoAnalytics : Analytics {
 
     override fun log(item: ID, amount: Long) {
         getHistory(item).add(amount)
-//        ViewerInventory.refreshAll()
     }
 
     private fun deltaPerTick(): Long = TimeUnit.MILLISECONDS.convert(RESOLUTION, UNITS)

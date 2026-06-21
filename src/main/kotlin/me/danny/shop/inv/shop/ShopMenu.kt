@@ -1,6 +1,7 @@
 package me.danny.shop.inv.shop
 
-import me.danny.shop.*
+import me.danny.shop.DannyShop
+import me.danny.shop.Perm
 import me.danny.shop.data.Key
 import me.danny.shop.data.hasKey
 import me.danny.shop.data.keyValue
@@ -17,6 +18,7 @@ import me.danny.shop.inv.shop.items.ItemPage
 import me.danny.shop.inv.shop.purchasing.SellMenu
 import me.danny.shop.model.Category
 import me.danny.shop.model.Item
+import me.danny.shop.pluginMsg
 import me.danny.shop.utils.ItemBuilder
 import me.danny.shop.utils.color
 import me.danny.shop.utils.fill
@@ -122,8 +124,8 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
             Material.HOPPER, "&eSell all",
             "&7Sell all items from your inventory.",
             "",
-            "&e[All: Click]",
-            "&e[Category only: Right click]"
+            "&e[Category only: Click]",
+            "&e[All: Right click]",
         )
 
         inv.setItem(inv.size - 7, searchButton)
@@ -277,7 +279,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
             Material.HOPPER if viewer.hasPermission(Perm.SELL) -> {
                 //left click: everything
                 //right click: only this category
-                val sellCategory = if (event.isRightClick) selected.cid else null
+                val sellCategory = if (event.isLeftClick) selected.cid else null
                 Economy.sellInventory(viewer, viewer.inventory, sellCategory)
             }
 

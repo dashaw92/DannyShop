@@ -58,7 +58,7 @@ internal object BackendManager {
         val loader = loader(plugin)
         val root = loader.load()
 
-        val defaults = mapOf(
+        val defaults: Map<BackendType, BackendOptions> = mapOf(
             BackendType.Yaml to YamlOptions("shop.yml"),
         )
         defaults.forEach { (type, default) ->

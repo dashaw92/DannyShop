@@ -11,6 +11,7 @@ import me.danny.shop.inv.shop.ShopMenu
 import me.danny.shop.model.Category
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.ItemType
+import me.danny.shop.tracking.TOTAL_DAYS
 import me.danny.shop.utils.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -196,14 +197,14 @@ internal class ItemPage(
             val hist = DannyShop.instance().analytics.getHistory(item.iid)
             if (hist != null) {
                 val day = hist.getFirstNDays(1).sum()
-                val week = hist.getFirstNDays(7).sum()
                 val month = hist.getFirstNDays(30).sum()
+                val all = hist.getFirstNDays(TOTAL_DAYS).sum()
 
                 fields.add("")
                 fields.add("&2Volume:")
-                fields.add("   &91d: &7$day")
-                fields.add("   &97d: &7$week")
-                fields.add("   &930d: &7$month")
+                fields.add("   &9Today: &7$day")
+                fields.add("   &9Month: &7$month")
+                fields.add("   &9${TOTAL_DAYS}d: &7$all")
             }
         }
 
