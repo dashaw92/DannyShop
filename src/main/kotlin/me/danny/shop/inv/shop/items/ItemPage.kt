@@ -183,9 +183,10 @@ internal class ItemPage(
             }
             val seconds = TimeUnit.SECONDS.convert(resetNext, TimeUnit.MILLISECONDS)
             if (seconds >= 1) {
-//                resetNext -= TimeUnit.MILLISECONDS.convert(seconds, TimeUnit.SECONDS)
                 resetFormatted += "${seconds}s"
             }
+
+            if (resetFormatted.isBlank()) resetFormatted = "0s"
 
             fields.add("")
             fields.add("&5Sell Limit:")
