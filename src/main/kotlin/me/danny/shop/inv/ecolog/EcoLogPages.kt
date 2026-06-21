@@ -26,6 +26,9 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
     companion object {
         private val zdtFmt = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
         internal val availableLogs = EcoLogMgr.availableLogs().sorted()
+
+        private val cachedSkulls: MutableMap<UUID, ItemStack> = mutableMapOf()
+        private val cachedNames: MutableMap<UUID, String> = mutableMapOf()
     }
 
     var iconMode: LogIconMode = LogIconMode.Item
@@ -92,7 +95,6 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
 
     internal val uuidKey = Key("skull_uuid", PersistentDataType.STRING)
 
-    private val cachedSkulls: MutableMap<UUID, ItemStack> = mutableMapOf()
 
     private fun makeSkull(id: UUID): ItemStack = cachedSkulls.computeIfAbsent(id) {
         val player = Bukkit.getOfflinePlayer(id)
@@ -104,6 +106,19 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
         meta.owningPlayer = player
         skull.itemMeta = meta
         skull
+    }
+
+    private fun sort(sortMode: SortMode, records: List<SaleRecord>): List<SaleRecord> = when (sortMode) {
+        SortMode.Oldest -> records.sortedBy(SaleRecord::time)
+        SortMode.Newest -> records.sortedByDescending(SaleRecord::time)
+        SortMode.Most -> records.sortedByDescending(SaleRecord::amount)
+        SortMode.Least -> records.sortedBy(SaleRecord::amount)
+        SortMode.Value -> records.sortedByDescending(SaleRecord::ext)
+        SortMode.Seller -> records.sortedBy { rec ->
+            cachedNames.computeIfAbsent(rec.seller) {
+                Bukkit.getOfflinePlayer(it).name ?: it.toString()
+            }
+        }
     }
 }
 
@@ -119,15 +134,4 @@ internal enum class SortMode {
     Least,
     Value,
     Seller
-}
-
-private fun sort(sortMode: SortMode, records: List<SaleRecord>): List<SaleRecord> = when (sortMode) {
-    SortMode.Oldest -> records.sortedBy(SaleRecord::time)
-    SortMode.Newest -> records.sortedByDescending(SaleRecord::time)
-    SortMode.Most -> records.sortedByDescending(SaleRecord::amount)
-    SortMode.Least -> records.sortedBy(SaleRecord::amount)
-    SortMode.Value -> records.sortedByDescending(SaleRecord::ext)
-    SortMode.Seller -> records.sortedBy { rec ->
-        Bukkit.getOfflinePlayer(rec.seller).name
-    }
 }
