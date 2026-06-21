@@ -13,15 +13,17 @@ class ResetTask(val period: Long) : Runnable {
     }
 
     override fun run() {
-        nextReset = Instant.now().toEpochMilli() + (period * 50)
-        LimitTracking.resetAll()
+        if (Instant.now().toEpochMilli() > nextReset) {
+            nextReset = Instant.now().toEpochMilli() + (period * 50)
+            LimitTracking.resetAll()
+        }
     }
 }
 
 internal object LimitTracking {
     private val M = mutableMapOf<UUID, MutableList<ItemCount>>()
 
-    private fun getCount(pl: Player, id: ID) : ItemCount? {
+    private fun getCount(pl: Player, id: ID): ItemCount? {
         val item = DannyShop.SHOP.itemByIid(id) ?: return null
         if (item.sellLimit !is Item.SellLimit.Amount) return null
         M.putIfAbsent(pl.uniqueId, mutableListOf())

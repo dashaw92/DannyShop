@@ -99,7 +99,7 @@ class DannyShop : JavaPlugin() {
         }
 
         resetTaskHandle = Bukkit.getScheduler()
-            .scheduleSyncRepeatingTask(this, ResetTask(config.sellLimitRefreshTicks), 0L, config.sellLimitRefreshTicks)
+            .scheduleSyncRepeatingTask(this, ResetTask(config.sellLimitRefreshTicks), 0L, 20L)
     }
 }
 
