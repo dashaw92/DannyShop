@@ -7,8 +7,12 @@ internal class LoreField(
 ) {
     private var fields: MutableList<String> = mutableListOf()
 
-    fun add(field: String) {
-        fields += field
+    fun add(s: String) {
+        fields += s
+    }
+
+    fun addAll(ss: List<String>) {
+        fields.addAll(ss)
     }
 
     fun build(): Array<out String> {

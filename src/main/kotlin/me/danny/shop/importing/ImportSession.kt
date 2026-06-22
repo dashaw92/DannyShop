@@ -89,8 +89,7 @@ internal class ImportSession(
     }
 
     fun importAll() {
-        items.asSequence()
-            .map { it.build(category) }
+        items.map { it.build(category) }
             .forEach { item ->
                 who.pluginMsg("Imported &e${item.iid.id}&7.")
                 DannyShop.SHOP.addItem(item)

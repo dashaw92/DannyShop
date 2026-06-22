@@ -12,10 +12,12 @@ internal class ItemVolumeHistory(val bins: LongArray = LongArray(TOTAL_BINS.toIn
         bins[0] += amount
     }
 
-    fun getFirstNDays(days: Int) : List<Long> {
+    fun getFirstNDays(days: Int): List<List<Long>> {
         val clampedDays = days.coerceIn(1, TOTAL_DAYS)
-        val numBins = clampedDays * BINS_PER_DAY
-        return bins.slice(0 until numBins.toInt()).reversed()
+        val numBins = (clampedDays * BINS_PER_DAY).toInt()
+        return bins.slice(0 until numBins)
+            .reversed()
+            .chunked(BINS_PER_DAY.toInt())
     }
 }
 

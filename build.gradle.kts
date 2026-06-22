@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
-val spigotVersion = "1.21.11-R0.1-SNAPSHOT"
-val spigotAPIVersion = "1.21"
+val spigotVersion = "26.1.2-R0.1-SNAPSHOT"
+val spigotAPIVersion = "26.1.2"
 val kotlinVersion = "2.4.0"
 val configurateVersion = "4.1.2"
 //val essentialsVersion = "2.21.2"

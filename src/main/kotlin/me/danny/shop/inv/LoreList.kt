@@ -1,5 +1,7 @@
 package me.danny.shop.inv
 
+import kotlin.enums.enumEntries
+
 internal object LoreList {
     /**
      * Function for generating lists that represent
@@ -66,14 +68,14 @@ internal interface ListDisplayable {
 }
 
 internal inline fun <reified T : Enum<T>> T.next(): T {
-    val values = enumValues<T>()
+    val values = enumEntries<T>()
     var next = ordinal + 1
     if (next >= values.size) next = 0
     return values[next]
 }
 
 internal inline fun <reified T : Enum<T>> T.prev(): T {
-    val values = enumValues<T>()
+    val values = enumEntries<T>()
     var prev = ordinal - 1
     if (prev < 0) prev = values.lastIndex
     return values[prev]
