@@ -5,6 +5,7 @@ import me.danny.shop.Perm
 import me.danny.shop.pluginMsg
 import me.danny.shop.tracking.EcoLogMgr
 import me.danny.shop.tracking.SaleRecord
+import me.danny.shop.utils.PlayerCache
 import me.danny.shop.utils.getElapsed
 import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.chat.BaseComponent
@@ -13,7 +14,6 @@ import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.HoverEvent.Action
 import net.md_5.bungee.api.chat.TextComponent
 import net.md_5.bungee.api.chat.hover.content.Text
-import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import java.math.BigDecimal
 import java.text.NumberFormat
@@ -126,7 +126,7 @@ private fun calcElapsed(time: ZonedDateTime): BaseComponent {
 }
 
 private fun sellerInfo(uuid: UUID): BaseComponent {
-    val player = Bukkit.getOfflinePlayer(uuid).name ?: "<???>"
+    val player = PlayerCache.getNameOrUUID(uuid)
 
     val comp = "".comp().color(ChatColor.WHITE)
     comp.addExtra(player.comp().color(ChatColor.BLUE))

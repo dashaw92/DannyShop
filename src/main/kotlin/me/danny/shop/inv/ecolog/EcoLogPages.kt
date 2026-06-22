@@ -2,23 +2,17 @@ package me.danny.shop.inv.ecolog
 
 import me.danny.shop.DannyShop
 import me.danny.shop.commands.fmt
-import me.danny.shop.data.Key
-import me.danny.shop.data.attachKey
 import me.danny.shop.inv.Page
 import me.danny.shop.tracking.EcoLogMgr
 import me.danny.shop.tracking.SaleRecord
 import me.danny.shop.utils.ItemBuilder
+import me.danny.shop.utils.PlayerCache
 import me.danny.shop.utils.getElapsed
-import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemFlag
-import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.SkullMeta
-import org.bukkit.persistence.PersistentDataType
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.*
 
 internal class EcoLogPages(buttons: Pair<Int, Int>) :
     Page<SaleRecord>(DannyShop.instance().ecolog.getLogs(), 0 to 0, 9 to 5, buttons) {
@@ -26,9 +20,6 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
     companion object {
         private val zdtFmt = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
         internal val availableLogs = EcoLogMgr.availableLogs().sorted()
-
-        private val cachedSkulls: MutableMap<UUID, ItemStack> = mutableMapOf()
-        private val cachedNames: MutableMap<UUID, String> = mutableMapOf()
     }
 
     var iconMode: LogIconMode = LogIconMode.Item
@@ -68,14 +59,16 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
                 val display = ItemBuilder.setName(
                     ItemBuilder.addAttribute(
                         when (iconMode) {
-                            LogIconMode.Player -> makeSkull(record.seller)
+                            LogIconMode.Player -> PlayerCache.getSkull(record.seller)
                             LogIconMode.Item -> item?.item?.display() ?: ItemBuilder.makeItem(
                                 Material.BARRIER,
                                 record.item.id
-                            ).apply { amount = record.amount.coerceIn(1, 64).toInt() }
-                        }, *ItemFlag.entries.toTypedArray()), "&e${item?.itemName() ?: record.item.id}")
+                            )
+                        }, *ItemFlag.entries.toTypedArray()
+                    ), "&e${item?.itemName() ?: record.item.id}"
+                ).apply { amount = record.amount.coerceIn(1, 64).toInt() }
 
-                val seller = Bukkit.getOfflinePlayer(record.seller).name ?: record.seller.toString()
+                val seller = PlayerCache.getNameOrUUID(record.seller)
                 val time = record.time.format(zdtFmt)
                 val elapsed = record.time.getElapsed()
                 val name = record.item.id
@@ -93,32 +86,13 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
 
     }
 
-    internal val uuidKey = Key("skull_uuid", PersistentDataType.STRING)
-
-
-    private fun makeSkull(id: UUID): ItemStack = cachedSkulls.computeIfAbsent(id) {
-        val player = Bukkit.getOfflinePlayer(id)
-        val skull = ItemBuilder.makeItem(
-            Material.PLAYER_HEAD, "&e${player.name}"
-        ).attachKey(uuidKey, id.toString())
-
-        val meta = skull.itemMeta!! as SkullMeta
-        meta.owningPlayer = player
-        skull.itemMeta = meta
-        skull
-    }
-
     private fun sort(sortMode: SortMode, records: List<SaleRecord>): List<SaleRecord> = when (sortMode) {
         SortMode.Oldest -> records.sortedBy(SaleRecord::time)
         SortMode.Newest -> records.sortedByDescending(SaleRecord::time)
         SortMode.Most -> records.sortedByDescending(SaleRecord::amount)
         SortMode.Least -> records.sortedBy(SaleRecord::amount)
         SortMode.Value -> records.sortedByDescending(SaleRecord::ext)
-        SortMode.Seller -> records.sortedBy { rec ->
-            cachedNames.computeIfAbsent(rec.seller) {
-                Bukkit.getOfflinePlayer(it).name ?: it.toString()
-            }
-        }
+        SortMode.Seller -> records.sortedBy { rec -> PlayerCache.getNameOrUUID(rec.seller) }
     }
 }
 
