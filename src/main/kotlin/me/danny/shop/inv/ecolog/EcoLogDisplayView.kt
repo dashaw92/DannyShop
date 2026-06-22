@@ -20,7 +20,6 @@ internal class EcoLogDisplayView : MenuView {
 
     companion object {
         internal val SORT_BUTTON = Key("sort_button", PersistentDataType.BYTE)
-        internal val MODE_BUTTON = Key("mode_button", PersistentDataType.BYTE)
         internal val LOG_SELECT_BUTTON = Key("log_button", PersistentDataType.BYTE)
     }
 
@@ -50,37 +49,20 @@ internal class EcoLogDisplayView : MenuView {
             )
         ).attachMarker(SORT_BUTTON)
 
-        val modeButton = ItemBuilder.makeItem(
-            Material.COMPARATOR, "&eIcon Mode", *LoreList.makeList(
-                listOf(
-                    LogIconMode.Item toEntry listOf("Display records by sold item icons"),
-                    LogIconMode.Player toEntry listOf("Display records by seller's skull"),
-                ), selected = pages.iconMode
-            )
-        ).attachMarker(MODE_BUTTON)
-
         val selectLogButton = ItemBuilder.makeItem(
             Material.WRITABLE_BOOK, "&eSelected Log", *LoreList.makeList(
                 createAvailableLogs(EcoLogPages.availableLogs), selectedLog
             )
         ).attachMarker(LOG_SELECT_BUTTON)
 
-        inv.setItem(inv.size - 7, selectLogButton)
         inv.setItem(inv.size - 8, sortButton)
-        inv.setItem(inv.size - 9, modeButton)
+        inv.setItem(inv.size - 9, selectLogButton)
     }
 
     override fun onClick(
         inv: Inventory, event: InventoryClickEvent
     ): ViewAction {
         pages.onClick(event) { build(inv) }
-
-        if (event.currentItem!!.hasMarker(MODE_BUTTON)) {
-            val stepFn = if (event.isLeftClick) pages.iconMode::next
-            else pages.iconMode::prev
-            pages.iconMode = stepFn()
-            return ViewAction.Pass
-        }
 
         if (event.currentItem!!.hasMarker(SORT_BUTTON)) {
             val stepFn = if (event.isLeftClick) pages.sortMode::next

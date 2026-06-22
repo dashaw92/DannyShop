@@ -22,7 +22,6 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
         internal val availableLogs = EcoLogMgr.availableLogs().sorted()
     }
 
-    var iconMode: LogIconMode = LogIconMode.Item
     var sortMode: SortMode = SortMode.Newest
     var selectedLog: Int = -1
 
@@ -58,13 +57,10 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
                 val item = DannyShop.SHOP.itemByIid(record.item)
                 val display = ItemBuilder.setName(
                     ItemBuilder.addAttribute(
-                        when (iconMode) {
-                            LogIconMode.Player -> PlayerCache.getSkull(record.seller)
-                            LogIconMode.Item -> item?.item?.display() ?: ItemBuilder.makeItem(
-                                Material.BARRIER,
-                                record.item.id
-                            )
-                        }, *ItemFlag.entries.toTypedArray()
+                        item?.item?.display() ?: ItemBuilder.makeItem(
+                            Material.BARRIER,
+                            record.item.id
+                        ), *ItemFlag.entries.toTypedArray()
                     ), "&e${item?.itemName() ?: record.item.id}"
                 ).apply { amount = record.amount.coerceIn(1, 64).toInt() }
 
@@ -94,11 +90,6 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
         SortMode.Value -> records.sortedByDescending(SaleRecord::ext)
         SortMode.Seller -> records.sortedBy { rec -> PlayerCache.getNameOrUUID(rec.seller) }
     }
-}
-
-internal enum class LogIconMode {
-    Player,
-    Item
 }
 
 internal enum class SortMode {
