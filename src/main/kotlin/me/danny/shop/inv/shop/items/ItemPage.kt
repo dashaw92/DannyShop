@@ -213,7 +213,7 @@ internal class ItemPage(
                     fields.addAll(
                         Graph.create(points = all, resolution = 1, timescale = TimeUnit.DAYS).map { "   $it" })
                 }
-                fields.add("   &e[Toggle graph: Middle click]")
+                fields.add("   &e[Toggle graph: Drop]")
                 fields.add("")
             }
         }

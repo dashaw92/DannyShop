@@ -200,7 +200,7 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
 
         //<editor-fold desc="Purchasing: Clicked a shop item">
         if (clicked.hasKey(ITEM_KEY)) {
-            if (event.click == ClickType.MIDDLE && DannyShop.instance().config.ecoAnalyticsEnabled) {
+            if (event.click == ClickType.DROP && DannyShop.instance().config.ecoAnalyticsEnabled) {
                 itemPage.showGraph = !itemPage.showGraph
                 return
             }
