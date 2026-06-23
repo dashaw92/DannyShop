@@ -1,23 +1,43 @@
 package me.danny.shop.tracking
 
 import java.io.Serializable
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+import kotlin.math.ceil
 
-internal class ItemVolumeHistory(val bins: LongArray = LongArray(TOTAL_BINS.toInt())) : Serializable {
+class ItemVolumeHistory(val bins: LongArray = LongArray(TOTAL_BINS.toInt())) : Serializable {
 
-    fun startNextBin() {
+    internal fun startNextBin() {
         bins.shift(1)
     }
 
-    fun add(amount: Long) {
+    internal fun add(amount: Long) {
         bins[0] += amount
     }
 
     fun getFirstNDays(days: Int): List<List<Long>> {
-        val clampedDays = days.coerceIn(1, TOTAL_DAYS)
+        if (days < 1) return emptyList()
+
+        val numBinsToday = binsToday()
+        val clampedDays = days.coerceIn(1, TOTAL_DAYS - 1)
         val numBins = (clampedDays * BINS_PER_DAY).toInt()
-        return bins.slice(0 until numBins)
+        val today = bins.slice(0 until numBinsToday).reversed()
+        val days: MutableList<List<Long>> = bins.slice(numBinsToday until numBins)
             .reversed()
-            .chunked(BINS_PER_DAY.toInt())
+            .chunked(BINS_PER_DAY.toInt()).toMutableList()
+        days += today
+        return days
+    }
+
+    private fun binsToday(): Int {
+        val midnight = LocalDateTime.now()
+            .withHour(0)
+            .withMinute(0)
+            .withSecond(0)
+
+        val now = LocalDateTime.now()
+        val minsSinceMidnight = ChronoUnit.MINUTES.between(midnight, now)
+        return ceil(minsSinceMidnight / RESOLUTION.toDouble()).toInt()
     }
 }
 
