@@ -47,9 +47,7 @@ internal object BackendAdminCommand {
         val backend = DannyShop.instance().backend
         sender.pluginMsg("Attempting to save shop data via backend &e${backend.type()}&7...")
         DannyShop.instance().logger.info("${sender.name} invoked a manual save.")
-        backend.saveShop(DannyShop.instance(), DannyShop.SHOP)
-        DannyShop.instance().ecolog.save()
-        DannyShop.instance().analytics.save()
+        DannyShop.instance().saveAll()
         sender.pluginMsg("Save complete.")
     }
 

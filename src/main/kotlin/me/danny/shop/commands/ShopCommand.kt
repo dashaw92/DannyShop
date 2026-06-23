@@ -43,7 +43,7 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
 
             "reset-limits" -> requireAdmin(sender) {
                 it.pluginMsg("&7Sell limits refreshed.")
-                DannyShop.instance().startTask()
+                DannyShop.instance().startSellLimitResetTask()
             }
 
             "eco-log" -> requiresPermission(sender, Perm.ECOLOG) {

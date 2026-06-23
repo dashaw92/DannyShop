@@ -44,7 +44,7 @@ class DannyShop : JavaPlugin() {
     internal lateinit var config: Config
     internal lateinit var ecolog: Logging
     internal lateinit var analytics: Analytics
-    private var resetTaskHandle: Int = -1
+    private var sellLimitResetTaskHandle: Int = -1
 
     override fun onEnable() {
         if (!Economy.hasEconomy()) {
@@ -80,10 +80,15 @@ class DannyShop : JavaPlugin() {
         Bukkit.getPluginManager().registerEvents(ChatInput.ChatInputListener, this)
         getCommand("dannyshop")!!.setExecutor(ShopCommand)
         getCommand("sell")!!.setExecutor(SellCommand)
-        startTask()
+        startSellLimitResetTask()
+        startAutosaveTask()
     }
 
     override fun onDisable() {
+        saveAll()
+    }
+
+    internal fun saveAll() {
         analytics.save()
         ecolog.save()
         try {
@@ -93,12 +98,20 @@ class DannyShop : JavaPlugin() {
         }
     }
 
-    internal fun startTask() {
-        if (resetTaskHandle != -1) {
-            Bukkit.getScheduler().cancelTask(resetTaskHandle)
+    internal fun startAutosaveTask() {
+        Bukkit.getScheduler()
+            .scheduleSyncRepeatingTask(this, {
+                saveAll()
+                Bukkit.getConsoleSender().pluginMsg("&3[AutoSave] &7All data saved.")
+            }, 20L * 60L, 20L * 60L * 5L)
+    }
+
+    internal fun startSellLimitResetTask() {
+        if (sellLimitResetTaskHandle != -1) {
+            Bukkit.getScheduler().cancelTask(sellLimitResetTaskHandle)
         }
 
-        resetTaskHandle = Bukkit.getScheduler()
+        sellLimitResetTaskHandle = Bukkit.getScheduler()
             .scheduleSyncRepeatingTask(this, ResetTask(config.sellLimitRefreshTicks), 0L, 20L)
     }
 }
