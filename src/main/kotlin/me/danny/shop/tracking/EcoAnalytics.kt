@@ -42,7 +42,6 @@ private object DummyAnalytics : Analytics
 private class EcoAnalytics : Analytics {
 
     private val file = DannyShop.instance().dataFolder.resolve("item-history.bin")
-    private var analyticsTaskHandle: Int = -1
 
     class Data : Serializable {
         var lastTick: Long = Instant.now().toEpochMilli()
@@ -63,7 +62,10 @@ private class EcoAnalytics : Analytics {
                     data.history[k] = v
                 }
             }
-        } catch (_: Exception) {}
+        } catch (ex: Exception) {
+            DannyShop.instance().logger.severe("Volume analytics: Error while loading item history from ${file.absolutePath}:")
+            ex.printStackTrace()
+        }
 
         val delta = deltaPerTick()
         val nextTick = calcNextTick()
@@ -76,15 +78,15 @@ private class EcoAnalytics : Analytics {
             data.history.putIfAbsent(item.iid, ItemVolumeHistory())
         }
         DannyShop.instance().logger.info("Volume analytics: Item history loaded.")
-        analyticsTaskHandle = Bukkit.getScheduler().scheduleSyncRepeatingTask(DannyShop.instance(),
-            { tick() }, 0L, deltaPerTick() / 50)
+        Bukkit.getScheduler().scheduleSyncRepeatingTask(
+            DannyShop.instance(),
+            ::tick, 0L, deltaPerTick() / 50
+        )
     }
 
     override fun save() {
         if (!file.exists()) file.createNewFile()
         ObjectOutputStream(GZIPOutputStream(FileOutputStream(file))).use { obj -> obj.writeObject(data) }
-        Bukkit.getScheduler().cancelTask(analyticsTaskHandle)
-        analyticsTaskHandle = -1
     }
 
     override fun tick() {
