@@ -39,16 +39,21 @@ internal fun getAnalytics(config: Config): Analytics {
 
 private object DummyAnalytics : Analytics
 
-private class EcoAnalytics : Analytics {
+class EcoAnalytics : Analytics {
 
     private val file = DannyShop.instance().dataFolder.resolve("item-history.bin")
 
     class Data : Serializable {
+        companion object {
+            @JvmStatic
+            val serialVersionUID: Long = 1L
+        }
+
         var lastTick: Long = Instant.now().toEpochMilli()
         val history: MutableMap<ID, ItemVolumeHistory> = mutableMapOf()
     }
 
-    val data: Data = Data()
+    var data: Data = Data()
 
     override fun load() {
         DannyShop.instance().logger.info("Volume analytics: Loading item history from ${file.absolutePath}")
@@ -56,11 +61,7 @@ private class EcoAnalytics : Analytics {
         try {
             val read = ObjectInputStream(GZIPInputStream(FileInputStream(file))).use(ObjectInputStream::readObject)
             if (read is Data) {
-                data.lastTick = read.lastTick
-                data.history.clear()
-                for ((k, v) in read.history) {
-                    data.history[k] = v
-                }
+                data = read
             }
         } catch (ex: Exception) {
             DannyShop.instance().logger.severe("Volume analytics: Error while loading item history from ${file.absolutePath}:")
@@ -93,7 +94,6 @@ private class EcoAnalytics : Analytics {
         val now = Instant.now().toEpochMilli()
         if (abs(data.lastTick - now) < deltaPerTick()) return
         data.lastTick = calcNextTick()
-
         data.history.values.forEach(ItemVolumeHistory::startNextBin)
     }
 

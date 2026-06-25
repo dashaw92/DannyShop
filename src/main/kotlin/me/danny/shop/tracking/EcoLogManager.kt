@@ -22,7 +22,7 @@ private fun logfileName(zdt: ZonedDateTime = now()): String = "sales-${generateL
 private val initialLogName = logfileName() //used to filter out the current log so it's not loaded as historical
 private fun formatDateTime(zdt: ZonedDateTime): String = zdt.format(DateTimeFormatter.ISO_DATE_TIME)
 
-internal data class SaleRecord(
+data class SaleRecord(
     val time: ZonedDateTime,
     val seller: UUID,
     val item: ID,

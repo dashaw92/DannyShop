@@ -7,11 +7,11 @@ import kotlin.math.ceil
 
 class ItemVolumeHistory(val bins: LongArray = LongArray(TOTAL_BINS.toInt())) : Serializable {
 
-    internal fun startNextBin() {
+    fun startNextBin() {
         bins.shift(1)
     }
 
-    internal fun add(amount: Long) {
+    fun add(amount: Long) {
         bins[0] += amount
     }
 
