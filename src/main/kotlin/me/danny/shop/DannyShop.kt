@@ -86,6 +86,7 @@ class DannyShop : JavaPlugin() {
 
     override fun onDisable() {
         saveAll()
+        Menu.closeOpenInvs()
     }
 
     internal fun saveAll() {
@@ -93,7 +94,6 @@ class DannyShop : JavaPlugin() {
         ecolog.save()
         try {
             backend.saveShop(this, SHOP)
-            Menu.closeOpenInvs()
         } catch (_: NoClassDefFoundError) {
         }
     }
