@@ -19,12 +19,17 @@ class ItemVolumeHistory(val bins: LongArray = LongArray(TOTAL_BINS.toInt())) : S
         if (days < 1) return emptyList()
 
         val numBinsToday = binsToday()
-        val clampedDays = days.coerceIn(1, TOTAL_DAYS - 1)
+        val clampedDays = days.coerceIn(1, TOTAL_DAYS)
         val numBins = (clampedDays * BINS_PER_DAY).toInt()
+
         val today = bins.slice(0 until numBinsToday).reversed()
+        if (clampedDays == 1) return listOf(today)
+
         val days: MutableList<List<Long>> = bins.slice(numBinsToday until numBins)
             .reversed()
-            .chunked(BINS_PER_DAY.toInt()).toMutableList()
+            .chunked(BINS_PER_DAY.toInt())
+            .take(clampedDays - 1)
+            .toMutableList()
         days += today
         return days
     }
