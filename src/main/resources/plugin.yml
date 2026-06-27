@@ -21,3 +21,47 @@ commands:
     aliases: [ "stonks", "dansell", "makemoney", "bigbusinesstime", "hustle" ]
     description: "Sell command!"
     usage: /<command> <mode> [amount]
+permissions:
+  dannyshop.*:
+    default: op
+    children:
+      dannyshop.admin: true
+      dannyshop.ecolog.logs: true
+      dannyshop.ecolog.volume: true
+      dannyshop.shop: true
+      dannyshop.sell: true
+      dannyshop.sellwand: true
+  dannyshop.admin:
+    default: op
+    children:
+      dannyshop.ecolog.logs: true
+      dannyshop.ecolog.volume: true
+      dannyshop.shop: true
+      dannyshop.sell: true
+      dannyshop.sellwand: true
+  dannyshop.shop:
+    default: true
+    description: Grants access to view the shop only.
+  dannyshop.sell:
+    default: true
+    description: Grants the ability to sell items.
+    children:
+      dannyshop.shop: true
+  dannyshop.sellwand:
+    default: true
+    description: Grants access to the sell wand.
+    children:
+      dannyshop.sell: true
+      dannyshop.shop: true
+  dannyshop.ecolog.*:
+    default: op
+    description: Grants access to the EcoLog features.
+    children:
+      dannyshop.ecolog.logs: true
+      dannyshop.ecolog.volume: true
+  dannyshop.ecolog.logs:
+    default: op
+    description: Grants access to the sale logs.
+  dannyshop.ecolog.volume:
+    default: op
+    description: Grants access to volume history features.

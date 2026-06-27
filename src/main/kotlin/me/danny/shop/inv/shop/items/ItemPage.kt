@@ -196,7 +196,7 @@ internal class ItemPage(
             fields.add("   &7Reset in ${resetFormatted.trim()}")
         }
 
-        if (viewer.hasPermission(Perm.ECOLOG) && DannyShop.instance().config.ecoAnalyticsEnabled) {
+        if (viewer.hasPermission(Perm.ECOLOG_VIEW_VOLUME) && DannyShop.instance().config.ecoAnalyticsEnabled) {
             val hist = DannyShop.instance().analytics.getHistory(item.iid)
             if (hist != null) {
                 val day = hist.getFirstNDays(1).map(List<Long>::sum)

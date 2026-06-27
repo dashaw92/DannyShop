@@ -24,7 +24,7 @@ import java.util.*
 
 object EcoLogCommand {
     fun onCommand(sender: CommandSender, args: Array<out String>) {
-        if (!sender.hasPermission(Perm.ECOLOG)) {
+        if (!sender.hasPermission(Perm.ECOLOG_VIEW_LOGS)) {
             sender.pluginMsg("&cYou lack permission for this command.")
             return
         }
@@ -70,7 +70,7 @@ object EcoLogCommand {
         sender: CommandSender,
         arg: String
     ): List<String>? {
-        if (!sender.hasPermission(Perm.ECOLOG)) return null
+        if (!sender.hasPermission(Perm.ECOLOG_VIEW_LOGS)) return null
         val available = EcoLogMgr.availableLogs().sorted()
         return available.filter { it.lowercase().startsWith(arg.lowercase()) }
     }

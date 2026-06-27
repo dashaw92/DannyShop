@@ -46,11 +46,11 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
                 DannyShop.instance().startSellLimitResetTask()
             }
 
-            "eco-log" -> requiresPermission(sender, Perm.ECOLOG) {
+            "eco-log" -> requiresPermission(sender, Perm.ECOLOG_VIEW_LOGS) {
                 EcoLogCommand.onCommand(it, cmdArgs)
             }
 
-            "eco-log-gui" -> requirePlayer(sender, Perm.ECOLOG) {
+            "eco-log-gui" -> requirePlayer(sender, Perm.ECOLOG_VIEW_LOGS) {
 //                sender.pluginMsg("&cThis feature is W.I.P. and is disabled until further notice.")
 
                 if (!DannyShop.instance().config.loggingEnabled) {
@@ -72,7 +72,7 @@ internal object ShopCommand : CommandExecutor, TabCompleter {
     ): List<String>? {
         val available = mutableListOf<String>()
         if (sender.hasPermission(Perm.SELL_WAND)) available.add("sell-wand")
-        if (sender.hasPermission(Perm.ECOLOG) && DannyShop.instance().config.loggingEnabled) {
+        if (sender.hasPermission(Perm.ECOLOG_VIEW_LOGS) && DannyShop.instance().config.loggingEnabled) {
             available.addAll(listOf("eco-log", "eco-log-gui"))
         }
         if (sender.hasPermission(Perm.ADMIN)) available.addAll(
