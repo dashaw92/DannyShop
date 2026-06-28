@@ -23,7 +23,16 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
     }
 
     var sortMode: SortMode = SortMode.Newest
+        set(value) {
+            dirty = true
+            field = value
+        }
     var selectedLog: Int = -1
+        set(value) {
+            dirty = true
+            field = value
+        }
+    private var dirty = true
 
     fun nextLog() {
         selectedLog = when (selectedLog) {
@@ -44,11 +53,14 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
     }
 
     override fun display(inv: Inventory) {
-        items = sort(
-            sortMode,
-            if (selectedLog == -1) DannyShop.instance().ecolog.getLogs()
-            else EcoLogMgr.loadHistorical(availableLogs[selectedLog])?.records ?: DannyShop.instance().ecolog.getLogs()
-        )
+        if (dirty) {
+            val underlyingList =
+                if (selectedLog == -1) DannyShop.instance().ecolog.getLogs()
+                else EcoLogMgr.loadHistorical(availableLogs[selectedLog])?.records
+                    ?: DannyShop.instance().ecolog.getLogs()
+            items = sort(sortMode, underlyingList)
+            dirty = false
+        }
 
         items
             .drop(page * size)
@@ -88,7 +100,7 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
         SortMode.Most -> records.sortedByDescending(SaleRecord::amount)
         SortMode.Least -> records.sortedBy(SaleRecord::amount)
         SortMode.Value -> records.sortedByDescending(SaleRecord::ext)
-        SortMode.Seller -> records.sortedBy { rec -> PlayerCache.getNameOrUUID(rec.seller) }
+        SortMode.Seller -> records.sortedBy { rec -> PlayerCache.getNameOrUUID(rec.seller).lowercase() }
     }
 }
 
