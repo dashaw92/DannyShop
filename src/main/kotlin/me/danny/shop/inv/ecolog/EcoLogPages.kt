@@ -59,6 +59,7 @@ internal class EcoLogPages(buttons: Pair<Int, Int>) :
                 else EcoLogMgr.loadHistorical(availableLogs[selectedLog])?.records
                     ?: DannyShop.instance().ecolog.getLogs()
             items = sort(sortMode, underlyingList)
+            page = 0
             dirty = false
         }
 
