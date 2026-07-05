@@ -200,9 +200,18 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
 
         //<editor-fold desc="Purchasing: Clicked a shop item">
         if (clicked.hasKey(ITEM_KEY)) {
-            if (event.click == ClickType.DROP && DannyShop.instance().config.ecoAnalyticsEnabled) {
-                itemPage.showGraph = !itemPage.showGraph
-                return
+            if (DannyShop.instance().config.ecoAnalyticsEnabled) {
+                when (event.click) {
+                    ClickType.CONTROL_DROP if itemPage.showGraph -> {
+                        itemPage.graphMode = itemPage.graphMode.next()
+                        return
+                    }
+                    ClickType.DROP -> {
+                        itemPage.showGraph = !itemPage.showGraph
+                        return
+                    }
+                    else -> {}
+                }
             }
 
             val iid = event.currentItem?.keyValue(ITEM_KEY) ?: ""

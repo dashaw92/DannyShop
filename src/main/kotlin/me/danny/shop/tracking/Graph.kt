@@ -38,20 +38,38 @@ object Graph {
             }
 
             val suffix =
-                if (y == height) "&6${fmtAsK(points.max().toDouble())}".color()
-                else if (y == 1) "&70".color()
-                else if (y != 0 && y % 5 == 0) "&7${fmtAsK(y * yDiv)}".color()
+                if (y == height) "&6${fmtToAbbreviated(points.max().toDouble())}".color()
+                else if (y == 0) "&70".color()
+                else if (y % 5 == 0) "&7${fmtToAbbreviated(y * yDiv)}".color()
                 else ""
             "$line $suffix".color()
         }.toMutableList()
 
         graph.add("&7&oX Scale: ${round((resolution * binsPerDiv) * 100.0) / 100.0} ${timescale.name.lowercase()} per division.".color())
-        graph.add("&7&oY Scale: ${fmtAsK(yDiv)} units sold per division.".color())
+        graph.add("&7&oY Scale: ${fmtToAbbreviated(yDiv)} units sold per division.".color())
         return graph
     }
 
-    private fun fmtAsK(x: Double): String {
-        return if (x >= 1000.0) "%.2fk".format(round(x) / 1000.0)
-        else "${round(x * 100.0) / 100.0}"
+    private data class Abbreviation(val baseQuantity: Double, val format: String)
+
+    private val abbreviatedUnits = mapOf(
+        1_000.0 to Abbreviation(1_000.0, "%,.2fk"), //thousand decimal
+        100_000.0 to Abbreviation(1_000.0, "%,.0fk"), //hundred thousand, no decimal
+        1e6 to Abbreviation(1e6, "%,.2fm"), //million decimal
+        1e8 to Abbreviation(1e6, "%,.0fm"), //hundred million no decimal
+        1e9 to Abbreviation(1e9, "%,.2fb"), //billion decimal
+        1e11 to Abbreviation(1e9, "%,.0fb"), //hundred billion no decimal
+    )
+
+    internal fun fmtToAbbreviated(x: Double): String {
+        var output: String = ""
+        for ((minimum, abbr) in abbreviatedUnits) {
+            if (x >= minimum) {
+                output = abbr.format.format(round(x) / abbr.baseQuantity)
+            } else break
+        }
+
+        if (output.isBlank()) output = "${round(x * 100.0) / 100.0}"
+        return output
     }
 }
