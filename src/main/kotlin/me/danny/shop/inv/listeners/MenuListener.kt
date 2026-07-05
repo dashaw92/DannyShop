@@ -22,7 +22,7 @@ internal object MenuListener : Listener {
 
         if (event.click != ClickType.LEFT && event.click != ClickType.RIGHT
             && event.click != ClickType.SHIFT_LEFT && event.click != ClickType.SHIFT_RIGHT
-            && event.click != ClickType.DROP && event.click != ClickType.NUMBER_KEY && event.click != ClickType.CONTROL_DROP
+            && event.click != ClickType.DROP && event.click != ClickType.NUMBER_KEY && event.click != ClickType.CONTROL_DROP && event.click != ClickType.SWAP_OFFHAND
             && event.click != ClickType.MIDDLE || event.currentItem == null || event.currentItem?.type == Material.AIR
         ) {
             return

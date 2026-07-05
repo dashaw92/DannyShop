@@ -12,7 +12,6 @@ import me.danny.shop.model.Category
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.ItemType
 import me.danny.shop.tracking.Graph
-import me.danny.shop.tracking.RESOLUTION
 import me.danny.shop.tracking.TOTAL_DAYS
 import me.danny.shop.utils.ItemBuilder
 import org.bukkit.Material
@@ -34,6 +33,7 @@ internal class ItemPage(
     var query: String? = null
     var showGraph: Boolean = false
     var graphMode: GraphMode = GraphMode.All
+    var graphSize: GraphSize = GraphSize.Compact
 
     private fun filteredItems(): List<Item> {
         val filtered = items.filter {
@@ -201,25 +201,49 @@ internal class ItemPage(
         if (viewer.hasPermission(Perm.ECOLOG_VIEW_VOLUME) && DannyShop.instance().config.ecoAnalyticsEnabled) {
             val hist = DannyShop.instance().analytics.getHistory(item.iid)
             if (hist != null) {
-                val day = hist.getFirstNDays(1)[0]
-                val month = hist.getFirstNDays(30).map(List<Long>::sum)
-                val all = hist.getFirstNDays(TOTAL_DAYS).map(List<Long>::sum)
+                val day = hist.getFirstNDays(1)
+                val month = hist.getFirstNDays(30)
+                val all = hist.getFirstNDays(TOTAL_DAYS)
 
                 fields.add("")
                 fields.add("&2Volume:")
-                fields.add("   &9Today: &7%,d".format(day.sum()))
-                fields.add("   &9Month: &7%,d".format(month.sum()))
-                fields.add("   &9${TOTAL_DAYS}d: &7%,d".format(all.sum()))
+                fields.add("   &9Today: &7%,d".format(day.sumOf(List<Long>::sum)))
+                fields.add("   &9Month: &7%,d".format(month.sumOf(List<Long>::sum)))
+                fields.add("   &9${TOTAL_DAYS}d: &7%,d".format(all.sumOf(List<Long>::sum)))
                 if (showGraph) {
                     fields.add("")
-                    fields.add("$graphMode")
-                    val graph = when(graphMode) {
-                        GraphMode.All -> Graph.create(points = all, resolution = 1, timescale = TimeUnit.DAYS)
-                        GraphMode.Month -> Graph.create(points = month, resolution = 1, timescale = TimeUnit.DAYS)
-                        GraphMode.Day -> Graph.create(points = day, resolution = RESOLUTION, timescale = TimeUnit.MINUTES)
+                    fields.add("   $graphMode &7&o($graphSize)")
+
+                    val dims /* width, height */ = when (graphSize) {
+                        GraphSize.Full -> 90 to 14
+                        GraphSize.Compact -> 54 to 7
+                    }
+
+                    val graph = when (graphMode) {
+                        GraphMode.All -> Graph.create(
+                            dataByDay = all,
+                            timescale = TimeUnit.DAYS,
+                            width = dims.first,
+                            height = dims.second
+                        )
+
+                        GraphMode.Month -> Graph.create(
+                            dataByDay = month,
+                            timescale = TimeUnit.DAYS,
+                            width = dims.first,
+                            height = dims.second
+                        )
+
+                        GraphMode.Day -> Graph.create(
+                            dataByDay = day,
+                            timescale = TimeUnit.MINUTES,
+                            width = dims.first,
+                            height = dims.second
+                        )
                     }
                     fields.addAll(graph.map { "   $it" })
-                    fields.add("   &e[Change span: Control drop]")
+                    fields.add("   &e[Change size: Control drop]")
+                    fields.add("   &e[Change span: Offhand]")
                 }
                 fields.add("   &e[Toggle graph: Drop]")
                 fields.add("")
@@ -246,7 +270,12 @@ internal class ItemPage(
 }
 
 internal enum class GraphMode {
-    Day,
+    All,
     Month,
-    All
+    Day,
+}
+
+internal enum class GraphSize {
+    Compact,
+    Full,
 }

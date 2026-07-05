@@ -1,16 +1,18 @@
 package me.danny.shop.tracking
 
 import me.danny.shop.utils.color
+import me.danny.shop.utils.hex
+import net.md_5.bungee.api.ChatColor
+import java.awt.Color
 import java.util.concurrent.TimeUnit
-import kotlin.math.floor
 import kotlin.math.round
+
 
 object Graph {
     fun create(
-        width: Int = 90,
+        width: Int = 54,
         height: Int = 14,
-        points: List<Long>,
-        resolution: Long,
+        dataByDay: List<List<Long>>,
         timescale: TimeUnit
     ): List<String> {
 //        if (points.all { it == 0L }) {
@@ -18,34 +20,54 @@ object Graph {
 //        }
 
         val axisBorder = "&7▇"
-        val blank = "&8╱"
-        val full = "&2▇"
-        val peak = "&a▃"
+        val blankColorInactive = "#242230".hex()
+        val blankColorActive = "#3c3a4a".hex()
+        val blank = "╱"
+        val full = "▇"
+        val peak = "▃"
 
-        val binsPerDiv = (1 / width.toDouble()) * points.size.toDouble()
+        val days = dataByDay.size
+        val daysPerDiv = days / width.toDouble()
+        val chunks = (days + width - 1) / width
+        val points = dataByDay.chunked(chunks)
+            .map { group -> group.sumOf(List<Long>::sum) }
+            .toMutableList()
+        while (points.size < width) {
+            points.addFirst(0)
+        }
 
         val yDiv = points.max() / height.toDouble()
+        val yLegendStep = height / 3
         val graph = height.downTo(0).map { y ->
             val line = (0..width).joinToString("") { x ->
                 if (y == 0 || x == 0) axisBorder
                 else {
-                    val bin = points[floor((x - 1) * binsPerDiv).toInt()]
+                    val pointIdx = x - 1
+                    if (pointIdx > points.lastIndex) {
+                        return@joinToString blank
+                    }
 
-                    if (bin > yDiv * y) full
-                    else if (bin > (yDiv * (y - 0.5))) peak
-                    else blank
+                    val bin = points[pointIdx]
+
+                    val color = interpolate("#dd0000".hex(), "#00ff00".hex(), y.toDouble() / height)
+                    if (bin > yDiv * y) "$color$full"
+                    else if (bin > (yDiv * (y - 0.5))) "$color$peak"
+                    else {
+                        if (y % yLegendStep == 0) "$blankColorActive$blank"
+                        else "$blankColorInactive$blank"
+                    }
                 }
             }
 
             val suffix =
                 if (y == height) "&6${fmtToAbbreviated(points.max().toDouble())}".color()
                 else if (y == 0) "&70".color()
-                else if (y % 5 == 0) "&7${fmtToAbbreviated(y * yDiv)}".color()
-                else ""
+                else if (y % yLegendStep == 0) "&7${fmtToAbbreviated(y * yDiv)}".color()
+                else "${"#1c1c1c".hex()}${fmtToAbbreviated(y * yDiv)}".color()
             "$line $suffix".color()
         }.toMutableList()
 
-        graph.add("&7&oX Scale: ${round((resolution * binsPerDiv) * 100.0) / 100.0} ${timescale.name.lowercase()} per division.".color())
+        graph.add("&7&oX Scale: ${round(daysPerDiv * 100.0) / 100.0} ${timescale.name.lowercase()} per division.".color())
         graph.add("&7&oY Scale: ${fmtToAbbreviated(yDiv)} units sold per division.".color())
         return graph
     }
@@ -62,7 +84,7 @@ object Graph {
     )
 
     internal fun fmtToAbbreviated(x: Double): String {
-        var output: String = ""
+        var output = ""
         for ((minimum, abbr) in abbreviatedUnits) {
             if (x >= minimum) {
                 output = abbr.format.format(round(x) / abbr.baseQuantity)
@@ -72,4 +94,15 @@ object Graph {
         if (output.isBlank()) output = "${round(x * 100.0) / 100.0}"
         return output
     }
+}
+
+fun interpolate(start: ChatColor, end: ChatColor, percent: Double): ChatColor {
+    val startColor = start.color
+    val endColor = end.color
+
+    val newR = (startColor.red + (endColor.red - startColor.red) * percent).toInt()
+    val newG = (startColor.green + (endColor.green - startColor.green) * percent).toInt()
+    val newB = (startColor.blue + (endColor.blue - startColor.blue) * percent).toInt()
+
+    return ChatColor.of(Color(newR, newG, newB))
 }

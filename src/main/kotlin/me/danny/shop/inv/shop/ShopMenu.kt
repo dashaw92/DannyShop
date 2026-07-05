@@ -202,14 +202,21 @@ internal class ShopMenu(viewer: Player, shopReturnInfo: ShopReturnInfo? = null) 
         if (clicked.hasKey(ITEM_KEY)) {
             if (DannyShop.instance().config.ecoAnalyticsEnabled) {
                 when (event.click) {
-                    ClickType.CONTROL_DROP if itemPage.showGraph -> {
+                    ClickType.SWAP_OFFHAND if itemPage.showGraph -> {
                         itemPage.graphMode = itemPage.graphMode.next()
                         return
                     }
+
+                    ClickType.CONTROL_DROP if itemPage.showGraph -> {
+                        itemPage.graphSize = itemPage.graphSize.next()
+                        return
+                    }
+
                     ClickType.DROP -> {
                         itemPage.showGraph = !itemPage.showGraph
                         return
                     }
+
                     else -> {}
                 }
             }
