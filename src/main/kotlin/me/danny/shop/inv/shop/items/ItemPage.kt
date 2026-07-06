@@ -219,28 +219,14 @@ internal class ItemPage(
                         GraphSize.Compact -> 54 to 7
                     }
 
-                    val graph = when (graphMode) {
-                        GraphMode.All -> Graph.create(
-                            dataByDay = all,
-                            timescale = TimeUnit.DAYS,
-                            width = dims.first,
-                            height = dims.second
-                        )
+                    data class GraphArgs(val timeUnit: TimeUnit, val points: List<List<Long>>)
 
-                        GraphMode.Month -> Graph.create(
-                            dataByDay = month,
-                            timescale = TimeUnit.DAYS,
-                            width = dims.first,
-                            height = dims.second
-                        )
-
-                        GraphMode.Day -> Graph.create(
-                            dataByDay = day,
-                            timescale = TimeUnit.MINUTES,
-                            width = dims.first,
-                            height = dims.second
-                        )
+                    val args = when (graphMode) {
+                        GraphMode.All -> GraphArgs(timeUnit = TimeUnit.DAYS, points = all)
+                        GraphMode.Month -> GraphArgs(timeUnit = TimeUnit.DAYS, points = month)
+                        GraphMode.Day -> GraphArgs(timeUnit = TimeUnit.MINUTES, points = day)
                     }
+                    val graph = Graph.create(item.iid, width = dims.first, height = dims.second, dataByDay = args.points, timescale = args.timeUnit)
                     fields.addAll(graph.map { "   $it" })
                     fields.add("   &e[Change size: Control drop]")
                     fields.add("   &e[Change span: Offhand]")

@@ -1,24 +1,42 @@
 package me.danny.shop.tracking
 
+import me.danny.shop.model.ID
 import me.danny.shop.utils.color
 import me.danny.shop.utils.hex
 import net.md_5.bungee.api.ChatColor
 import java.awt.Color
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 import kotlin.math.round
 
 
 object Graph {
     fun create(
+        id: ID,
         width: Int = 54,
         height: Int = 14,
         dataByDay: List<List<Long>>,
         timescale: TimeUnit
     ): List<String> {
-//        if (points.all { it == 0L }) {
-//            return listOf("&7&oNever sold.".color())
-//        }
+        val key = CacheKey(id, width, height, timescale)
+        val now = Instant.now()
 
+        return cache.compute(key) { _, maybeCached ->
+            if (maybeCached == null || ChronoUnit.SECONDS.between(maybeCached.timestamp, now) > 2) {
+                generateGraph(width, height, dataByDay, timescale)
+            } else {
+                maybeCached
+            }
+        }!!.graph
+    }
+
+    private fun generateGraph(
+        width: Int = 54,
+        height: Int = 14,
+        dataByDay: List<List<Long>>,
+        timescale: TimeUnit
+    ): CachedGraph {
         val axisBorder = "&7▇"
         val blankColorInactive = "#242230".hex()
         val blankColorActive = "#3c3a4a".hex()
@@ -26,7 +44,10 @@ object Graph {
         val full = "▇"
         val peak = "▃"
 
-        val days = dataByDay.size
+        val days =
+            if (timescale == TimeUnit.DAYS) dataByDay.size
+            else dataByDay.firstOrNull()?.size ?: 1
+
         val daysPerDiv = days / width.toDouble()
         val chunks = (days + width - 1) / width
         val points = dataByDay.chunked(chunks)
@@ -63,13 +84,14 @@ object Graph {
                 if (y == height) "&6${fmtToAbbreviated(points.max().toDouble())}".color()
                 else if (y == 0) "&70".color()
                 else if (y % yLegendStep == 0) "&7${fmtToAbbreviated(y * yDiv)}".color()
-                else "${"#1c1c1c".hex()}${fmtToAbbreviated(y * yDiv)}".color()
+                else "$blankColorInactive${fmtToAbbreviated(y * yDiv)}".color()
             "$line $suffix".color()
         }.toMutableList()
 
         graph.add("&7&oX Scale: ${round(daysPerDiv * 100.0) / 100.0} ${timescale.name.lowercase()} per division.".color())
         graph.add("&7&oY Scale: ${fmtToAbbreviated(yDiv)} units sold per division.".color())
-        return graph
+
+        return CachedGraph(Instant.now(), graph)
     }
 
     private data class Abbreviation(val baseQuantity: Double, val format: String)
@@ -94,6 +116,11 @@ object Graph {
         if (output.isBlank()) output = "${round(x * 100.0) / 100.0}"
         return output
     }
+
+    private data class CacheKey(val id: ID, val width: Int, val height: Int, val timescale: TimeUnit)
+    private data class CachedGraph(val timestamp: Instant, val graph: List<String>)
+
+    private val cache: MutableMap<CacheKey, CachedGraph> = mutableMapOf()
 }
 
 fun interpolate(start: ChatColor, end: ChatColor, percent: Double): ChatColor {
