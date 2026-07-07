@@ -20,6 +20,7 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
 internal class ItemPage(
@@ -211,9 +212,6 @@ internal class ItemPage(
                 fields.add("   &9Month: &7%,d".format(month.sumOf(List<Long>::sum)))
                 fields.add("   &9${TOTAL_DAYS}d: &7%,d".format(all.sumOf(List<Long>::sum)))
                 if (showGraph) {
-                    fields.add("")
-                    fields.add("   $graphMode &7&o($graphSize)")
-
                     val dims /* width, height */ = when (graphSize) {
                         GraphSize.Full -> 90 to 14
                         GraphSize.Compact -> 54 to 7
@@ -227,7 +225,9 @@ internal class ItemPage(
                         GraphMode.Day -> GraphArgs(timeUnit = TimeUnit.MINUTES, points = day)
                     }
                     val graph = Graph.create(item.iid, width = dims.first, height = dims.second, dataByDay = args.points, timescale = args.timeUnit)
-                    fields.addAll(graph.map { "   $it" })
+                    fields.add("")
+                    fields.add("   $graphMode &7- &d$graphSize &8(⏳ ${Graph.CACHE_TIME_SECONDS - ChronoUnit.SECONDS.between(graph.timestamp, Instant.now())}s)")
+                    fields.addAll(graph.graph.map { "   $it" })
                     fields.add("   &e[Change size: Control drop]")
                     fields.add("   &e[Change span: Offhand]")
                 }

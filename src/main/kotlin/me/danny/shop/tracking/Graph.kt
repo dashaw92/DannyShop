@@ -18,17 +18,17 @@ object Graph {
         height: Int = 14,
         dataByDay: List<List<Long>>,
         timescale: TimeUnit
-    ): List<String> {
+    ): CachedGraph {
         val key = CacheKey(id, width, height, timescale)
         val now = Instant.now()
 
         return cache.compute(key) { _, maybeCached ->
-            if (maybeCached == null || ChronoUnit.SECONDS.between(maybeCached.timestamp, now) > 5) {
+            if (maybeCached == null || ChronoUnit.SECONDS.between(maybeCached.timestamp, now) > CACHE_TIME_SECONDS) {
                 generateGraph(width, height, dataByDay, timescale)
             } else {
                 maybeCached
             }
-        }!!.graph
+        }!!
     }
 
     private fun generateGraph(
@@ -122,8 +122,9 @@ object Graph {
         return output
     }
 
+    const val CACHE_TIME_SECONDS: Int = 30
     private data class CacheKey(val id: ID, val width: Int, val height: Int, val timescale: TimeUnit)
-    private data class CachedGraph(val timestamp: Instant, val graph: List<String>)
+    data class CachedGraph(val timestamp: Instant, val graph: List<String>)
 
     private val cache: MutableMap<CacheKey, CachedGraph> = mutableMapOf()
 }
