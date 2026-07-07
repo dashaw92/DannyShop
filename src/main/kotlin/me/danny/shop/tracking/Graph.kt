@@ -23,7 +23,7 @@ object Graph {
         val now = Instant.now()
 
         return cache.compute(key) { _, maybeCached ->
-            if (maybeCached == null || ChronoUnit.SECONDS.between(maybeCached.timestamp, now) > 2) {
+            if (maybeCached == null || ChronoUnit.SECONDS.between(maybeCached.timestamp, now) > 5) {
                 generateGraph(width, height, dataByDay, timescale)
             } else {
                 maybeCached
@@ -50,9 +50,14 @@ object Graph {
 
         val daysPerDiv = days / width.toDouble()
         val chunks = (days + width - 1) / width
-        val points = dataByDay.chunked(chunks)
-            .map { group -> group.sumOf(List<Long>::sum) }
-            .toMutableList()
+        val points = if (dataByDay.size > 1) {
+            dataByDay.chunked(chunks)
+                .map { group -> group.sumOf(List<Long>::sum) }
+        } else {
+            dataByDay.flatten().chunked(chunks)
+                .map(List<Long>::sum)
+        }.toMutableList()
+
         while (points.size < width) {
             points.addFirst(0)
         }
