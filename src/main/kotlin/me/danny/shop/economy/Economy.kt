@@ -2,6 +2,7 @@ package me.danny.shop.economy
 
 import me.danny.shop.DannyShop
 import me.danny.shop.Perm
+import me.danny.shop.economy.VolumeTracker.set
 import me.danny.shop.model.ID
 import me.danny.shop.model.Item
 import me.danny.shop.pluginMsg
@@ -33,22 +34,16 @@ internal object Economy {
         }
     }
 
-    private fun getLimitForItem(viewer: Player, iid: ID, amount: Int): Int {
-        val limit = LimitTracking.remaining(viewer, iid)
-        if (limit != null) {
-            if (limit == 0) {
-                return 0
-            }
-
-            if (amount > limit) {
-                return limit
-            }
+    private fun getLimitForItem(viewer: Player, iid: ID, amount: Long): Long {
+        val current = VolumeTracker[viewer, iid]
+        val item = DannyShop.SHOP.itemByIid(iid) ?: return 0L
+        return when (item.sellLimit) {
+            is Item.SellLimit.Amount -> (item.sellLimit.amount.toLong() - current).coerceIn(0L, amount)
+            else -> amount
         }
-
-        return amount
     }
 
-    internal fun sell(viewer: Player, inventory: Inventory, iid: ID, amount: Int) {
+    internal fun sell(viewer: Player, inventory: Inventory, iid: ID, amount: Long) {
         if (!viewer.hasPermission(Perm.SELL)) {
             viewer.pluginMsg("&cYou aren't allowed to sell items.")
             return
@@ -59,13 +54,13 @@ internal object Economy {
 
         val value = item.cost.buy
 
-        if (amount == 0) {
+        if (amount == 0L) {
             viewer.pluginMsg("&cYou don't have any &o${item.itemName()}&c to sell!")
             return
         }
 
         var remaining = getLimitForItem(viewer, iid, amount)
-        if (remaining == 0) {
+        if (remaining <= 0L) {
             viewer.pluginMsg("&cYou've hit the limit for &o${item.itemName()}&c.")
             return
         }
@@ -75,14 +70,14 @@ internal object Economy {
             val it = inventory.getItem(i)
             if (it == null || !item.matchesItemStack(it)) continue
 
-            val soldThisSlot = decreaseSlot(inventory, i, remaining)
+            val soldThisSlot = decreaseSlot(inventory, i, remaining.toInt())
             sold += soldThisSlot
             remaining -= soldThisSlot
-            if (remaining == 0) break
+            if (remaining == 0L) break
         }
 
         if (sold == 0) return
-        LimitTracking.add(viewer, iid, sold)
+        VolumeTracker[viewer, iid] += sold
         DannyShop.instance().analytics.log(item.iid, sold.toLong())
         DannyShop.instance().ecolog.log(viewer, item, sold.toLong(), sold * value)
         messageProfit(viewer, item, sold, sold * value)
@@ -90,7 +85,7 @@ internal object Economy {
 
     fun sellAll(viewer: Player, inventory: Inventory, iid: ID) {
         val item = DannyShop.SHOP.itemByIid(iid) ?: return
-        var count = 0
+        var count = 0L
 
         for (i in inventory.contents.indices) {
             val it = inventory.getItem(i)

@@ -251,7 +251,7 @@ data class Item(
     sealed interface SellLimit {
         object None : SellLimit
 
-        data class Amount(val amount: UInt) : SellLimit
+        data class Amount(val amount: ULong) : SellLimit
     }
 
     fun matchesItemStack(stack: ItemStack): Boolean = when (item) {

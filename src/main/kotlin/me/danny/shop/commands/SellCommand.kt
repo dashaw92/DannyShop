@@ -28,15 +28,12 @@ object SellCommand : TabExecutor {
             return true
         }
 
-        var amountIndex = 1
         when (args.firstOrNull()?.lowercase()) {
             "all" -> {
                 Economy.sellInventory(sender, sender.inventory, null)
             }
 
-            else -> {
-                if (args.size == 1 && args[0]!!.lowercase() != "hand") amountIndex = 0
-
+            "hand" -> {
                 var item = sender.inventory.itemInMainHand
                 if (item.type.isAir) item = sender.inventory.itemInOffHand
                 if (item.type.isAir) {
@@ -52,14 +49,15 @@ object SellCommand : TabExecutor {
                     return true
                 }
 
-                var amount = item.amount
-                if (args.size > amountIndex && args[amountIndex]?.lowercase() == "all") {
+                val amount = args.last()?.toLongOrNull() ?: item.amount.toLong()
+                if (args.last()?.lowercase() == "all") {
                     Economy.sellAll(sender, sender.inventory, match.iid)
                 } else {
-                    if (args.size > amountIndex) amount = args[amountIndex]?.toIntOrNull() ?: amount
                     Economy.sell(sender, sender.inventory, match.iid, amount)
-                    }
+                }
             }
+
+            else -> sender.pluginMsg("Invalid command. Use &e/$label all &7or &e/$label hand [amount]&7.")
         }
         return true
     }
@@ -75,8 +73,8 @@ object SellCommand : TabExecutor {
         if (args.isEmpty()) return allIds
         return when (args.size) {
             1 -> allIds.filter { id -> id.lowercase().startsWith(args[0]!!.lowercase()) }
-            2 -> {
-                val amount = args[1]?.toIntOrNull() ?: ""
+            2 if args[0]!!.equals("hand", true) -> {
+                val amount = args[1]?.toLongOrNull() ?: ""
                 (0..9).map { "$amount$it".trim() }.toMutableList().let { it.add("all"); it }
             }
 

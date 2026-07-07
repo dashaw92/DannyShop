@@ -65,7 +65,7 @@ internal class ImportSession(
                 else -> {
                     val amount = value.toIntOrNull()
                     if (amount == null || amount <= 0) Item.SellLimit.None
-                    else Item.SellLimit.Amount(amount.toUInt())
+                    else Item.SellLimit.Amount(amount.toULong())
                 }
             }
 

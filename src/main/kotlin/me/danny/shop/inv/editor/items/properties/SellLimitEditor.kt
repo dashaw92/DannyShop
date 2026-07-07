@@ -1,12 +1,12 @@
 package me.danny.shop.inv.editor.items.properties
 
 import me.danny.shop.DannyShop
-import me.danny.shop.input.askInput
-import me.danny.shop.input.collapse
 import me.danny.shop.data.Key
 import me.danny.shop.data.attachKey
 import me.danny.shop.data.keyValue
 import me.danny.shop.input.Input
+import me.danny.shop.input.askInput
+import me.danny.shop.input.collapse
 import me.danny.shop.inv.editor.items.ItemEditor
 import me.danny.shop.inv.editor.items.ItemEditorView
 import me.danny.shop.inv.view.MenuView
@@ -27,15 +27,15 @@ import kotlin.math.absoluteValue
 
 internal class SellLimitEditor(private val editor: ItemEditor) : MenuView {
 
-    private var limit: UInt = 0u
+    private var limit: ULong = 0u
 
     init {
         val item = DannyShop.SHOP.itemByIid(editor.item)!!
-        when (item.sellLimit) {
-            is Item.SellLimit.None -> limit = 0u
+        limit = when (item.sellLimit) {
+            is Item.SellLimit.None -> 0u
 
             //Add a shortcut for when the worth.yml has changed since import
-            is Item.SellLimit.Amount -> limit = item.sellLimit.amount
+            is Item.SellLimit.Amount -> item.sellLimit.amount
         }
     }
 
@@ -54,7 +54,7 @@ internal class SellLimitEditor(private val editor: ItemEditor) : MenuView {
                 "&5Confirm Sell Limit",
                 "&9Sell limit: &7${
                     when (limit) {
-                        0u -> "&cNo limit"
+                        0uL -> "&cNo limit"
                         else -> "$limit"
                     }
                 }",
@@ -75,7 +75,7 @@ internal class SellLimitEditor(private val editor: ItemEditor) : MenuView {
 
         when (event.currentItem!!.type) {
             Material.ANVIL -> {
-                val limit: Item.SellLimit = if (limit == 0u || (event.isShiftClick && event.isRightClick)) Item.SellLimit.None
+                val limit: Item.SellLimit = if (limit == 0UL || (event.isShiftClick && event.isRightClick)) Item.SellLimit.None
                 else Item.SellLimit.Amount(limit)
 
                 DannyShop.SHOP.replaceItem(item.iid, item.copy(sellLimit = limit))
@@ -150,12 +150,12 @@ internal class SellLimitEditor(private val editor: ItemEditor) : MenuView {
         ).attachKey(AMOUNT_KEY, amount)
     }
 
-    private fun setLimit(player: Player, input: Input, setter: (UInt) -> Unit, inv: Inventory) {
+    private fun setLimit(player: Player, input: Input, setter: (ULong) -> Unit, inv: Inventory) {
         val line = input.collapse()
 
         val limit = line.toIntOrNull()
         if (limit != null && limit > 0) {
-            setter(limit.toUInt())
+            setter(limit.toULong())
             player.pluginMsg("Sell limit set to $limit.")
         } else {
             setter(0u)

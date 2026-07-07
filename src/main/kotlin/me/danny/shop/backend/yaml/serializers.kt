@@ -14,17 +14,12 @@ import org.spongepowered.configurate.serialize.TypeSerializer
 import java.io.StringReader
 import java.lang.reflect.Type
 import kotlin.IllegalArgumentException
-import kotlin.collections.MutableList
 import kotlin.collections.filter
-import kotlin.collections.flatten
-import kotlin.collections.forEach
 import kotlin.collections.groupByTo
 import kotlin.collections.map
-import kotlin.collections.mutableMapOf
-import kotlin.collections.toList
 import kotlin.run
 import kotlin.text.lowercase
-import kotlin.toUInt
+import kotlin.toULong
 import kotlin.with
 
 //<editor-fold desc="Type serializers">
@@ -104,7 +99,7 @@ internal object SellLimitSerializer : TypeSerializer<SellLimit> {
         val limit = node.getInt(0)
         return when {
             limit <= 0 -> SellLimit.None
-            else -> SellLimit.Amount(limit.toUInt())
+            else -> SellLimit.Amount(limit.toULong())
         }
     }
 

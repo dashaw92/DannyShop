@@ -1,13 +1,13 @@
 package me.danny.shop.inv.shop.purchasing
 
 import me.danny.shop.DannyShop
-import me.danny.shop.input.askInput
-import me.danny.shop.input.collapse
 import me.danny.shop.data.Key
 import me.danny.shop.data.attachMarker
 import me.danny.shop.data.hasKey
 import me.danny.shop.economy.Economy
 import me.danny.shop.input.Input
+import me.danny.shop.input.askInput
+import me.danny.shop.input.collapse
 import me.danny.shop.inv.Menu
 import me.danny.shop.inv.shop.ShopMenu
 import me.danny.shop.model.ID
@@ -30,7 +30,7 @@ internal class SellMenu(viewer: Player, item: ID, private val returnInfo: ShopMe
     }
 
     private val item = DannyShop.SHOP.itemByIid(item)!!
-    private var customAmount = 1
+    private var customAmount = 1L
 
     init {
         build()
@@ -65,7 +65,7 @@ internal class SellMenu(viewer: Player, item: ID, private val returnInfo: ShopMe
         }
 
         if (clicked.hasKey(PRICE_KEY)) {
-            Economy.sell(viewer, viewer.inventory, item.iid, clicked.amount)
+            Economy.sell(viewer, viewer.inventory, item.iid, clicked.amount.toLong())
             return
         }
 
@@ -83,7 +83,7 @@ internal class SellMenu(viewer: Player, item: ID, private val returnInfo: ShopMe
     private fun handleCustomQuantity(player: Player, input: Input) {
         val quantityStr = input.collapse()
 
-        val quantity = quantityStr.toIntOrNull()
+        val quantity = quantityStr.toLongOrNull()
 
         if (quantity != null && quantity > 0) {
             customAmount = quantity

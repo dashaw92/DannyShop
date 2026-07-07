@@ -3,8 +3,8 @@ package me.danny.shop.inv.shop.items
 import me.danny.shop.DannyShop
 import me.danny.shop.Perm
 import me.danny.shop.data.attachKey
-import me.danny.shop.economy.LimitTracking
 import me.danny.shop.economy.ResetTask
+import me.danny.shop.economy.VolumeTracker
 import me.danny.shop.inv.LoreField
 import me.danny.shop.inv.Page
 import me.danny.shop.inv.shop.ShopMenu
@@ -165,8 +165,8 @@ internal class ItemPage(
         }
 
         if (item.sellLimit is Item.SellLimit.Amount) {
-            val limit = item.sellLimit.amount.toInt()
-            val current = limit - (LimitTracking.remaining(viewer, item.iid) ?: 0)
+            val limit = item.sellLimit.amount.toLong()
+            val current = VolumeTracker[viewer, item.iid]
 
             var resetNext = ResetTask.nextReset - Instant.now().toEpochMilli()
             var resetFormatted = ""
