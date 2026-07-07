@@ -243,7 +243,7 @@ internal class ItemPage(
             fields.add("   &e[X: Right click]")
             fields.add("   &e[All: Shift click]")
         }
-        if (viewer.hasPermission("Perm.ADMIN")) {
+        if (viewer.hasPermission(Perm.ADMIN)) {
             //Without this, there will be an ugly
             //empty line for viewers without perms
             //on items with no prices set
