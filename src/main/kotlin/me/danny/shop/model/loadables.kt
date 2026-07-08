@@ -199,7 +199,9 @@ data class Item(
     val item: ItemType,
     val cost: Cost,
     val sellLimit: SellLimit,
-    val category: Category
+    val category: Category,
+    val usesDynamicPricing: Boolean,
+    val dynamic: DynamicPricing? = null,
 ) {
     /**
      * Models all possible sellable item types DannyShop supports:
@@ -241,7 +243,7 @@ data class Item(
     sealed interface Cost {
         /**
          * The price for this item is not set.
-         * Items with this Cost are not purchasable.
+         * Items with this are not purchasable.
          */
         data object NotSet : Cost
 
@@ -259,23 +261,6 @@ data class Item(
         is ItemType.Item -> {
             val self = item.item
             return self.isSimilar(stack)
-
-//            if (self.type != stack.type) return false
-//            if (self.enchantments.size != stack.enchantments.size) return false
-//            if (self.enchantments != stack.enchantments) return false
-//            if (self.hasItemMeta()) {
-//                if (!stack.hasItemMeta()) return false
-//                val myMeta = self.itemMeta!!
-//                val otherMeta = stack.itemMeta!!
-//
-//                val name =
-//                    if (myMeta.hasDisplayName()) otherMeta.hasDisplayName() && myMeta.displayName == otherMeta.displayName else true
-//                val lore = if (myMeta.hasLore()) otherMeta.hasLore() && myMeta.lore == otherMeta.lore else true
-//
-//                if (!name || !lore) return false
-//            }
-//
-//            return true
         }
     }
 
@@ -287,3 +272,11 @@ data class Item(
     private fun humanize(name: String): String =
         name.split('_').joinToString(" ") { word -> word.first().uppercaseChar() + word.substring(1).lowercase() }
 }
+
+data class DynamicPricing(
+    val serverDemand: Long,
+    val replenishIntervalTicks: Long,
+    val replenishVolume: Long,
+    val minimumPrice: Double,
+    val playerImmunityVolume: Long,
+)

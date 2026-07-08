@@ -3,6 +3,7 @@ package me.danny.shop.backend
 import me.danny.shop.backend.BackendType.Yaml
 import me.danny.shop.backend.yaml.*
 import me.danny.shop.model.Category
+import me.danny.shop.model.DynamicPricing
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.Cost
 import me.danny.shop.model.Item.SellLimit
@@ -25,6 +26,7 @@ private fun collection(): TypeSerializerCollection = TypeSerializerCollection.bu
     .register(Item.ItemType::class.java, ItemTypeSerializer)
     .register(Cost::class.java, CostSerializer)
     .register(SellLimit::class.java, SellLimitSerializer)
+    .register(DynamicPricing::class.java, DynamicPricingSerializer)
     .register(Item::class.java, ItemSerializer)
     .register(Shop::class.java, ShopSerializer)
     .build()

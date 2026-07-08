@@ -5,6 +5,7 @@ import me.danny.shop.input.Input
 import me.danny.shop.input.askInput
 import me.danny.shop.input.collapse
 import me.danny.shop.inv.editor.items.properties.ItemCategoryEditor
+import me.danny.shop.inv.editor.items.properties.ItemDynamicEditor
 import me.danny.shop.inv.shop.ShopMenu
 import me.danny.shop.inv.view.MenuView
 import me.danny.shop.inv.view.ViewAction
@@ -57,8 +58,14 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
             "&c[Confirm: Shift right click]"
         )
 
+        val dynamicButton = ItemBuilder.makeItem(
+            Material.CHEST_MINECART,
+            "&eDynamic Pricing", *dynamicPricing(item)
+        )
+
         inv.setItem(11, costButton)
         inv.setItem(12, sellLimitButton)
+        inv.setItem(13, dynamicButton)
         inv.setItem(14, nameButton)
         inv.setItem(15, categoryButton)
         inv.setItem(0, id)
@@ -81,6 +88,7 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
         val player = event.whoClicked as Player
         val item = DannyShop.SHOP.itemByIid(editor.item) ?: return ViewAction.Pass
         val newView = when (event.currentItem!!.type) {
+            Material.CHEST_MINECART -> ItemDynamicEditor(editor)
             Material.CHEST -> ItemCategoryEditor(editor)
             Material.EMERALD -> {
                 fun updateCost(cost: Double?) {
@@ -168,7 +176,7 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
             )
 
             is Item.Cost.Value -> arrayOf(
-                "&9Each: &7%,.2f".format(item.cost.buy),
+                "&9Each: &7$%,.2f".format(item.cost.buy),
                 "",
                 "&e[Remove: Right click]",
                 "&e[Edit: Click]"
@@ -214,6 +222,32 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
                 "&7&othis many units in a refresh window.",
                 "",
                 "&e[Remove: Right click]",
+                "&e[Edit: Click]"
+            )
+        }
+    }
+
+    private fun dynamicPricing(item: Item): Array<String> {
+        return if (item.dynamic != null) {
+            arrayOf(
+                "&9Dynamic pricing active: &7${item.usesDynamicPricing}",
+                "",
+                "&9Server demand: &7${item.dynamic.serverDemand}",
+                "&9Replenish interval ticks: &7${item.dynamic.replenishIntervalTicks}",
+                "&9Replenish volume: &7${item.dynamic.replenishVolume}",
+                "&9Minimum price: &7$%,.2f".format(item.dynamic.minimumPrice),
+                "&9Player immunity volume: &7${item.dynamic.playerImmunityVolume}",
+                "",
+                "&e[Remove: Right click]",
+                "&e[Edit: Click]"
+            )
+        } else {
+            arrayOf(
+                "&7Item has no dynamic pricing information set up.",
+                "",
+                "&7Item price will remain at a fixed price regardless",
+                "&7of volume.",
+                "",
                 "&e[Edit: Click]"
             )
         }

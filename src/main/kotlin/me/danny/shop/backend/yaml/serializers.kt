@@ -1,6 +1,7 @@
 package me.danny.shop.backend.yaml
 
 import me.danny.shop.model.Category
+import me.danny.shop.model.DynamicPricing
 import me.danny.shop.model.ID
 import me.danny.shop.model.Item
 import me.danny.shop.model.Item.*
@@ -13,14 +14,6 @@ import org.spongepowered.configurate.ConfigurationNode
 import org.spongepowered.configurate.serialize.TypeSerializer
 import java.io.StringReader
 import java.lang.reflect.Type
-import kotlin.IllegalArgumentException
-import kotlin.collections.filter
-import kotlin.collections.groupByTo
-import kotlin.collections.map
-import kotlin.run
-import kotlin.text.lowercase
-import kotlin.toULong
-import kotlin.with
 
 //<editor-fold desc="Type serializers">
 internal object ItemStackSerializer : TypeSerializer<ItemStack> {
@@ -105,10 +98,12 @@ internal object SellLimitSerializer : TypeSerializer<SellLimit> {
 
     override fun serialize(type: Type?, obj: SellLimit?, node: ConfigurationNode?) {
         if (obj == null || node == null) return
-        node.set(when(obj) {
-            is SellLimit.None -> 0
-            is SellLimit.Amount -> obj.amount.toInt()
-        })
+        node.set(
+            when (obj) {
+                is SellLimit.None -> 0
+                is SellLimit.Amount -> obj.amount.toInt()
+            }
+        )
     }
 
 }
@@ -125,7 +120,11 @@ internal object ItemSerializer : TypeSerializer<Item> {
             val cost = node("cost").get(Cost::class.java)!!
             val sellLimit = node("sell-limit").get(SellLimit::class.java)!!
             val category = Shop.getCategory(ID(node("category").string!!))!!
-            return Item(iid, name, item, cost, sellLimit, category)
+            val dynamicPricing = node("dynamic-pricing").get(DynamicPricing::class.java)
+            val isDynamic =
+                dynamicPricing != null
+                        && node("dynamic").getBoolean(false)
+            return Item(iid, name, item, cost, sellLimit, category, isDynamic, dynamicPricing)
         }
 
     }
@@ -145,7 +144,9 @@ internal object ItemSerializer : TypeSerializer<Item> {
                 node("item").set(item)
                 node("cost").set(cost)
                 node("sell-limit").set(sellLimit)
+                node("dynamic").set(usesDynamicPricing)
                 node("category").set(category.cid.id)
+                node("dynamic-pricing").set(dynamic)
             }
         }
     }
@@ -197,5 +198,46 @@ internal object ShopSerializer : TypeSerializer<Shop> {
         node.node("categories").setList(Category::class.java, obj.categories().toList())
         node.node("items").setList(Item::class.java, obj.items.values.flatten())
     }
+}
+
+internal object DynamicPricingSerializer : TypeSerializer<DynamicPricing> {
+    override fun deserialize(
+        type: Type?,
+        node: ConfigurationNode?
+    ): DynamicPricing? {
+        if (node == null) return null
+
+        val serverDemand = node.node("server-demand").getLong(10000L)
+        val replenishIntervalTicks = node.node("replenish-interval-ticks").getLong(6000L)
+        val replenishVolume = node.node("replenish-volume").getLong(0)
+        val minimumPrice = node.node("minimum-price").getDouble(0.0)
+        val playerImmunityVolume = node.node("player-immunity-volume").getLong(0)
+
+        return DynamicPricing(serverDemand, replenishIntervalTicks, replenishVolume, minimumPrice, playerImmunityVolume)
+    }
+
+    override fun serialize(
+        type: Type?,
+        obj: DynamicPricing?,
+        node: ConfigurationNode?
+    ) {
+        if (node == null) return
+
+        if (obj == null) {
+            node.set(null)
+            return
+        }
+
+        obj.run {
+            with(node) {
+                node("server-demand").set(serverDemand)
+                node("replenish-interval-ticks").set(replenishIntervalTicks)
+                node("replenish-volume").set(replenishVolume)
+                node("minimum-price").set(minimumPrice)
+                node("player-immunity-volume").set(playerImmunityVolume)
+            }
+        }
+    }
+
 }
 //</editor-fold>

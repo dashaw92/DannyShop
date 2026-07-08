@@ -18,6 +18,8 @@ internal data class ImportedItem(
         item,
         cost,
         sellLimit,
-        category
+        category,
+        false,
+        null,
     )
 }
