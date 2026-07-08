@@ -6,9 +6,12 @@ import java.util.*
 
 object VolumeTracker {
     private typealias VolumeMap = MutableMap<ID, Long>
+
     private val playerHistory: MutableMap<UUID, VolumeMap> = mutableMapOf()
 
     private fun playerMap(pl: Player): VolumeMap = playerHistory.computeIfAbsent(pl.uniqueId) { mutableMapOf() }
+
+    operator fun get(item: ID): Long = playerHistory.values.sumOf { volumeMap -> volumeMap.getOrDefault(item, 0L) }
 
     operator fun get(player: Player, item: ID): Long = playerMap(player).computeIfAbsent(item) { 0 }
     operator fun set(player: Player, item: ID, amount: Long) {

@@ -1,12 +1,8 @@
 package me.danny.shop.backend.yaml
 
-import me.danny.shop.model.Category
-import me.danny.shop.model.DynamicPricing
-import me.danny.shop.model.ID
-import me.danny.shop.model.Item
+import me.danny.shop.model.*
 import me.danny.shop.model.Item.*
-import me.danny.shop.model.Item.ItemType.*
-import me.danny.shop.model.Shop
+import me.danny.shop.model.Item.ItemType.Mat
 import org.bukkit.Material
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.inventory.ItemStack
@@ -43,7 +39,7 @@ internal object ItemTypeSerializer : TypeSerializer<ItemType> {
         val obj = node.node("object")
         return when (itemType.lowercase()) {
             "material" -> Mat(obj.get(Material::class.java)!!)
-            "item" -> Item(obj.get(ItemStack::class.java)!!)
+            "item" -> ItemType.Item(obj.get(ItemStack::class.java)!!)
             else -> throw IllegalArgumentException("Unknown item type $itemType")
         }
     }
@@ -144,9 +140,8 @@ internal object ItemSerializer : TypeSerializer<Item> {
                 node("item").set(item)
                 node("cost").set(cost)
                 node("sell-limit").set(sellLimit)
-                node("dynamic").set(usesDynamicPricing)
+                node("dynamic").set(dynamic)
                 node("category").set(category.cid.id)
-                node("dynamic-pricing").set(dynamic)
             }
         }
     }
@@ -207,13 +202,24 @@ internal object DynamicPricingSerializer : TypeSerializer<DynamicPricing> {
     ): DynamicPricing? {
         if (node == null) return null
 
-        val serverDemand = node.node("server-demand").getLong(10000L)
-        val replenishIntervalTicks = node.node("replenish-interval-ticks").getLong(6000L)
-        val replenishVolume = node.node("replenish-volume").getLong(0)
-        val minimumPrice = node.node("minimum-price").getDouble(0.0)
-        val playerImmunityVolume = node.node("player-immunity-volume").getLong(0)
+        val enabled = node.node("enabled").getBoolean(false)
+        val serverDemand = node.node("server-demand").getLong(0L).coerceAtLeast(0L)
+        val replenishIntervalTicks = node.node("replenish-interval-ticks").getLong(0L).coerceAtLeast(0L)
+        val replenishVolume = node.node("replenish-volume").getLong(0L).coerceAtLeast(0L)
+        val minimumPrice = node.node("minimum-price").getDouble(0.0).coerceAtLeast(0.0)
+        val playerImmunityVolume = node.node("player-immunity-volume").getLong(0L).coerceAtLeast(0L)
+        val functions =
+            node.node("valuation-functions").getList(ValuationFunction::class.java, mutableListOf<ValuationFunction>())
 
-        return DynamicPricing(serverDemand, replenishIntervalTicks, replenishVolume, minimumPrice, playerImmunityVolume)
+        return DynamicPricing(
+            enabled,
+            serverDemand,
+            replenishIntervalTicks,
+            replenishVolume,
+            minimumPrice,
+            playerImmunityVolume,
+            functions
+        )
     }
 
     override fun serialize(
@@ -223,20 +229,47 @@ internal object DynamicPricingSerializer : TypeSerializer<DynamicPricing> {
     ) {
         if (node == null) return
 
-        if (obj == null) {
+        if (obj == null || (!obj.enabled && obj.functions.isEmpty() && obj.playerImmunityVolume == 0L && obj.minimumPrice == 0.0 && obj.replenishVolume == 0L && obj.replenishIntervalTicks == 0L && obj.serverDemand == 0L)) {
             node.set(null)
             return
         }
 
         obj.run {
             with(node) {
-                node("server-demand").set(serverDemand)
-                node("replenish-interval-ticks").set(replenishIntervalTicks)
-                node("replenish-volume").set(replenishVolume)
-                node("minimum-price").set(minimumPrice)
-                node("player-immunity-volume").set(playerImmunityVolume)
+                node("enabled").set(enabled)
+                node("server-demand").set(serverDemand.coerceAtLeast(0L))
+                node("replenish-interval-ticks").set(replenishIntervalTicks.coerceAtLeast(0L))
+                node("replenish-volume").set(replenishVolume.coerceAtLeast(0L))
+                node("minimum-price").set(minimumPrice.coerceAtLeast(0.0))
+                node("player-immunity-volume").set(playerImmunityVolume.coerceAtLeast(0L))
+                node("valuation-functions").set(functions)
             }
         }
+    }
+
+}
+
+internal object ValuationFunctionSerializer : TypeSerializer<ValuationFunction> {
+    override fun deserialize(
+        type: Type?,
+        node: ConfigurationNode?
+    ): ValuationFunction {
+        if (node == null) throw IllegalArgumentException("what")
+
+        val range = node.node("volume-range").getLong(0L)
+        val function = node.node("function").getString("0")
+        return ValuationFunction(range, function)
+    }
+
+    override fun serialize(
+        type: Type?,
+        obj: ValuationFunction?,
+        node: ConfigurationNode?
+    ) {
+        if (obj == null || node == null) throw IllegalArgumentException("what")
+
+        node.node("volume-range").set(obj.range)
+        node.node("function").set(obj.function)
     }
 
 }

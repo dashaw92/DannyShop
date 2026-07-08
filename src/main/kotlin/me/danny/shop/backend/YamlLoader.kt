@@ -8,6 +8,7 @@ import me.danny.shop.model.Item
 import me.danny.shop.model.Item.Cost
 import me.danny.shop.model.Item.SellLimit
 import me.danny.shop.model.Shop
+import me.danny.shop.model.ValuationFunction
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import org.spongepowered.configurate.serialize.SerializationException
@@ -26,6 +27,7 @@ private fun collection(): TypeSerializerCollection = TypeSerializerCollection.bu
     .register(Item.ItemType::class.java, ItemTypeSerializer)
     .register(Cost::class.java, CostSerializer)
     .register(SellLimit::class.java, SellLimitSerializer)
+    .register(ValuationFunction::class.java, ValuationFunctionSerializer)
     .register(DynamicPricing::class.java, DynamicPricingSerializer)
     .register(Item::class.java, ItemSerializer)
     .register(Shop::class.java, ShopSerializer)

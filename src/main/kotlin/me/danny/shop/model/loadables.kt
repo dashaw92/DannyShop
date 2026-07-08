@@ -1,7 +1,11 @@
 package me.danny.shop.model
 
 import me.danny.shop.Perm
+import me.danny.shop.economy.VolumeTracker
 import me.danny.shop.model.Item.ItemType
+import me.danny.shop.pluginMsg
+import me.danny.shop.utils.MathParser
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -200,7 +204,7 @@ data class Item(
     val cost: Cost,
     val sellLimit: SellLimit,
     val category: Category,
-    val usesDynamicPricing: Boolean,
+    val _usesDynamicPricing: Boolean,
     val dynamic: DynamicPricing? = null,
 ) {
     /**
@@ -269,14 +273,94 @@ data class Item(
         is ItemType.Item -> name ?: humanize(item.item.type.name)
     }
 
+    fun hasDynamicPricing(): Boolean =
+        cost is Cost.Value
+                && dynamic != null
+                && dynamic.serverDemand > 0
+                && dynamic.replenishVolume > 0
+                && dynamic.replenishIntervalTicks > 0
+                && dynamic.playerImmunityVolume > 0
+                && dynamic.minimumPrice > 0.0
+                && dynamic.functions.isNotEmpty()
+
+    fun usesDynamicPricing(): Boolean = hasDynamicPricing() && (dynamic?.enabled ?: false)
+    fun effectivePrice(subject: Player): Cost {
+        val dynamic = this.dynamic ?: return cost
+
+        if (!usesDynamicPricing()) return cost
+
+        val currentSold = VolumeTracker[subject, iid]
+        if (currentSold < dynamic.playerImmunityVolume) return cost
+
+        val serverWideVolume = VolumeTracker[iid]
+        val function = dynamic.getFunction(serverWideVolume) ?: return cost
+
+        val rawPrice = when (cost) {
+            is Cost.NotSet -> return cost
+            is Cost.Value -> cost.buy
+        }
+
+        try {
+            val evaluatedPrice = function.evaluate(
+                mapOf(
+                    "price" to rawPrice,
+                    "P" to rawPrice,
+                    "volume" to serverWideVolume,
+                    "V" to serverWideVolume,
+                    "minprice" to dynamic.minimumPrice,
+                    "M" to dynamic.minimumPrice,
+                    "serverdemand" to dynamic.serverDemand,
+                    "D" to dynamic.serverDemand
+                )
+            )?.coerceAtLeast(dynamic.minimumPrice) ?: return cost
+            return Cost.Value(evaluatedPrice)
+        } catch (mathEx: MathParser.MathException) {
+            Bukkit.getConsoleSender().pluginMsg("&cError evaluating price for ${name ?: iid.id}: ${mathEx.message}")
+            return cost
+        }
+
+    }
+
     private fun humanize(name: String): String =
         name.split('_').joinToString(" ") { word -> word.first().uppercaseChar() + word.substring(1).lowercase() }
 }
 
 data class DynamicPricing(
-    val serverDemand: Long,
-    val replenishIntervalTicks: Long,
-    val replenishVolume: Long,
-    val minimumPrice: Double,
-    val playerImmunityVolume: Long,
-)
+    val enabled: Boolean = false,
+    val serverDemand: Long = 0L,
+    val replenishIntervalTicks: Long = 0L,
+    val replenishVolume: Long = 0L,
+    val minimumPrice: Double = 0.0,
+    val playerImmunityVolume: Long = 0L,
+    val functions: MutableList<ValuationFunction> = mutableListOf(),
+) {
+    fun getFunction(volume: Long): ValuationFunction? {
+        if (volume < serverDemand) return null
+        var current = serverDemand
+        for (func in functions.filter { it.parsed != null }) {
+            if (func.parsed == null) {
+                continue
+            }
+
+            val range = current..func.range
+            if (volume in range) return func
+            current = serverDemand + func.range + 1
+        }
+
+        return functions.lastOrNull { it.parsed != null }
+    }
+}
+
+data class ValuationFunction(val range: Long, val function: String) {
+    val parsed: MathParser.ExprTree? = try {
+        MathParser.parse(function)
+    } catch (mathEx: MathParser.MathException) {
+        Bukkit.getConsoleSender().pluginMsg("&cError parsing function $range: \"$function\": ${mathEx.message}")
+        null
+    }
+
+    fun evaluate(bindings: Map<String, Number>): Double? {
+        if (parsed == null) return null
+        return MathParser.ExprTree.eval(parsed, bindings)
+    }
+}

@@ -187,7 +187,7 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
     private fun name(item: Item): Array<String> {
         return when (item.name) {
             null -> arrayOf(
-                "&cNo name set",
+                "&cNo name set.",
                 "",
                 "&7&oThis item cannot be searched for by name.",
                 "",
@@ -230,7 +230,7 @@ internal class ItemEditorView(private val editor: ItemEditor) : MenuView {
     private fun dynamicPricing(item: Item): Array<String> {
         return if (item.dynamic != null) {
             arrayOf(
-                "&9Dynamic pricing active: &7${item.usesDynamicPricing}",
+                "&9Dynamic pricing active: &7${item.usesDynamicPricing()}",
                 "",
                 "&9Server demand: &7${item.dynamic.serverDemand}",
                 "&9Replenish interval ticks: &7${item.dynamic.replenishIntervalTicks}",
