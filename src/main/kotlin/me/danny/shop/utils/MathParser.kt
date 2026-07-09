@@ -19,9 +19,33 @@ object MathParser {
                     is BinaryOp -> expr.op(boundEval(expr.left), boundEval(expr.right))
                     is UnaryOp -> expr.op(boundEval(expr.expr))
                     is Literal -> expr.literal
-                    is Ident -> bindings[expr.ident]?.toDouble() ?: throw MathException("Missing binding for ${expr.ident}")
+                    is Ident -> bindings[expr.ident]?.toDouble()
+                        ?: throw MathException("Missing binding for ${expr.ident}")
                 }
             }
+        }
+
+        fun simplify(): ExprTree = when (this) {
+            is BinaryOp -> {
+                val simpleLeft = left.simplify()
+                val simpleRight = right.simplify()
+                if (simpleLeft is Literal && simpleRight is Literal) {
+                    Literal(op(simpleLeft.literal, simpleRight.literal))
+                } else {
+                    BinaryOp(simpleLeft, simpleRight, op)
+                }
+            }
+
+            is UnaryOp -> {
+                val simpleExpr = expr.simplify()
+                if (simpleExpr is Literal) {
+                    Literal(op(simpleExpr.literal))
+                } else {
+                    UnaryOp(simpleExpr, op)
+                }
+            }
+
+            is Literal, is Ident -> this
         }
     }
 
@@ -92,13 +116,13 @@ object MathParser {
                         ExprTree.Literal(str.substring(startPos, pos).toDouble())
                     } else if (ch.toChar().isLetter()) {
                         while (ch.toChar().isLetterOrDigit()) nextChar()
-                        ExprTree.Ident(str.substring(startPos, pos))
+                        ExprTree.Ident(str.substring(startPos, pos).lowercase())
                     } else throw MathException("Unexpected character: " + ch.toChar())
 
                 if (eat('^')) left = ExprTree.BinaryOp(left, parseFactor(), Double::pow)
 
                 return left
             }
-        }.parse()
+        }.parse().simplify()
     }
 }
