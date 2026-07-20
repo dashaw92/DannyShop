@@ -7,6 +7,7 @@ import java.io.*
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
@@ -15,8 +16,10 @@ import java.util.zip.GZIPOutputStream
 private fun now(): ZonedDateTime = ZonedDateTime.now()
 
 private fun generateLogfileDate(zdt: ZonedDateTime = now()): String = zdt.format(
-    DateTimeFormatter.ofPattern("LLL-yyyy")
-)
+    DateTimeFormatter.ofLocalizedDate(
+        FormatStyle.SHORT
+    )
+).replace('/', '-')
 
 private fun logfileName(zdt: ZonedDateTime = now()): String = "sales-${generateLogfileDate(zdt)}.csv.gz"
 private val initialLogName = logfileName() //used to filter out the current log so it's not loaded as historical
@@ -43,7 +46,7 @@ data class SaleRecord(
 
                 return SaleRecord(time, seller, ID(item), amount, price, ext)
             } catch (_: Exception) {
-                if (!csv.isEmpty()) {
+                if (csv.isNotEmpty()) {
                     DannyShop.instance().logger.warning("[Logging] Invalid record, skipping: \"$csv\"")
                 }
                 return null
@@ -75,7 +78,7 @@ internal object EcoLogMgr {
 
     private val baseDir = DannyShop.instance().dataFolder.resolve("logs/")
 
-    fun availableLogs(): List<String> = baseDir.list().toList().filter { name -> name != initialLogName  }
+    fun availableLogs(): List<String> = baseDir.list()?.toList()?.filter { name -> name != initialLogName  } ?: emptyList()
 
     fun loadHistorical(name: String): EcoLog? {
         if (name == initialLogName) return (DannyShop.instance().ecolog as EcoLogging).currentLog
@@ -93,6 +96,9 @@ internal object EcoLogMgr {
                 .toMutableList()
         } catch (_: FileNotFoundException) {
             return null
+        } catch (_: EOFException) {
+            DannyShop.instance().logger.warning("Log file  '$name' is corrupted (did the server crash?). Unable to load log.")
+            return null
         }
 
         return EcoLog(now(), records, true)
@@ -109,6 +115,9 @@ internal object EcoLogMgr {
                 .mapNotNull(SaleRecord::fromCSV)
                 .toMutableList()
         } catch (_: FileNotFoundException) {
+            mutableListOf()
+        } catch (_: EOFException) {
+            DannyShop.instance().logger.warning("Log file is corrupted (did the server crash?). Unable to load log.")
             mutableListOf()
         }
 

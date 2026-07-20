@@ -32,7 +32,7 @@ internal class EcoLogging(private val config: Config) : Logging {
     }
 
     override fun save() {
-        if (!config.loggingPersistLogs) return
+        if (!config.loggingPersistLogs || !::currentLog.isInitialized) return
         EcoLogMgr.save(currentLog)
     }
 
